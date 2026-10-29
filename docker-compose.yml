@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:17
+    container_name: careboard-db
+    environment:
+      POSTGRES_USER: careboard_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: careboard
+    ports:
+      - "5434:5432"
+    volumes:
+      - careboard_pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+
+volumes:
+  careboard_pgdata:
