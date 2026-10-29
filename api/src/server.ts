@@ -63,7 +63,7 @@
 
    app.get("/me", auth, (req: any, res) => res.json(req.user));
    app.get("/kpis", auth, (req, res) =>
-     guarded(req, res, "view_kpis", "SELECT metric, period, value FROM serving.kpi_demo ORDER BY metric, period"));
+  guarded(req, res, "view_kpis", "SELECT metric, period::text AS period, value::float8 AS value FROM serving.kpi_demo ORDER BY metric, period"));
    app.get("/patients", auth, (req, res) =>
      guarded(req, res, "view_patients", "SELECT patient_id, clinic_id, birth_year, city, primary_condition FROM clinical.patients ORDER BY patient_id"));
    app.get("/audit", auth, (req, res) =>
