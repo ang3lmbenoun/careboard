@@ -32,9 +32,9 @@
    }
 
    // Run a query as the caller's role. The database decides; 42501 = permission denied.
-   async function guarded(req: any, res: any, action: string, sql: string) {
+      async function guarded(req: any, res: any, action: string, sql: string, params: unknown[] = []) {
      try {
-       const rows = await withRole(req.user, async (c) => (await c.query(sql)).rows);
+       const rows = await withRole(req.user, async (c) =>    (await c.query(sql, params)).rows);
        await audit(req.user, action, { rows: rows.length });
        res.json(rows);
      } catch (e: any) {
@@ -68,6 +68,32 @@
      guarded(req, res, "view_patients", "SELECT patient_id, clinic_id, birth_year, city, primary_condition FROM clinical.patients ORDER BY patient_id"));
    app.get("/audit", auth, (req, res) =>
      guarded(req, res, "view_audit", "SELECT id, at, user_id, role, action FROM app.audit_log ORDER BY id DESC LIMIT 50"));
+
+   const DIMS: Record<string, string> = { class: "drug_class", drug: "drug", state: "state" };
+   const strOrNull = (v: unknown) => (typeof v === "string" && v !== "" ? v : null);
+   const FILTER = "WHERE ($1::text IS NULL OR drug_class = $1) AND ($2::text IS NULL OR drug = $2)";
+
+   app.get("/medicaid/breakdown", auth, (req, res) => {
+     const dim = DIMS[String(req.query.by)];
+     if (!dim) return res.status(400).json({ error: "by must be class, drug or state" });
+     guarded(
+       req, res, "view_medicaid_breakdown",
+       `SELECT ${dim} AS label, SUM(prescriptions)::float8 AS prescriptions, SUM(spend)::float8 AS spend
+        FROM serving.medicaid_drug_quarterly ${FILTER}
+        GROUP BY 1 ORDER BY spend DESC LIMIT 15`,
+       [strOrNull(req.query.class), strOrNull(req.query.drug)]
+     );
+   });
+
+   app.get("/medicaid/trend", auth, (req, res) =>
+     guarded(
+       req, res, "view_medicaid_trend",
+       `SELECT concat(year, ' Q', quarter) AS period, SUM(prescriptions)::float8 AS prescriptions, SUM(spend)::float8 AS spend
+        FROM serving.medicaid_drug_quarterly ${FILTER}
+        GROUP BY year, quarter ORDER BY year, quarter`,
+       [strOrNull(req.query.class), strOrNull(req.query.drug)]
+     )
+   );
 
    const port = Number(process.env.PORT ?? 4100);
    app.listen(port, () => console.log("API on", port));
