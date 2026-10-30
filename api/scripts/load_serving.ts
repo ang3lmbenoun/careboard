@@ -30,7 +30,9 @@ const specs: Spec[] = [
   },
 ];
 
-const pool = new pg.Pool({ connectionString: process.env.ADMIN_DATABASE_URL });
+   const pool = new pg.Pool({
+     connectionString: process.argv.includes("--neon") ? process.env.NEON_ADMIN_URL : process.env.ADMIN_DATABASE_URL,
+   });
 const c = await pool.connect();
 try {
   await c.query("BEGIN");

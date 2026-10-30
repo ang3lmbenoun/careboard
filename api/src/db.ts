@@ -1,6 +1,16 @@
    import pg from "pg";
 
-   export const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+      // Scripts can target Neon with --neon (direct host, API login). The server uses DATABASE_URL.
+   function connectionString() {
+     if (!process.argv.includes("--neon")) return process.env.DATABASE_URL;
+     const u = new URL(process.env.NEON_ADMIN_URL!);
+     u.username = "careboard_api";
+     u.password = process.env.NEON_API_PASSWORD!;
+     u.hostname = u.hostname.replace("-pooler", "");
+     u.searchParams.delete("channel_binding");
+     return u.toString();
+   }
+   export const pool = new pg.Pool({ connectionString: connectionString() });
 
    const ROLE = {
      admin: "role_admin",
