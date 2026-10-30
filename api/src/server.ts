@@ -1,3 +1,4 @@
+   import { fileURLToPath } from "node:url";
    import "dotenv/config";
    import express from "express";
    import bcrypt from "bcryptjs";
@@ -11,6 +12,11 @@
 
    const app = express();
    app.use(express.json());
+        // The browser calls /api/...; strip the prefix so routes stay at the root (the Vite proxy does the same in dev).
+     app.use((req, _res, next) => {
+       if (req.url.startsWith("/api/")) req.url = req.url.slice(4);
+       next();
+     });
 
    async function audit(u: Claims, action: string, detail: object = {}) {
      await withRole(u, (c) =>
@@ -151,5 +157,8 @@ app.get("/ops/breakdown", auth, (req, res) => {
      )
    );
    
+        app.get("/health", (_req, res) => res.json({ ok: true }));
+     app.use(express.static(fileURLToPath(new URL("../../web/dist", import.meta.url))));
+     
    const port = Number(process.env.PORT ?? 4100);
    app.listen(port, () => console.log("API on", port));
