@@ -47,6 +47,8 @@ try {
 
     await c.query(s.ddl);
     await c.query(`GRANT SELECT ON ${s.table} TO role_admin, role_clinician, role_executive`);
+    // The assistant role exists only after scripts/apply_assistant.ts has run; keep its grants when tables are reloaded.
+    await c.query(`DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'role_assistant') THEN GRANT SELECT ON ${s.table} TO role_assistant; END IF; END $$`);
     await c.query(`TRUNCATE ${s.table}`);
     await c.query(`INSERT INTO ${s.table} SELECT * FROM unnest(${placeholders})`, arrays);
     console.log("loaded", rows.length, "rows into", s.table);

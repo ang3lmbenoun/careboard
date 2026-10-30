@@ -3,6 +3,7 @@ import type { User } from "./api";
 import Medicaid from "./Medicaid";
 import Catalog from "./Catalog";
 import Operations from "./Operations";
+import Assistant from "./Assistant";
 import { useData } from "./useData";
 
 type TabId = "medicaid" | "operations" | "catalog" | "patients" | "audit";
@@ -114,6 +115,7 @@ export default function Dashboard({ user, onSignOut }: { user: User; onSignOut: 
           {tab === "audit" && <TableView key="audit" path="audit" />}
         </main>
       </div>
+      <Assistant />
     </>
   );
 }

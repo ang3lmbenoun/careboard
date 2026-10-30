@@ -6,6 +6,7 @@
    import { pool, withRole, type Role } from "./db.js";
    import helmet from "helmet";
    import rateLimit from "express-rate-limit";
+import { registerAssistant } from "./assistant.js";
 
    const SECRET = process.env.JWT_SECRET;
    if (!SECRET) throw new Error("JWT_SECRET missing in api/.env");
@@ -162,6 +163,7 @@ app.get("/ops/breakdown", auth, (req, res) => {
      )
    );
    
+        registerAssistant(app, { auth, audit });
         app.get("/health", (_req, res) => res.json({ ok: true }));
      app.use(express.static(fileURLToPath(new URL("../../web/dist", import.meta.url))));
 

@@ -40,3 +40,22 @@
        c.release();
      }
    }
+
+// The assistant role can only SELECT from two summary tables. READ ONLY and the timeout are extra layers.
+export async function withAssistant<T>(fn: (c: pg.PoolClient) => Promise<T>): Promise<T> {
+  const c = await pool.connect();
+  try {
+    await c.query("BEGIN READ ONLY");
+    await c.query("SET LOCAL ROLE role_assistant");
+    await c.query("SET LOCAL statement_timeout = 5000");
+    await c.query("SET LOCAL search_path = serving");
+    const out = await fn(c);
+    await c.query("COMMIT");
+    return out;
+  } catch (e) {
+    await c.query("ROLLBACK");
+    throw e;
+  } finally {
+    c.release();
+  }
+}
