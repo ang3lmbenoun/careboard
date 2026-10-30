@@ -31,15 +31,15 @@
 
      return (
        <>
-         <p style={{ margin: "8px 0" }}>
+         <p className="crumbs">
            <button onClick={() => { setCls(null); setDrug(null); }} disabled={!cls}>All classes</button>
            {cls && <> › <button onClick={() => setDrug(null)} disabled={!drug}>{cls}</button></>}
            {drug && <> › <strong>{drug}</strong></>}
          </p>
 
          <h2>{title}</h2>
-         {bd.error && <p>{bd.error}</p>}
-         {!bd.data && !bd.error && <p>Loading…</p>}
+         {bd.error && <p className="state err">{bd.error}</p>}
+         {!bd.data && !bd.error && <p className="state">Loading…</p>}
          {bd.data && (
            <ResponsiveContainer width="100%" height={Math.max(160, bd.data.length * 32)}>
              <BarChart data={bd.data} layout="vertical" margin={{ left: 16, right: 24 }}>
@@ -49,16 +49,16 @@
                <Tooltip formatter={(v) => money(Number(v))} />
                <Bar
                  dataKey="spend"
-                 cursor={by === "state" ? "default" : "pointer"}
+                 fill="#1f5c4a" radius={[0, 6, 6, 0]} cursor={by === "state" ? "default" : "pointer"}
                  onClick={(d: any) => pick(d.payload?.label ?? d.label)}
                />
              </BarChart>
            </ResponsiveContainer>
          )}
-         {by !== "state" && <p style={{ fontSize: 13 }}>Click a bar to drill down.</p>}
+         {by !== "state" && <p className="note">Click a bar to drill down.</p>}
 
          <h2>Quarterly spend{cls ? `: ${drug ?? cls}` : ""}</h2>
-         {tr.error && <p>{tr.error}</p>}
+         {tr.error && <p className="state err">{tr.error}</p>}
          {tr.data && (
            <ResponsiveContainer width="100%" height={240}>
              <LineChart data={tr.data}>
@@ -66,12 +66,12 @@
                <XAxis dataKey="period" />
                <YAxis tickFormatter={money} />
                <Tooltip formatter={(v) => money(Number(v))} />
-               <Line type="monotone" dataKey="spend" strokeWidth={2} />
+               <Line type="monotone" dataKey="spend" stroke="#a8782a" strokeWidth={2.5} />
              </LineChart>
            </ResponsiveContainer>
          )}
 
-         <p style={{ fontSize: 13 }}>
+         <p className="note">
            Source: CMS Medicaid State Drug Utilization Data, 2024 (quarterly). Scope: four drug classes;
            SGLT2 inhibitors are not included.
          </p>

@@ -26,29 +26,29 @@
 
    function MiniTable({ title, rows, prefix = "" }: { title: string; rows: Row[] | null; prefix?: string }) {
      return (
-       <div style={{ flex: 1, minWidth: 260 }}>
+       <div className="mini">
          <h3>{title}</h3>
          {!rows ? (
-           <p>Loading…</p>
+           <p className="state">Loading…</p>
          ) : (
-           <table>
+           <div className="table-wrap"><table className="data">
              <thead>
                <tr>
-                 <th style={{ textAlign: "left", paddingRight: 16 }}>Name</th>
-                 <th style={{ textAlign: "right", paddingRight: 16 }}>Scheduled</th>
-                 <th style={{ textAlign: "right" }}>No-show</th>
+                 <th>Name</th>
+                 <th className="num">Scheduled</th>
+                 <th className="num">No-show</th>
                </tr>
              </thead>
              <tbody>
                {rows.map((r) => (
                  <tr key={r.label}>
-                   <td style={{ paddingRight: 16 }}>{prefix}{r.label}</td>
-                   <td style={{ textAlign: "right", paddingRight: 16 }}>{r.scheduled.toLocaleString()}</td>
-                   <td style={{ textAlign: "right" }}>{pct(r.no_show_rate)}</td>
+                   <td>{prefix}{r.label}</td>
+                   <td className="num">{r.scheduled.toLocaleString()}</td>
+                   <td className="num">{pct(r.no_show_rate)}</td>
                  </tr>
                ))}
              </tbody>
-           </table>
+           </table></div>
          )}
        </div>
      );
@@ -93,7 +93,7 @@
 
      return (
        <>
-         <p style={{ margin: "8px 0" }}>
+         <p className="crumbs">
            {trail.map((t, i) => (
              <span key={i}>
                {i > 0 && " › "}
@@ -118,8 +118,8 @@
          </p>
 
          <h2>Appointments and no-show rate, by {grain}</h2>
-         {trend.error && <p>{trend.error}</p>}
-         {!trend.data && !trend.error && <p>Loading…</p>}
+         {trend.error && <p className="state err">{trend.error}</p>}
+         {!trend.data && !trend.error && <p className="state">Loading…</p>}
          {trend.data && (
            <ResponsiveContainer width="100%" height={300}>
              <ComposedChart data={trend.data}>
@@ -130,23 +130,23 @@
                <Tooltip formatter={(v, name) => (name === "No-show rate" ? pct(Number(v)) : String(v))} />
                <Bar
                  yAxisId="l"
-                 dataKey="scheduled"
+                 dataKey="scheduled" fill="#1f5c4a" radius={[6, 6, 0, 0]}
                  name="Scheduled"
                  cursor={NEXT[grain] ? "pointer" : "default"}
                  onClick={(d: any) => drill(d.payload?.period ?? d.period)}
                />
-               <Line yAxisId="r" type="monotone" dataKey="no_show_rate" name="No-show rate" strokeWidth={2} dot={false} />
+               <Line yAxisId="r" type="monotone" dataKey="no_show_rate" name="No-show rate" stroke="#a8782a" strokeWidth={2.5} dot={false} />
              </ComposedChart>
            </ResponsiveContainer>
          )}
-         {NEXT[grain] && <p style={{ fontSize: 13 }}>Click a bar to drill down: year, month, week, day.</p>}
+         {NEXT[grain] && <p className="note">Click a bar to drill down: year, month, week, day.</p>}
 
-         <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
+         <div className="mini-row">
            <MiniTable title="By department" rows={byDept.data} />
            <MiniTable title="By clinic" rows={byClinic.data} prefix="Clinic " />
          </div>
 
-         <p style={{ fontSize: 13 }}>
+         <p className="note">
            Synthetic data from a seeded generator (api/scripts/generate_clinic_ops.ts). It does not describe real
            patients or visits.
          </p>

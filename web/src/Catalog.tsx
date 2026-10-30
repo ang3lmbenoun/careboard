@@ -11,8 +11,8 @@
 
    export default function Catalog() {
      const { data, error } = useData<Col[]>("catalog");
-     if (error) return <p>{error}</p>;
-     if (!data) return <p>Loading…</p>;
+     if (error) return <p className="state err">{error}</p>;
+     if (!data) return <p className="state">Loading…</p>;
 
      const tables = new Map<string, Col[]>();
      for (const c of data) {
@@ -22,20 +22,20 @@
 
      return (
        <>
-         <h2>Data catalog</h2>
-         <p style={{ fontSize: 13 }}>Lists only the columns your role can read.</p>
+         
+         <p className="note">Lists only the columns your role can read.</p>
          {[...tables.entries()].map(([name, cols]) => (
-           <details key={name} style={{ margin: "8px 0" }}>
+           <details key={name} className="catalog-item">
              <summary>
                <strong>{name}</strong> ({cols.length} columns)
              </summary>
-             <p style={{ fontSize: 13 }}>{cols[0].table_description ?? "No description."}</p>
-             <table>
+             <p className="note">{cols[0].table_description ?? "No description."}</p>
+             <table className="data">
                <tbody>
                  {cols.map((c) => (
                    <tr key={c.column}>
-                     <td style={{ paddingRight: 16 }}><code>{c.column}</code></td>
-                     <td style={{ paddingRight: 16 }}>{c.type}</td>
+                     <td><code>{c.column}</code></td>
+                     <td>{c.type}</td>
                      <td>{c.column_description ?? ""}</td>
                    </tr>
                  ))}
