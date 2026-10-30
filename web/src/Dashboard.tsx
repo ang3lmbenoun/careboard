@@ -1,46 +1,15 @@
    import { useState } from "react";
-   import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
    import type { User } from "./api";
    import Medicaid from "./Medicaid";
+   import Operations from "./Operations";
    import { useData } from "./useData";
-
-   type Kpi = { metric: string; period: string; value: number };
 
    const TABS = [
      { id: "medicaid", label: "Medicaid", roles: ["admin", "clinician", "executive"] },
-     { id: "dashboard", label: "Operations (demo)", roles: ["admin", "clinician", "executive"] },
+     { id: "operations", label: "Operations", roles: ["admin", "clinician", "executive"] },
      { id: "patients", label: "Patients", roles: ["clinician"] },
      { id: "audit", label: "Audit log", roles: ["admin"] },
    ];
-
-   function Trend({ data, fmt }: { data: Kpi[]; fmt?: (v: number) => string }) {
-     return (
-       <ResponsiveContainer width="100%" height={240}>
-         <LineChart data={data}>
-           <CartesianGrid strokeDasharray="3 3" />
-           <XAxis dataKey="period" />
-           <YAxis tickFormatter={fmt} domain={["auto", "auto"]} />
-           <Tooltip />
-           <Line type="monotone" dataKey="value" strokeWidth={2} />
-         </LineChart>
-       </ResponsiveContainer>
-     );
-   }
-
-   function Kpis() {
-     const { data, error } = useData<Kpi[]>("kpis");
-     if (error) return <p>{error}</p>;
-     if (!data) return <p>Loading…</p>;
-     const by = (m: string) => data.filter((r) => r.metric === m);
-     return (
-       <>
-         <h2>Appointments</h2>
-         <Trend data={by("appointments")} />
-         <h2>No-show rate</h2>
-         <Trend data={by("no_show_rate")} fmt={(v) => `${(v * 100).toFixed(1)}%`} />
-       </>
-     );
-   }
 
    function TableView({ path }: { path: string }) {
      const { data, error } = useData<Record<string, unknown>[]>(path);
@@ -81,7 +50,7 @@
            ))}
          </nav>
          {tab === "medicaid" && <Medicaid />}
-         {tab === "dashboard" && <Kpis />}
+         {tab === "operations" && <Operations />}
          {tab === "patients" && <TableView key="patients" path="patients" />}
          {tab === "audit" && <TableView key="audit" path="audit" />}
        </div>
