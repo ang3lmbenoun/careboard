@@ -4,11 +4,13 @@ import Medicaid from "./Medicaid";
 import Catalog from "./Catalog";
 import Operations from "./Operations";
 import Assistant from "./Assistant";
+import Overview from "./Overview";
 import { useData } from "./useData";
 
-type TabId = "medicaid" | "operations" | "catalog" | "patients" | "audit";
+type TabId = "overview" | "medicaid" | "operations" | "catalog" | "patients" | "audit";
 
 const TABS: { id: TabId; label: string; roles: User["role"][] }[] = [
+  { id: "overview", label: "Overview", roles: ["admin", "clinician", "executive"] },
   { id: "medicaid", label: "Medicaid", roles: ["admin", "clinician", "executive"] },
   { id: "operations", label: "Operations", roles: ["admin", "clinician", "executive"] },
   { id: "catalog", label: "Catalog", roles: ["admin", "clinician", "executive"] },
@@ -17,6 +19,10 @@ const TABS: { id: TabId; label: string; roles: User["role"][] }[] = [
 ];
 
 const HEADINGS: Record<TabId, { title: string; lede: string }> = {
+  overview: {
+    title: "Overview",
+    lede: "Headline numbers from the Medicaid and clinic data. Select a card to open the full view.",
+  },
   medicaid: {
     title: "Medicaid drug spend",
     lede: "State Medicaid spending on four diabetes drug classes in 2024. Click a bar to drill from drug class to drug to state.",
@@ -69,7 +75,7 @@ function TableView({ path }: { path: string }) {
 
 export default function Dashboard({ user, onSignOut }: { user: User; onSignOut: () => void }) {
   const tabs = TABS.filter((t) => t.roles.includes(user.role));
-  const [tab, setTab] = useState<TabId>("medicaid");
+  const [tab, setTab] = useState<TabId>("overview");
   const head = HEADINGS[tab];
   return (
     <>
@@ -108,6 +114,7 @@ export default function Dashboard({ user, onSignOut }: { user: User; onSignOut: 
             <h1>{head.title}</h1>
             <p className="lede">{head.lede}</p>
           </div>
+          {tab === "overview" && <Overview onOpen={setTab} />}
           {tab === "medicaid" && <Medicaid />}
           {tab === "operations" && <Operations />}
           {tab === "catalog" && <Catalog />}

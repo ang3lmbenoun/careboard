@@ -124,7 +124,7 @@ export default function Assistant() {
                   <div className="table-wrap">
                     <table className="data mini-data">
                       <thead>
-                        <tr>{m.columns.map((c) => <th key={c}>{c}</th>)}</tr>
+                        <tr>{m.columns.map((c) => <th key={c}>{c.replace(/_/g, " ")}</th>)}</tr>
                       </thead>
                       <tbody>
                         {m.rows.slice(0, PREVIEW_ROWS).map((r, ri) => (

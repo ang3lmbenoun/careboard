@@ -172,7 +172,7 @@ select { padding: 6px 10px; }
 .ghost { background: transparent; color: #fff; border-color: rgba(255, 255, 255, 0.35); }
 .ghost:hover:not(:disabled) { background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.6); }
 
-.shell { max-width: 1120px; margin: 0 auto; padding: 18px 20px 48px; }
+.shell { max-width: 1120px; margin: 0 auto; padding: 18px 20px 104px; }
 .role-note { color: var(--muted); font-size: 14px; margin: 0 0 14px; }
 .tabs {
   display: flex;
@@ -272,7 +272,7 @@ table.data .num { text-align: right; font-variant-numeric: tabular-nums; }
 @media (max-width: 600px) {
   h1 { font-size: 26px; }
   .card { padding: 16px; }
-  .shell { padding: 14px 14px 40px; }
+  .shell { padding: 14px 14px 96px; }
 }
 
 /* ---------- assistant (Carry) ---------- */
@@ -352,3 +352,16 @@ table.data .num { text-align: right; font-variant-numeric: tabular-nums; }
   .chat { right: 8px; bottom: 76px; width: calc(100vw - 16px); height: calc(100svh - 100px); }
   .chat-fab { right: 12px; bottom: 12px; }
 }
+
+/* ---------- overview ---------- */
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.kpi { border: 1px solid var(--border); border-top: 3px solid var(--gold); border-radius: 12px; padding: 16px; background: #fbfdfc; display: flex; flex-direction: column; }
+.kpi p { margin: 0; }
+.kpi-label { color: var(--muted); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.kpi-value { font-family: var(--serif); font-size: 34px; font-weight: 600; color: var(--green-900); line-height: 1.2; margin: 6px 0 4px !important; }
+.kpi-note { color: var(--muted); font-size: 13px; flex: 1; }
+.kpi-link { align-self: flex-start; margin-top: 12px; background: transparent; border: 0; padding: 0; color: var(--green-700); font-weight: 600; font-size: 14px; }
+.kpi-link:hover:not(:disabled) { background: transparent; text-decoration: underline; }
+.chart-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 20px; }
+.chart-row .mini h3 { margin-bottom: 4px; }
+.hint { margin: 18px 0 6px; padding: 12px 14px; background: var(--gold-soft); border-radius: 10px; color: var(--green-900); font-size: 14.5px; }
