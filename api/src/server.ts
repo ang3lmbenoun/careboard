@@ -4,6 +4,8 @@
    import bcrypt from "bcryptjs";
    import jwt from "jsonwebtoken";
    import { pool, withRole, type Role } from "./db.js";
+   import helmet from "helmet";
+   import rateLimit from "express-rate-limit";
 
    const SECRET = process.env.JWT_SECRET;
    if (!SECRET) throw new Error("JWT_SECRET missing in api/.env");
@@ -12,6 +14,9 @@
 
    const app = express();
    app.use(express.json());
+        app.set("trust proxy", 1); // Render sits behind a proxy; needed so the limiter sees real client IPs
+     app.use(helmet());
+     const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: "draft-7", legacyHeaders: false });
         // The browser calls /api/...; strip the prefix so routes stay at the root (the Vite proxy does the same in dev).
      app.use((req, _res, next) => {
        if (req.url.startsWith("/api/")) req.url = req.url.slice(4);
@@ -50,7 +55,7 @@
      }
    }
 
-   app.post("/auth/login", async (req, res) => {
+    app.post("/auth/login", loginLimiter, async (req, res) => {
      const { email, password } = req.body ?? {};
      if (typeof email !== "string" || typeof password !== "string")
        return res.status(400).json({ error: "email and password required" });
@@ -159,6 +164,6 @@ app.get("/ops/breakdown", auth, (req, res) => {
    
         app.get("/health", (_req, res) => res.json({ ok: true }));
      app.use(express.static(fileURLToPath(new URL("../../web/dist", import.meta.url))));
-     
+
    const port = Number(process.env.PORT ?? 4100);
    app.listen(port, () => console.log("API on", port));
