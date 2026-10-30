@@ -17,7 +17,13 @@
          body: JSON.stringify({ email, password }),
        });
        if (!res.ok) {
-         setError("Invalid email or password");
+         setError(
+  res.status === 429
+    ? "Too many attempts. Wait 15 minutes and try again."
+    : res.status === 401
+      ? "Invalid email or password"
+      : "Server error. Wait a minute and try again."
+);
          return;
        }
        const data = await res.json();
