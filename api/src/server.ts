@@ -95,5 +95,43 @@
      )
    );
 
+const GRAINS = new Set(["year", "month", "week", "day"]);
+const OPS_DIMS: Record<string, string> = { clinic: "clinic_id::text", department: "department" };
+const dateOrNull = (v: unknown) =>
+  typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null;
+const OPS_FILTER = `WHERE ($1::int IS NULL OR clinic_id = $1) AND ($2::text IS NULL OR department = $2)
+  AND ($3::date IS NULL OR day >= $3) AND ($4::date IS NULL OR day < $4)`;
+const opsParams = (q: any) => [
+  typeof q.clinic === "string" && /^\d+$/.test(q.clinic) ? Number(q.clinic) : null,
+  strOrNull(q.dept),
+  dateOrNull(q.from),
+  dateOrNull(q.to),
+];
+const OPS_MEASURES = `SUM(scheduled)::int AS scheduled, SUM(completed)::int AS completed,
+  SUM(no_shows)::int AS no_shows,
+  ROUND(SUM(no_shows)::numeric / NULLIF(SUM(scheduled), 0), 4)::float8 AS no_show_rate`;
+
+app.get("/ops/trend", auth, (req, res) => {
+  const grain = String(req.query.grain ?? "month");
+  if (!GRAINS.has(grain)) return res.status(400).json({ error: "grain must be year, month, week or day" });
+  guarded(
+    req, res, "view_ops_trend",
+    `SELECT date_trunc('${grain}', day::timestamp)::date::text AS period, ${OPS_MEASURES}
+     FROM serving.clinic_daily ${OPS_FILTER} GROUP BY 1 ORDER BY 1`,
+    opsParams(req.query)
+  );
+});
+
+app.get("/ops/breakdown", auth, (req, res) => {
+  const dim = OPS_DIMS[String(req.query.by)];
+  if (!dim) return res.status(400).json({ error: "by must be clinic or department" });
+  guarded(
+    req, res, "view_ops_breakdown",
+    `SELECT ${dim} AS label, ${OPS_MEASURES}
+     FROM serving.clinic_daily ${OPS_FILTER} GROUP BY 1 ORDER BY 1`,
+    opsParams(req.query)
+  );
+});
+
    const port = Number(process.env.PORT ?? 4100);
    app.listen(port, () => console.log("API on", port));
