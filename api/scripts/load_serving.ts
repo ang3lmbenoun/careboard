@@ -49,6 +49,9 @@ try {
     await c.query(`INSERT INTO ${s.table} SELECT * FROM unnest(${placeholders})`, arrays);
     console.log("loaded", rows.length, "rows into", s.table);
   }
+
+     const comments = fs.readFileSync(fileURLToPath(new URL("../../db/comments.sql", import.meta.url)), "utf8");
+   await c.query(comments);
   await c.query("COMMIT");
 } catch (e) {
   await c.query("ROLLBACK");

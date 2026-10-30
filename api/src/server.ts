@@ -133,5 +133,23 @@ app.get("/ops/breakdown", auth, (req, res) => {
   );
 });
 
+
+   app.get("/catalog", auth, (req, res) =>
+     guarded(
+       req, res, "view_catalog",
+       `SELECT n.nspname AS schema, cl.relname AS "table", a.attname AS "column",
+               format_type(a.atttypid, a.atttypmod) AS type,
+               obj_description(cl.oid, 'pg_class') AS table_description,
+               col_description(cl.oid, a.attnum) AS column_description
+        FROM pg_attribute a
+        JOIN pg_class cl ON cl.oid = a.attrelid AND cl.relkind IN ('r', 'v', 'm')
+        JOIN pg_namespace n ON n.oid = cl.relnamespace
+        WHERE n.nspname IN ('serving', 'clinical', 'app')
+          AND a.attnum > 0 AND NOT a.attisdropped
+          AND has_column_privilege(cl.oid, a.attnum, 'SELECT')
+        ORDER BY n.nspname, cl.relname, a.attnum`
+     )
+   );
+   
    const port = Number(process.env.PORT ?? 4100);
    app.listen(port, () => console.log("API on", port));

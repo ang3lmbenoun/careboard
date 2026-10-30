@@ -1,12 +1,14 @@
    import { useState } from "react";
    import type { User } from "./api";
    import Medicaid from "./Medicaid";
+   import Catalog from "./Catalog";
    import Operations from "./Operations";
    import { useData } from "./useData";
 
    const TABS = [
      { id: "medicaid", label: "Medicaid", roles: ["admin", "clinician", "executive"] },
      { id: "operations", label: "Operations", roles: ["admin", "clinician", "executive"] },
+     { id: "catalog", label: "Catalog", roles: ["admin", "clinician", "executive"] },
      { id: "patients", label: "Patients", roles: ["clinician"] },
      { id: "audit", label: "Audit log", roles: ["admin"] },
    ];
@@ -51,6 +53,7 @@
          </nav>
          {tab === "medicaid" && <Medicaid />}
          {tab === "operations" && <Operations />}
+         {tab === "catalog" && <Catalog />}
          {tab === "patients" && <TableView key="patients" path="patients" />}
          {tab === "audit" && <TableView key="audit" path="audit" />}
        </div>
