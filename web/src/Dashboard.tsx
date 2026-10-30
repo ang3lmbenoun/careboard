@@ -1,23 +1,17 @@
-   import { useEffect, useState } from "react";
+   import { useState } from "react";
    import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-   import { api, type User } from "./api";
+   import type { User } from "./api";
+   import Medicaid from "./Medicaid";
+   import { useData } from "./useData";
 
    type Kpi = { metric: string; period: string; value: number };
 
    const TABS = [
-     { id: "dashboard", label: "Dashboard", roles: ["admin", "clinician", "executive"] },
+     { id: "medicaid", label: "Medicaid", roles: ["admin", "clinician", "executive"] },
+     { id: "dashboard", label: "Operations (demo)", roles: ["admin", "clinician", "executive"] },
      { id: "patients", label: "Patients", roles: ["clinician"] },
      { id: "audit", label: "Audit log", roles: ["admin"] },
    ];
-
-   function useData<T>(path: string) {
-     const [data, setData] = useState<T | null>(null);
-     const [error, setError] = useState("");
-     useEffect(() => {
-       api<T>(path).then(setData).catch((e) => setError(e.message));
-     }, [path]);
-     return { data, error };
-   }
 
    function Trend({ data, fmt }: { data: Kpi[]; fmt?: (v: number) => string }) {
      return (
@@ -70,7 +64,7 @@
 
    export default function Dashboard({ user, onSignOut }: { user: User; onSignOut: () => void }) {
      const tabs = TABS.filter((t) => t.roles.includes(user.role));
-     const [tab, setTab] = useState("dashboard");
+     const [tab, setTab] = useState("medicaid");
      return (
        <div style={{ maxWidth: 760, margin: "2rem auto", padding: "0 16px" }}>
          <header style={{ display: "flex", justifyContent: "space-between" }}>
@@ -86,6 +80,7 @@
              </button>
            ))}
          </nav>
+         {tab === "medicaid" && <Medicaid />}
          {tab === "dashboard" && <Kpis />}
          {tab === "patients" && <TableView key="patients" path="patients" />}
          {tab === "audit" && <TableView key="audit" path="audit" />}
