@@ -69,7 +69,7 @@ const HEADINGS: Record<TabId, { title: string; lede: string }> = {
   },
   catalog: {
     title: "Data catalog",
-    lede: "Every table and column your role is allowed to read, with plain-language descriptions.",
+    lede: "What each number means, where the data comes from, and what your role is allowed to read.",
   },
   patients: {
     title: "Patients",
@@ -230,7 +230,7 @@ export default function Dashboard({ user, email, onSignOut }: { user: User; emai
             {tab === "overview" && <Overview onOpen={go} />}
             {tab === "medicaid" && <Medicaid />}
             {tab === "operations" && <Operations />}
-            {tab === "catalog" && <Catalog />}
+            {tab === "catalog" && <Catalog role={user.role} />}
             {tab === "patients" && <TableView key="patients" path="patients" />}
             {tab === "audit" && <TableView key="audit" path="audit" />}
             {tab === "settings" && (

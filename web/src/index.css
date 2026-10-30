@@ -457,3 +457,21 @@ table.data .num { text-align: right; font-variant-numeric: tabular-nums; }
   .facts { grid-template-columns: 1fr; gap: 2px 0; }
   .facts dd { margin-bottom: 10px; }
 }
+
+
+/* ---------- catalog ---------- */
+.sec { font-size: 20px; margin: 22px 0 10px; }
+.sec:first-child { margin-top: 0; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+.metric { border: 1px solid var(--border); border-top: 3px solid var(--gold); border-radius: 12px; padding: 12px 14px; background: #fbfdfc; }
+.metric h3 { font-size: 16px; margin: 0 0 4px; }
+.metric p { margin: 0 0 4px; font-size: 14px; }
+.catalog-item summary { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.src { font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--green-200); color: var(--green-700); background: var(--green-100); }
+.src.synthetic { color: #7a5a1a; background: var(--gold-soft); border-color: #e3d2a3; }
+.lock-tag { display: inline-block; font-size: 11.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 1px 8px; border-radius: 999px; background: #eceeed; color: #5a6560; }
+.ds-summary { margin: 6px 0 10px; max-width: 70ch; }
+.facts.compact { grid-template-columns: 130px 1fr; margin: 0 0 14px; gap: 6px 16px; font-size: 14px; }
+tr.denied td { color: #8a948f; background: #f5f7f6; }
+tr.denied code { color: #8a948f; }
+@media (max-width: 600px) { .facts.compact { grid-template-columns: 1fr; } }
