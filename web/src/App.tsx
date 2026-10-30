@@ -61,6 +61,7 @@ export default function App() {
     return (
       <Dashboard
         user={user}
+        email={email}
         onSignOut={() => {
           setToken(null);
           setUser(null);
