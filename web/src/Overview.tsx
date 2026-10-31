@@ -23,7 +23,7 @@ function Kpi(props: { label: string; value: string | null; note: string; onOpen:
 }
 
 type Role = "admin" | "clinician" | "executive";
-type Dest = "medicaid" | "operations" | "catalog" | "patients" | "audit";
+type Dest = "medicaid" | "operations" | "catalog" | "patients" | "audit" | "riskcare" | "riskspend" | "riskcomp";
 
 const START: Record<Role, { text: string; links: { label: string; to: Dest }[] }> = {
   executive: {
@@ -31,7 +31,7 @@ const START: Record<Role, { text: string; links: { label: string; to: Dest }[] }
     links: [
       { label: "Which drug classes cost the most", to: "medicaid" },
       { label: "Where appointments are missed", to: "operations" },
-      { label: "What each number means", to: "catalog" },
+      { label: "Where spending is concentrated", to: "riskspend" },
     ],
   },
   clinician: {
@@ -39,7 +39,7 @@ const START: Record<Role, { text: string; links: { label: string; to: Dest }[] }
     links: [
       { label: "No-shows by department", to: "operations" },
       { label: "Your clinic's patients", to: "patients" },
-      { label: "What your role cannot read", to: "catalog" },
+      { label: "Patients who need attention first", to: "riskcare" },
     ],
   },
   admin: {
@@ -47,7 +47,7 @@ const START: Record<Role, { text: string; links: { label: string; to: Dest }[] }
     links: [
       { label: "Review recent activity", to: "audit" },
       { label: "What each role is denied", to: "catalog" },
-      { label: "Medicaid drug spending", to: "medicaid" },
+      { label: "Review the risk register", to: "riskcomp" },
     ],
   },
 };

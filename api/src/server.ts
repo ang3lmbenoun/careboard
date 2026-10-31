@@ -8,6 +8,7 @@
    import rateLimit from "express-rate-limit";
 import { registerAssistant } from "./assistant.js";
 import { generatePatient } from "./patientGen.js";
+import { registerRisk } from "./risk.js";
 
    const SECRET = process.env.JWT_SECRET;
    if (!SECRET) throw new Error("JWT_SECRET missing in api/.env");
@@ -44,6 +45,15 @@ import { generatePatient } from "./patientGen.js";
      }
    }
 
+   // A denied request is itself a security signal, so it is written to the audit log.
+   async function denied(user: Claims, what: string) {
+     try {
+       await audit(user, "access_denied", { route: what });
+     } catch (e) {
+       console.error("audit failed", (e as Error).message);
+     }
+   }
+
    // Run a query as the caller's role. The database decides; 42501 = permission denied.
       async function guarded(req: any, res: any, action: string, sql: string, params: unknown[] = []) {
      try {
@@ -51,7 +61,10 @@ import { generatePatient } from "./patientGen.js";
        await audit(req.user, action, { rows: rows.length });
        res.json(rows);
      } catch (e: any) {
-       if (e.code === "42501") return res.status(403).json({ error: "forbidden" });
+       if (e.code === "42501") {
+         await denied(req.user, action);
+         return res.status(403).json({ error: "forbidden" });
+       }
        console.error(e);
        res.status(500).json({ error: "server error" });
      }
@@ -66,8 +79,18 @@ import { generatePatient } from "./patientGen.js";
        [email.toLowerCase()]
      );
      const u = rows[0];
-     if (!u || !(await bcrypt.compare(password, u.password_hash)))
+     if (!u || !(await bcrypt.compare(password, u.password_hash))) {
+       // Record the failure without storing what was typed (it may be a mistyped password).
+       try {
+         await pool.query("INSERT INTO app.audit_log (user_id, role, action, detail) VALUES ($1, NULL, 'login_failed', $2)", [
+           u ? u.id : null,
+           { reason: u ? "wrong password" : "unknown account" },
+         ]);
+       } catch (e) {
+         console.error("audit failed", (e as Error).message);
+       }
        return res.status(401).json({ error: "invalid credentials" });
+     }
      const claims: Claims = { sub: u.id, role: u.role, clinicId: u.clinic_id };
      const token = jwt.sign(claims, SECRET, { expiresIn: "8h" });
      await audit(claims, "login");
@@ -137,7 +160,10 @@ import { generatePatient } from "./patientGen.js";
        await audit(req.user, "view_patient", { patient_id: id });
        res.json(out);
      } catch (e: any) {
-       if (e.code === "42501") return res.status(403).json({ error: "forbidden" });
+       if (e.code === "42501") {
+         await denied(req.user, req.path.replace(/^\//, ""));
+         return res.status(403).json({ error: "forbidden" });
+       }
        console.error(e);
        res.status(500).json({ error: "server error" });
      }
@@ -145,7 +171,10 @@ import { generatePatient } from "./patientGen.js";
 
    // Demo only: creates one random synthetic patient in the caller's clinic. No free text is accepted.
    app.post("/patients/generate", auth, addLimiter, async (req: any, res) => {
-     if (req.user.role !== "clinician" || req.user.clinicId == null) return res.status(403).json({ error: "forbidden" });
+     if (req.user.role !== "clinician" || req.user.clinicId == null) {
+       await denied(req.user, "patients/generate");
+       return res.status(403).json({ error: "forbidden" });
+     }
      const p = generatePatient(Math.random, Date.now());
      try {
        const id = await withRole(req.user, async (c) => {
@@ -174,7 +203,10 @@ import { generatePatient } from "./patientGen.js";
        res.status(201).json({ patient_id: id });
      } catch (e: any) {
        if (e.code === "CB001") return res.status(409).json({ error: "limit" });
-       if (e.code === "42501") return res.status(403).json({ error: "forbidden" });
+       if (e.code === "42501") {
+         await denied(req.user, req.path.replace(/^\//, ""));
+         return res.status(403).json({ error: "forbidden" });
+       }
        console.error(e);
        res.status(500).json({ error: "server error" });
      }
@@ -184,7 +216,10 @@ import { generatePatient } from "./patientGen.js";
    app.delete("/patients/:id", auth, removeLimiter, async (req: any, res) => {
      const id = patientId(req.params.id);
      if (!id) return res.status(400).json({ error: "bad id" });
-     if (req.user.role !== "clinician") return res.status(403).json({ error: "forbidden" });
+     if (req.user.role !== "clinician") {
+       await denied(req.user, "patients/delete");
+       return res.status(403).json({ error: "forbidden" });
+     }
      try {
        const n = await withRole(req.user, async (c) =>
          (await c.query("DELETE FROM clinical.patients WHERE patient_id = $1 AND demo_created", [id])).rowCount
@@ -193,7 +228,10 @@ import { generatePatient } from "./patientGen.js";
        await audit(req.user, "remove_patient", { patient_id: id });
        res.json({ ok: true });
      } catch (e: any) {
-       if (e.code === "42501") return res.status(403).json({ error: "forbidden" });
+       if (e.code === "42501") {
+         await denied(req.user, req.path.replace(/^\//, ""));
+         return res.status(403).json({ error: "forbidden" });
+       }
        console.error(e);
        res.status(500).json({ error: "server error" });
      }
@@ -273,10 +311,13 @@ app.get("/ops/breakdown", auth, (req, res) => {
                format_type(a.atttypid, a.atttypmod) AS type,
                obj_description(cl.oid, 'pg_class') AS table_description,
                col_description(cl.oid, a.attnum) AS column_description,
-               has_column_privilege(cl.oid, a.attnum, 'SELECT') AS allowed
+               has_column_privilege(cl.oid, a.attnum, 'SELECT') AS allowed,
+               COALESCE(dc.label, dt.label) AS label
         FROM pg_attribute a
         JOIN pg_class cl ON cl.oid = a.attrelid AND cl.relkind IN ('r', 'v', 'm')
         JOIN pg_namespace n ON n.oid = cl.relnamespace
+        LEFT JOIN app.data_classification dc ON dc.object_schema = n.nspname AND dc.object_name = cl.relname AND dc.column_name = a.attname
+        LEFT JOIN app.data_classification dt ON dt.object_schema = n.nspname AND dt.object_name = cl.relname AND dt.column_name = '*'
         WHERE n.nspname IN ('serving', 'clinical', 'app')
           AND a.attnum > 0 AND NOT a.attisdropped
           AND cl.relname <> 'kpi_demo'
@@ -285,6 +326,7 @@ app.get("/ops/breakdown", auth, (req, res) => {
    );
    
         registerAssistant(app, { auth, audit });
+        registerRisk(app, { auth, audit });
         app.get("/health", (_req, res) => res.json({ ok: true }));
      app.use(express.static(fileURLToPath(new URL("../../web/dist", import.meta.url))));
 

@@ -49,6 +49,34 @@ export const TABLES: Record<string, TableInfo> = {
     grain: "One row per patient and measurement date",
     usedOn: "Patients (clinician only)",
   },
+  "clinical.care_risk": {
+    title: "Care risk scores",
+    summary: "A simple points score per patient built from A1C level and trend, overdue monitoring, stopped or started treatment, and weight change. Illustrative rules, not clinical guidance. A clinician sees only their own clinic.",
+    source: "synthetic",
+    grain: "One row per patient",
+    usedOn: "Care risk (clinician worklist; executives and admins see counts only)",
+  },
+  "app.risk_register": {
+    title: "Risk register",
+    summary: "Risks to the data and the business, each scored for likelihood and impact before and after controls, with an owner and a next step.",
+    source: "synthetic",
+    grain: "One row per risk",
+    usedOn: "Risk and compliance",
+  },
+  "app.control_map": {
+    title: "Control map",
+    summary: "The controls built into CareBoard, the HIPAA Security Rule area each supports, and how to check that it works.",
+    source: "synthetic",
+    grain: "One row per control",
+    usedOn: "Risk and compliance",
+  },
+  "app.data_classification": {
+    title: "Sensitivity labels",
+    summary: "The sensitivity label shown beside each column in this catalog.",
+    source: "synthetic",
+    grain: "One row per table or column",
+    usedOn: "Data catalog",
+  },
   "app.users": {
     title: "App accounts",
     summary: "Sign-in accounts, their role and clinic. Password hashes are stored, never passwords.",
@@ -91,6 +119,31 @@ export const METRICS: { name: string; meaning: string; note: string }[] = [
     meaning: "No-shows divided by scheduled appointments.",
     note: "For example, 86 no-shows out of 1,000 scheduled is 8.6%. Synthetic clinic data.",
   },
+  {
+    name: "Revenue at risk",
+    meaning: "No-shows multiplied by the average value of one visit.",
+    note: "The visit value is an assumption you can change on the Operational risk page. Synthetic clinic data.",
+  },
+  {
+    name: "Avoidable revenue",
+    meaning: "Revenue lost to no-shows above a target rate.",
+    note: "Both the target rate and the visit value are adjustable assumptions.",
+  },
+  {
+    name: "Concentration index (HHI)",
+    meaning: "Sum of each class's squared share of spend, scaled 0 to 10,000. Higher means spend sits in fewer places.",
+    note: "With four drug classes the lowest possible value is 2,500 (all equal).",
+  },
+  {
+    name: "Risk tier",
+    meaning: "Low, Medium or High, from points added for each warning sign in a patient's A1C, monitoring and treatment history.",
+    note: "Illustrative rules, not clinical guidance. Synthetic patients only.",
+  },
+  {
+    name: "Residual risk",
+    meaning: "Likelihood times impact (each 1 to 5) after controls are applied.",
+    note: "Scored by the project author, not measured.",
+  },
 ];
 
 export function friendlyType(t: string): string {
@@ -98,6 +151,7 @@ export function friendlyType(t: string): string {
   if (/^(smallint|integer|bigint|serial|bigserial)/.test(x)) return "Whole number";
   if (/^(numeric|decimal|real|double|float)/.test(x)) return "Decimal number";
   if (/^(text|character|varchar|char|citext)/.test(x)) return "Text";
+  if (x.endsWith("[]")) return "List of text";
   if (x === "date") return "Date";
   if (x.startsWith("timestamp")) return "Date and time";
   if (x === "boolean") return "Yes / No";

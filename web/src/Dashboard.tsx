@@ -11,8 +11,14 @@ import Tour from "./Tour";
 import ErrorBoundary from "./ErrorBoundary";
 import Patients from "./Patients";
 import Drugs from "./Drugs";
+import CareRisk from "./CareRisk";
+import OpsRisk from "./OpsRisk";
+import SpendRisk from "./SpendRisk";
+import RiskCompliance from "./RiskCompliance";
 
-type TabId = "overview" | "medicaid" | "operations" | "drugs" | "catalog" | "patients" | "audit" | "settings";
+type TabId =
+  | "overview" | "medicaid" | "operations" | "drugs" | "riskcare" | "riskops" | "riskspend" | "riskcomp"
+  | "catalog" | "patients" | "audit" | "settings";
 
 type Item = { id: TabId; label: string; roles: User["role"][] };
 const ALL: User["role"][] = ["admin", "clinician", "executive"];
@@ -25,6 +31,16 @@ const GROUPS: { id: string; label: string; items: Item[] }[] = [
       { id: "medicaid", label: "Medicaid", roles: ALL },
       { id: "operations", label: "Operations", roles: ALL },
       { id: "drugs", label: "Drug classes", roles: ALL },
+    ],
+  },
+  {
+    id: "risk",
+    label: "Risk",
+    items: [
+      { id: "riskcare", label: "Care risk", roles: ALL },
+      { id: "riskops", label: "Operational risk", roles: ALL },
+      { id: "riskspend", label: "Financial exposure", roles: ALL },
+      { id: "riskcomp", label: "Risk & compliance", roles: ["admin", "executive"] },
     ],
   },
   { id: "reference", label: "Reference", items: [{ id: "catalog", label: "Data catalog", roles: ALL }] },
@@ -76,6 +92,22 @@ const HEADINGS: Record<TabId, { title: string; lede: string }> = {
     title: "Drug classes",
     lede: "The four classes of diabetes and weight-management medicines in this app: what each does, what Medicaid spent on it, and how many synthetic patients take it.",
   },
+  riskcare: {
+    title: "Care risk",
+    lede: "Which patients need attention first, and why. A simple, explainable points score on synthetic patients; the rules are illustrative, not clinical guidance.",
+  },
+  riskops: {
+    title: "Operational risk",
+    lede: "How much revenue missed appointments put at risk, where it concentrates, and how much is avoidable. Clinic data is synthetic; the visit value is an assumption you set.",
+  },
+  riskspend: {
+    title: "Financial exposure",
+    lede: "How concentrated Medicaid drug spend is, whether price or volume moves it, and what a change in one class would do to the total. Scenarios, not forecasts.",
+  },
+  riskcomp: {
+    title: "Risk & compliance",
+    lede: "The risks to the data and the business, the controls against them mapped to HIPAA Security Rule areas, and live checks that those controls still hold.",
+  },
   catalog: {
     title: "Data catalog",
     lede: "What each number means, where the data comes from, and what your role is allowed to read.",
@@ -95,9 +127,9 @@ const HEADINGS: Record<TabId, { title: string; lede: string }> = {
 };
 
 const ROLE_NOTE: Record<User["role"], string> = {
-  admin: "Administrator access: aggregate data and the audit log. The database denies patient records to this role.",
+  admin: "Administrator access: aggregate data, the audit log, and risk and compliance. The database denies patient records to this role.",
   clinician: "Clinician access: patients of your own clinic, without names or birth dates, plus aggregate data.",
-  executive: "Executive access: aggregate Medicaid and operations data only.",
+  executive: "Executive access: aggregate Medicaid and operations data, patient counts with small groups hidden, and the risk register.",
 };
 
 const NAME_KEY = (email: string) => `careboard.name.${email}`;
@@ -149,7 +181,9 @@ export default function Dashboard({ user, email, onSignOut }: { user: User; emai
   const head =
     tab === "overview"
       ? { title: `${greeting()}, ${shown}`, lede: "Here is what is going on across your Medicaid and clinic data. Select a card to open the full view." }
-      : HEADINGS[tab];
+      : tab === "riskcare" && user.role !== "clinician"
+        ? { title: "Care risk", lede: "How many patients fall in each risk group, by clinic and condition. Your role sees counts only, and small groups are hidden by the database. Synthetic patients; illustrative rules." }
+        : HEADINGS[tab];
   const groups = GROUPS.map((g) => ({ ...g, items: g.items.filter((i) => i.roles.includes(user.role)) })).filter(
     (g) => g.items.length
   );
@@ -226,6 +260,10 @@ export default function Dashboard({ user, email, onSignOut }: { user: User; emai
             {tab === "catalog" && <Catalog role={user.role} />}
             {tab === "patients" && <Patients onOpen={go} />}
             {tab === "drugs" && <Drugs role={user.role} />}
+            {tab === "riskcare" && <CareRisk role={user.role} />}
+            {tab === "riskops" && <OpsRisk />}
+            {tab === "riskspend" && <SpendRisk />}
+            {tab === "riskcomp" && <RiskCompliance role={user.role} />}
             {tab === "audit" && <Audit />}
             {tab === "settings" && (
               <Settings onReplayTour={() => setTour(true)} email={email} role={user.role} defaultName={user.name} custom={custom} onSave={saveName} access={ROLE_NOTE[user.role]} />

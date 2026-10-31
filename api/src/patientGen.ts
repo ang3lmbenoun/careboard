@@ -132,3 +132,54 @@ export function generatePatient(r: Rand, today: number): Patient {
     readings,
   };
 }
+
+// Cohort shaping for the seed patients only (never for patients added with the demo button).
+// A realistic clinic has some poorly controlled patients, some who stopped coming in, and some whose treatment
+// changed. Without them every patient would look healthy and a risk worklist would have nothing to find.
+// This uses its own random stream, so the people generated above stay exactly the same.
+// Everything here is invented to give the risk rules something to work with; it is not a finding about real patients.
+export function shapeCohort(p: Patient, r: Rand, today: number): Patient {
+  const t2d = p.primary_condition === "Type 2 diabetes";
+  const draws = { lapse: r(), poor: r(), wt: r(), stop: r(), ins: r(), a: r(), b: r(), c: r(), d: r(), e: r() };
+  const clampA1c = (v: number) => Math.round(Math.min(v, 11.4) * 10) / 10;
+
+  // 1. Poorly controlled: the last three A1C values climb past 9.
+  if (t2d && draws.poor < 0.2) {
+    const tail = p.readings.filter((x) => x.a1c != null).slice(-3);
+    const base = 8.5 + draws.a * 0.9;
+    const step = 0.3 + draws.e * 0.6;
+    tail.forEach((x, k) => (x.a1c = clampA1c(base + step * k)));
+  }
+  // 2. Treatment changes.
+  const nowDay = today / day;
+  const hasInsulin = p.meds.some((m) => m.drug_class === "Insulin");
+  if (t2d && !hasInsulin && draws.ins < 0.12) {
+    p.meds.push({
+      drug: "Insulin glargine (Lantus)", drug_class: "Insulin", indication: "Type 2 diabetes",
+      started_on: iso((nowDay - Math.round(60 + draws.b * 240)) * day), stopped_on: null, stop_reason: null,
+    });
+  }
+  if (draws.stop < 0.14) {
+    const g = p.meds.find((m) => m.drug_class === "GLP-1" && !m.stopped_on && new Date(m.started_on).getTime() < today - 300 * day);
+    if (g) {
+      g.stopped_on = iso((nowDay - Math.round(40 + draws.c * 110)) * day);
+      g.stop_reason = "Cost or coverage";
+      const last = [...p.readings].reverse().find((x) => x.a1c != null);
+      if (last && last.a1c != null && t2d) last.a1c = clampA1c(last.a1c + 0.7);
+    }
+  }
+  // 3. Weight creeping up over the last two readings.
+  if (draws.wt < 0.14) {
+    const tail = p.readings.filter((x) => x.weight_kg != null).slice(-2);
+    const f = [1.035, 1.06];
+    tail.forEach((x, k) => (x.weight_kg = Math.round((x.weight_kg as number) * f[k] * 10) / 10));
+  }
+  // 4. Lost to follow-up: no readings after a cutoff, but keep at least the first one.
+  if (draws.lapse < 0.16) {
+    const days = t2d ? 215 + Math.round(draws.d * 200) : 380 + Math.round(draws.d * 120);
+    const cutoff = iso(today - days * day);
+    const kept = p.readings.filter((x) => x.taken_on <= cutoff);
+    p.readings = kept.length ? kept : p.readings.slice(0, 1);
+  }
+  return p;
+}

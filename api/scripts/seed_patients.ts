@@ -2,7 +2,7 @@ import "dotenv/config";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import pg from "pg";
-import { generatePatient, seeded } from "../src/patientGen.js";
+import { generatePatient, seeded, shapeCohort } from "../src/patientGen.js";
 
 // Usage (from the api folder):  npx tsx scripts/seed_patients.ts          -> local database
 //                               npx tsx scripts/seed_patients.ts --neon   -> Neon
@@ -25,7 +25,7 @@ try {
   let readings = 0;
   for (const clinic of [1, 2]) {
     for (let i = 0; i < 24; i++) {
-      const p = generatePatient(rand, today);
+      const p = shapeCohort(generatePatient(rand, today), seeded(9000 + clinic * 100 + i), today);
       const { rows } = await db.query(
         `INSERT INTO clinical.patients (clinic_id, full_name, birth_date, city, primary_condition, diagnosed_on)
          VALUES ($1,$2,$3,$4,$5,$6) RETURNING patient_id`,

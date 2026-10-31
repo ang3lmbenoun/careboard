@@ -7,7 +7,7 @@ type Row = {
   who: string;
   role: string | null;
   action: string;
-  detail: { rows?: number; question?: string; patient_id?: number } | null;
+  detail: { rows?: number; question?: string; patient_id?: number; reason?: string; route?: string } | null;
 };
 
 const ACTIONS: Record<string, string> = {
@@ -25,6 +25,14 @@ const ACTIONS: Record<string, string> = {
   add_patient: "Added a synthetic patient",
   remove_patient: "Removed a demo patient",
   view_kpis: "Viewed the early demo indicators",
+  login_failed: "Failed sign-in",
+  access_denied: "Request denied",
+  view_risk_register: "Viewed the risk register",
+  view_security: "Viewed security metrics and data health",
+  view_care_risk: "Viewed the care risk worklist",
+  view_care_risk_summary: "Viewed care risk counts",
+  view_ops_risk: "Viewed operational risk",
+  view_spend_risk: "Viewed financial exposure",
 };
 
 const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? "" : "s"}`;
@@ -33,6 +41,8 @@ function describe(r: Row): string {
   const d = r.detail ?? {};
   if (r.action === "assistant_query" && d.question) return `Question: “${d.question}”`;
   if (r.action === "login") return "";
+  if (r.action === "login_failed") return d.reason ?? "";
+  if (r.action === "access_denied") return d.route ? `Tried to open: ${d.route.replace(/_/g, " ")}` : "";
   if (typeof d.patient_id === "number") return `Patient #${d.patient_id}`;
   if (typeof d.rows === "number") return `${plural(d.rows, "row")} returned`;
   return "";

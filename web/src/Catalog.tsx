@@ -9,6 +9,7 @@ type Col = {
   table_description: string | null;
   column_description: string | null;
   allowed: boolean;
+  label: string | null;
 };
 
 export default function Catalog({ role }: { role: string }) {
@@ -79,6 +80,7 @@ export default function Catalog({ role }: { role: string }) {
                     <th>Column</th>
                     <th>Meaning</th>
                     <th>Type</th>
+                    <th>Sensitivity</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -95,6 +97,7 @@ export default function Catalog({ role }: { role: string }) {
                         )}
                       </td>
                       <td>{friendlyType(c.type)}</td>
+                      <td>{c.label ? <span className={"sens " + c.label.toLowerCase().replace(/[^a-z]+/g, "-")}>{c.label}</span> : ""}</td>
                     </tr>
                   ))}
                 </tbody>
