@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { setToken, type User } from "./api";
 import Dashboard from "./Dashboard";
+import Sparkles from "./Sparkles";
 
 const ACCOUNTS = [
   {
@@ -73,6 +74,8 @@ export default function App() {
 
   return (
     <div className="login">
+      <div className="aurora" aria-hidden="true"><i /><i /><i /></div>
+      <Sparkles />
       <aside className="login-aside">
         <p className="eyebrow">Health analytics</p>
         <h1>CareBoard</h1>
@@ -103,7 +106,7 @@ export default function App() {
       <main className="login-main">
         <form className="login-form" onSubmit={login}>
           <h2>Sign in</h2>
-          <p className="sub">Pick an account on the left, or type its email.</p>
+          <p className="sub">Pick an account, or type its email.</p>
           <label className="field">
             Email
             <input

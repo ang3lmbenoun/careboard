@@ -22,7 +22,37 @@ function Kpi(props: { label: string; value: string | null; note: string; onOpen:
   );
 }
 
-export default function Overview({ onOpen }: { onOpen: (tab: "medicaid" | "operations") => void }) {
+type Role = "admin" | "clinician" | "executive";
+type Dest = "medicaid" | "operations" | "catalog" | "patients" | "audit";
+
+const START: Record<Role, { text: string; links: { label: string; to: Dest }[] }> = {
+  executive: {
+    text: "You see aggregate numbers only. Good places to begin:",
+    links: [
+      { label: "Which drug classes cost the most", to: "medicaid" },
+      { label: "Where appointments are missed", to: "operations" },
+      { label: "What each number means", to: "catalog" },
+    ],
+  },
+  clinician: {
+    text: "You can see patients of your own clinic, without names. Good places to begin:",
+    links: [
+      { label: "No-shows by department", to: "operations" },
+      { label: "Your clinic's patients", to: "patients" },
+      { label: "What your role cannot read", to: "catalog" },
+    ],
+  },
+  admin: {
+    text: "You can read the audit log, but not patient records. Good places to begin:",
+    links: [
+      { label: "Review recent activity", to: "audit" },
+      { label: "What each role is denied", to: "catalog" },
+      { label: "Medicaid drug spending", to: "medicaid" },
+    ],
+  },
+};
+
+export default function Overview({ role, onOpen }: { role: Role; onOpen: (tab: Dest) => void }) {
   const classes = useData<Cls[]>("medicaid/breakdown?by=class");
   const months = useData<Ops[]>("ops/trend?grain=month&");
 
@@ -32,8 +62,18 @@ export default function Overview({ onOpen }: { onOpen: (tab: "medicaid" | "opera
   const scheduled = months.data?.reduce((a, r) => a + r.scheduled, 0) ?? null;
   const noShows = months.data?.reduce((a, r) => a + r.no_shows, 0) ?? null;
 
+  const start = START[role];
   return (
     <>
+      <div className="start">
+        <p className="start-title">Start here</p>
+        <p className="start-text">{start.text}</p>
+        <div className="start-links">
+          {start.links.map((l) => (
+            <button key={l.label} onClick={() => onOpen(l.to)}>{l.label} →</button>
+          ))}
+        </div>
+      </div>
       <div className="kpis">
         <Kpi
           label="Medicaid spend, 2024"

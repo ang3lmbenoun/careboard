@@ -7,6 +7,7 @@ import Assistant from "./Assistant";
 import Overview from "./Overview";
 import Settings from "./Settings";
 import Audit from "./Audit";
+import Tour from "./Tour";
 import { useData } from "./useData";
 
 type TabId = "overview" | "medicaid" | "operations" | "catalog" | "patients" | "audit" | "settings";
@@ -129,6 +130,7 @@ export default function Dashboard({ user, email, onSignOut }: { user: User; emai
   const [tab, setTab] = useState<TabId>("overview");
   const [open, setOpen] = useState<boolean>(() => (mobile() ? false : load("careboard.nav") !== "closed"));
   const [shut, setShut] = useState<Record<string, boolean>>({});
+  const [tour, setTour] = useState<boolean>(() => load(`careboard.tour.${email}`) !== "done");
   const [custom, setCustom] = useState<string>(() => load(NAME_KEY(email)) ?? "");
 
   useEffect(() => {
@@ -147,6 +149,10 @@ export default function Dashboard({ user, email, onSignOut }: { user: User; emai
   const go = (id: TabId) => {
     setTab(id);
     if (mobile()) setOpen(false);
+  };
+  const closeTour = () => {
+    setTour(false);
+    save(`careboard.tour.${email}`, "done");
   };
   const saveName = (v: string) => {
     const name = v.trim().slice(0, 30);
@@ -228,19 +234,20 @@ export default function Dashboard({ user, email, onSignOut }: { user: User; emai
               <h1>{head.title}</h1>
               <p className="lede">{head.lede}</p>
             </div>
-            {tab === "overview" && <Overview onOpen={go} />}
+            {tab === "overview" && <Overview role={user.role} onOpen={go} />}
             {tab === "medicaid" && <Medicaid />}
             {tab === "operations" && <Operations />}
             {tab === "catalog" && <Catalog role={user.role} />}
             {tab === "patients" && <TableView key="patients" path="patients" />}
             {tab === "audit" && <Audit />}
             {tab === "settings" && (
-              <Settings email={email} role={user.role} defaultName={user.name} custom={custom} onSave={saveName} access={ROLE_NOTE[user.role]} />
+              <Settings onReplayTour={() => setTour(true)} email={email} role={user.role} defaultName={user.name} custom={custom} onSave={saveName} access={ROLE_NOTE[user.role]} />
             )}
           </main>
         </div>
       </div>
       <Assistant />
+      {tour && <Tour role={user.role} onClose={closeTour} />}
     </div>
   );
 }
