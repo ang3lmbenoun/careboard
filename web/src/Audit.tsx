@@ -7,7 +7,7 @@ type Row = {
   who: string;
   role: string | null;
   action: string;
-  detail: { rows?: number; question?: string } | null;
+  detail: { rows?: number; question?: string; patient_id?: number } | null;
 };
 
 const ACTIONS: Record<string, string> = {
@@ -20,6 +20,10 @@ const ACTIONS: Record<string, string> = {
   view_patients: "Viewed the patient list",
   view_catalog: "Viewed the data catalog",
   view_audit: "Viewed this audit log",
+  view_patient: "Viewed a patient profile",
+  view_patient_classes: "Viewed patients by drug class",
+  add_patient: "Added a synthetic patient",
+  remove_patient: "Removed a demo patient",
   view_kpis: "Viewed the early demo indicators",
 };
 
@@ -29,6 +33,7 @@ function describe(r: Row): string {
   const d = r.detail ?? {};
   if (r.action === "assistant_query" && d.question) return `Question: “${d.question}”`;
   if (r.action === "login") return "";
+  if (typeof d.patient_id === "number") return `Patient #${d.patient_id}`;
   if (typeof d.rows === "number") return `${plural(d.rows, "row")} returned`;
   return "";
 }

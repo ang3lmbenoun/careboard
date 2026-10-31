@@ -8,9 +8,11 @@ import Overview from "./Overview";
 import Settings from "./Settings";
 import Audit from "./Audit";
 import Tour from "./Tour";
-import { useData } from "./useData";
+import ErrorBoundary from "./ErrorBoundary";
+import Patients from "./Patients";
+import Drugs from "./Drugs";
 
-type TabId = "overview" | "medicaid" | "operations" | "catalog" | "patients" | "audit" | "settings";
+type TabId = "overview" | "medicaid" | "operations" | "drugs" | "catalog" | "patients" | "audit" | "settings";
 
 type Item = { id: TabId; label: string; roles: User["role"][] };
 const ALL: User["role"][] = ["admin", "clinician", "executive"];
@@ -22,6 +24,7 @@ const GROUPS: { id: string; label: string; items: Item[] }[] = [
     items: [
       { id: "medicaid", label: "Medicaid", roles: ALL },
       { id: "operations", label: "Operations", roles: ALL },
+      { id: "drugs", label: "Drug classes", roles: ALL },
     ],
   },
   { id: "reference", label: "Reference", items: [{ id: "catalog", label: "Data catalog", roles: ALL }] },
@@ -69,13 +72,17 @@ const HEADINGS: Record<TabId, { title: string; lede: string }> = {
     title: "Clinic operations",
     lede: "Appointments and no-shows across two clinics. Click a bar to drill from year to month, week and day. This data is synthetic.",
   },
+  drugs: {
+    title: "Drug classes",
+    lede: "The four classes of diabetes and weight-management medicines in this app: what each does, what Medicaid spent on it, and how many synthetic patients take it.",
+  },
   catalog: {
     title: "Data catalog",
     lede: "What each number means, where the data comes from, and what your role is allowed to read.",
   },
   patients: {
     title: "Patients",
-    lede: "Synthetic patients from your own clinic. The database hides names and birth dates from your role.",
+    lede: "Synthetic patients from your own clinic, with their medicines and measurements over time. The database hides names and birth dates from your role.",
   },
   audit: {
     title: "Audit log",
@@ -92,28 +99,6 @@ const ROLE_NOTE: Record<User["role"], string> = {
   clinician: "Clinician access: patients of your own clinic, without names or birth dates, plus aggregate data.",
   executive: "Executive access: aggregate Medicaid and operations data only.",
 };
-
-function TableView({ path }: { path: string }) {
-  const { data, error } = useData<Record<string, unknown>[]>(path);
-  if (error) return <p className="state err">{error}</p>;
-  if (!data) return <p className="state">Loading…</p>;
-  if (!data.length) return <p className="state">No rows.</p>;
-  const cols = Object.keys(data[0]);
-  return (
-    <div className="table-wrap">
-      <table className="data">
-        <thead>
-          <tr>{cols.map((c) => <th key={c}>{c.replace(/_/g, " ")}</th>)}</tr>
-        </thead>
-        <tbody>
-          {data.map((r, i) => (
-            <tr key={i}>{cols.map((c) => <td key={c}>{String(r[c])}</td>)}</tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
 
 const NAME_KEY = (email: string) => `careboard.name.${email}`;
 const mobile = () => typeof window !== "undefined" && window.matchMedia("(max-width: 860px)").matches;
@@ -234,15 +219,18 @@ export default function Dashboard({ user, email, onSignOut }: { user: User; emai
               <h1>{head.title}</h1>
               <p className="lede">{head.lede}</p>
             </div>
+            <ErrorBoundary key={tab}>
             {tab === "overview" && <Overview role={user.role} onOpen={go} />}
             {tab === "medicaid" && <Medicaid />}
             {tab === "operations" && <Operations />}
             {tab === "catalog" && <Catalog role={user.role} />}
-            {tab === "patients" && <TableView key="patients" path="patients" />}
+            {tab === "patients" && <Patients onOpen={go} />}
+            {tab === "drugs" && <Drugs role={user.role} />}
             {tab === "audit" && <Audit />}
             {tab === "settings" && (
               <Settings onReplayTour={() => setTour(true)} email={email} role={user.role} defaultName={user.name} custom={custom} onSave={saveName} access={ROLE_NOTE[user.role]} />
             )}
+            </ErrorBoundary>
           </main>
         </div>
       </div>

@@ -30,3 +30,12 @@ export async function post<T>(path: string, body: unknown): Promise<T> {
   if (!res.ok) throw new ApiError(res.status);
   return res.json();
 }
+
+export async function del<T>(path: string): Promise<T> {
+  const res = await fetch(`/api/${path}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new ApiError(res.status);
+  return res.json();
+}

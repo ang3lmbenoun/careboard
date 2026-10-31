@@ -7,6 +7,7 @@
    import helmet from "helmet";
    import rateLimit from "express-rate-limit";
 import { registerAssistant } from "./assistant.js";
+import { generatePatient } from "./patientGen.js";
 
    const SECRET = process.env.JWT_SECRET;
    if (!SECRET) throw new Error("JWT_SECRET missing in api/.env");
@@ -76,8 +77,127 @@ import { registerAssistant } from "./assistant.js";
    app.get("/me", auth, (req: any, res) => res.json(req.user));
    app.get("/kpis", auth, (req, res) =>
   guarded(req, res, "view_kpis", "SELECT metric, period::text AS period, value::float8 AS value FROM serving.kpi_demo ORDER BY metric, period"));
+   const addLimiter = rateLimit({ windowMs: 60 * 60 * 1000, limit: 12, standardHeaders: "draft-7", legacyHeaders: false });
+   const removeLimiter = rateLimit({ windowMs: 60 * 60 * 1000, limit: 40, standardHeaders: "draft-7", legacyHeaders: false });
+   const patientId = (v: unknown) => {
+     const n = Number(v);
+     return Number.isInteger(n) && n > 0 ? n : null;
+   };
+
    app.get("/patients", auth, (req, res) =>
-     guarded(req, res, "view_patients", "SELECT patient_id, clinic_id, birth_year, city, primary_condition FROM clinical.patients ORDER BY patient_id"));
+     guarded(
+       req, res, "view_patients",
+       `SELECT p.patient_id, p.clinic_id, p.birth_year, p.city, p.primary_condition,
+               p.diagnosed_on::text AS diagnosed_on, p.demo_created,
+               COALESCE((SELECT array_agg(DISTINCT m.drug_class ORDER BY m.drug_class)
+                         FROM clinical.patient_medications m
+                         WHERE m.patient_id = p.patient_id AND m.stopped_on IS NULL), '{}') AS current_classes
+        FROM clinical.patients p ORDER BY p.patient_id`
+     ));
+
+   // Patients now taking each drug class, among the patients the caller may see.
+   app.get("/patients/classes", auth, (req, res) =>
+     guarded(
+       req, res, "view_patient_classes",
+       `SELECT m.drug_class, m.indication, count(DISTINCT m.patient_id)::int AS patients
+        FROM clinical.patient_medications m WHERE m.stopped_on IS NULL
+        GROUP BY 1, 2 ORDER BY 1, 2`
+     ));
+
+   app.get("/patients/:id", auth, async (req: any, res) => {
+     const id = patientId(req.params.id);
+     if (!id) return res.status(400).json({ error: "bad id" });
+     try {
+       const out = await withRole(req.user, async (c) => {
+         const p = (
+           await c.query(
+             `SELECT patient_id, clinic_id, birth_year, city, primary_condition, diagnosed_on::text AS diagnosed_on, demo_created
+              FROM clinical.patients WHERE patient_id = $1`,
+             [id]
+           )
+         ).rows[0];
+         if (!p) return null;
+         const medications = (
+           await c.query(
+             `SELECT med_id, drug, drug_class, indication, started_on::text AS started_on, stopped_on::text AS stopped_on, stop_reason
+              FROM clinical.patient_medications WHERE patient_id = $1 ORDER BY started_on, med_id`,
+             [id]
+           )
+         ).rows;
+         const readings = (
+           await c.query(
+             `SELECT taken_on::text AS taken_on, a1c::float8 AS a1c, weight_kg::float8 AS weight_kg
+              FROM clinical.patient_readings WHERE patient_id = $1 ORDER BY taken_on`,
+             [id]
+           )
+         ).rows;
+         return { ...p, medications, readings };
+       });
+       if (!out) return res.status(404).json({ error: "not found" });
+       await audit(req.user, "view_patient", { patient_id: id });
+       res.json(out);
+     } catch (e: any) {
+       if (e.code === "42501") return res.status(403).json({ error: "forbidden" });
+       console.error(e);
+       res.status(500).json({ error: "server error" });
+     }
+   });
+
+   // Demo only: creates one random synthetic patient in the caller's clinic. No free text is accepted.
+   app.post("/patients/generate", auth, addLimiter, async (req: any, res) => {
+     if (req.user.role !== "clinician" || req.user.clinicId == null) return res.status(403).json({ error: "forbidden" });
+     const p = generatePatient(Math.random, Date.now());
+     try {
+       const id = await withRole(req.user, async (c) => {
+         // Housekeeping: demo patients expire after six hours so the cap never fills up for good.
+         await c.query("DELETE FROM clinical.patients WHERE demo_created AND created_at < now() - interval '6 hours'");
+         const r = await c.query(
+           `INSERT INTO clinical.patients (clinic_id, full_name, birth_date, city, primary_condition, diagnosed_on, demo_created)
+            VALUES ($1, $2, $3, $4, $5, $6, true) RETURNING patient_id`,
+           [req.user.clinicId, p.full_name, p.birth_date, p.city, p.primary_condition, p.diagnosed_on]
+         );
+         const pid = r.rows[0].patient_id;
+         await c.query(
+           `INSERT INTO clinical.patient_medications (patient_id, drug, drug_class, indication, started_on, stopped_on, stop_reason)
+            SELECT $1, * FROM unnest($2::text[], $3::text[], $4::text[], $5::date[], $6::date[], $7::text[])`,
+           [pid, p.meds.map((m) => m.drug), p.meds.map((m) => m.drug_class), p.meds.map((m) => m.indication),
+            p.meds.map((m) => m.started_on), p.meds.map((m) => m.stopped_on), p.meds.map((m) => m.stop_reason)]
+         );
+         await c.query(
+           `INSERT INTO clinical.patient_readings (patient_id, taken_on, a1c, weight_kg)
+            SELECT $1, * FROM unnest($2::date[], $3::numeric[], $4::numeric[])`,
+           [pid, p.readings.map((x) => x.taken_on), p.readings.map((x) => x.a1c), p.readings.map((x) => x.weight_kg)]
+         );
+         return pid as number;
+       });
+       await audit(req.user, "add_patient", { patient_id: id });
+       res.status(201).json({ patient_id: id });
+     } catch (e: any) {
+       if (e.code === "CB001") return res.status(409).json({ error: "limit" });
+       if (e.code === "42501") return res.status(403).json({ error: "forbidden" });
+       console.error(e);
+       res.status(500).json({ error: "server error" });
+     }
+   });
+
+   // Only patients added through the demo button can be removed; the database enforces this.
+   app.delete("/patients/:id", auth, removeLimiter, async (req: any, res) => {
+     const id = patientId(req.params.id);
+     if (!id) return res.status(400).json({ error: "bad id" });
+     if (req.user.role !== "clinician") return res.status(403).json({ error: "forbidden" });
+     try {
+       const n = await withRole(req.user, async (c) =>
+         (await c.query("DELETE FROM clinical.patients WHERE patient_id = $1 AND demo_created", [id])).rowCount
+       );
+       if (!n) return res.status(404).json({ error: "not removable" });
+       await audit(req.user, "remove_patient", { patient_id: id });
+       res.json({ ok: true });
+     } catch (e: any) {
+       if (e.code === "42501") return res.status(403).json({ error: "forbidden" });
+       console.error(e);
+       res.status(500).json({ error: "server error" });
+     }
+   });
    app.get("/audit", auth, (req, res) =>
      guarded(req, res, "view_audit", "SELECT a.id, a.at, COALESCE(u.display_name, 'Unknown user') AS who, a.role, a.action, a.detail FROM app.audit_log a LEFT JOIN app.users u ON u.id = a.user_id ORDER BY a.id DESC LIMIT 50"));
 

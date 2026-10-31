@@ -35,6 +35,20 @@ export const TABLES: Record<string, TableInfo> = {
     grain: "One row per patient",
     usedOn: "Patients (clinician only)",
   },
+  "clinical.patient_medications": {
+    title: "Patient medications",
+    summary: "Each medicine a synthetic patient has taken: which drug, which of the four classes it belongs to, why it was prescribed, and when it started and stopped.",
+    source: "synthetic",
+    grain: "One row per medication course",
+    usedOn: "Patients (clinician only), Drug classes",
+  },
+  "clinical.patient_readings": {
+    title: "Patient measurements",
+    summary: "A1C (average blood sugar over about three months) and body weight for each synthetic patient, roughly every three months.",
+    source: "synthetic",
+    grain: "One row per patient and measurement date",
+    usedOn: "Patients (clinician only)",
+  },
   "app.users": {
     title: "App accounts",
     summary: "Sign-in accounts, their role and clinic. Password hashes are stored, never passwords.",
