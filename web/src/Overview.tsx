@@ -52,6 +52,12 @@ const START: Record<Role, { text: string; links: { label: string; to: Dest }[] }
   },
 };
 
+const ROLE_CONTEXT: Record<Role, { eyebrow: string; title: string; body: string; primary: Dest }> = {
+  executive: { eyebrow: "Executive briefing", title: "Where is spend concentrated?", body: "Start with the largest drug class, then compare spending exposure and missed-visit trends. Patient counts are suppressed for small groups.", primary: "riskspend" },
+  clinician: { eyebrow: "Clinical workspace", title: "Who may need follow-up?", body: "Review your clinic’s care-risk worklist and operational trends. Scores are illustrative decision support, not clinical guidance.", primary: "riskcare" },
+  admin: { eyebrow: "Control center", title: "Are access controls and data healthy?", body: "Check recent activity, control tests, and data health. Patient records are denied to this role.", primary: "riskcomp" },
+};
+
 export default function Overview({ role, onOpen }: { role: Role; onOpen: (tab: Dest) => void }) {
   const classes = useData<Cls[]>("medicaid/breakdown?by=class");
   const months = useData<Ops[]>("ops/trend?grain=month&");
@@ -63,8 +69,13 @@ export default function Overview({ role, onOpen }: { role: Role; onOpen: (tab: D
   const noShows = months.data?.reduce((a, r) => a + r.no_shows, 0) ?? null;
 
   const start = START[role];
+  const context = ROLE_CONTEXT[role];
   return (
     <>
+      <section className={`briefing briefing-${role}`} aria-labelledby="briefing-title">
+        <div><p className="briefing-eyebrow">{context.eyebrow}</p><h2 id="briefing-title">{context.title}</h2><p>{context.body}</p></div>
+        <button className="briefing-action" onClick={() => onOpen(context.primary)}>{role === "admin" ? "Review controls" : role === "clinician" ? "Open care risk" : "Explore exposure"}<span aria-hidden="true"> →</span></button>
+      </section>
       <div className="start">
         <p className="start-title">Start here</p>
         <p className="start-text">{start.text}</p>

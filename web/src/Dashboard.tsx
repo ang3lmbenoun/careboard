@@ -180,7 +180,7 @@ export default function Dashboard({ user, email, onSignOut }: { user: User; emai
   const shown = custom || user.name;
   const head =
     tab === "overview"
-      ? { title: `${greeting()}, ${shown}`, lede: "Here is what is going on across your Medicaid and clinic data. Select a card to open the full view." }
+      ? { title: `${greeting()}, ${shown}`, lede: "2024 public Medicaid drug spending and synthetic clinic operations. Select a measure to explore its source and detail." }
       : tab === "riskcare" && user.role !== "clinician"
         ? { title: "Care risk", lede: "How many patients fall in each risk group, by clinic and condition. Your role sees counts only, and small groups are hidden by the database. Synthetic patients; illustrative rules." }
         : HEADINGS[tab];
