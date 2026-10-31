@@ -70,11 +70,6 @@ function save(key: string, value: string | null) {
   }
 }
 
-function greeting(): string {
-  const h = new Date().getHours();
-  return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
-}
-
 const HEADINGS: Record<TabId, { title: string; lede: string }> = {
   overview: {
     title: "Overview",
@@ -179,14 +174,13 @@ export default function Dashboard({ user, email, onSignOut }: { user: User; emai
 
   const shown = custom || user.name;
   const head =
-    tab === "overview"
-      ? { title: `${greeting()}, ${shown}`, lede: "2024 public Medicaid drug spending and synthetic clinic operations. Select a measure to explore its source and detail." }
-      : tab === "riskcare" && user.role !== "clinician"
+    tab === "riskcare" && user.role !== "clinician"
         ? { title: "Care risk", lede: "How many patients fall in each risk group, by clinic and condition. Your role sees counts only, and small groups are hidden by the database. Synthetic patients; illustrative rules." }
         : HEADINGS[tab];
   const groups = GROUPS.map((g) => ({ ...g, items: g.items.filter((i) => i.roles.includes(user.role)) })).filter(
     (g) => g.items.length
   );
+  const crumb = tab === "overview" ? null : GROUPS.find((g) => g.items.some((i) => i.id === tab))?.label ?? null;
   const link = (i: { id: TabId; label: string }) => (
     <button
       key={i.id}
@@ -244,17 +238,22 @@ export default function Dashboard({ user, email, onSignOut }: { user: User; emai
               <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
             </svg>
           </button>
-          <span className="bar-title">{tab === "overview" ? "Overview" : head.title}</span>
+          <span className="bar-title">
+            {crumb && <span className="bar-crumb">{crumb}<span aria-hidden="true"> / </span></span>}
+            {tab === "overview" ? "Overview" : head.title}
+          </span>
         </header>
         <div className="shell">
-          <p className="role-note">{ROLE_NOTE[user.role]}</p>
-          <main className="card">
-            <div className="page-head">
-              <h1>{head.title}</h1>
-              <p className="lede">{head.lede}</p>
-            </div>
+          {tab !== "overview" && <p className="role-note"><span className="role-dot" aria-hidden="true" />{ROLE_NOTE[user.role]}</p>}
+          <main className={"card" + (tab === "overview" ? " bare" : "")}>
+            {tab !== "overview" && (
+              <div className="page-head">
+                <h1>{head.title}</h1>
+                <p className="lede">{head.lede}</p>
+              </div>
+            )}
             <ErrorBoundary key={tab}>
-            {tab === "overview" && <Overview role={user.role} onOpen={go} />}
+            {tab === "overview" && <Overview role={user.role} name={shown} onOpen={go} />}
             {tab === "medicaid" && <Medicaid />}
             {tab === "operations" && <Operations />}
             {tab === "catalog" && <Catalog role={user.role} />}

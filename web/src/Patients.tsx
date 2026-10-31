@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { ApiError, del, post } from "./api";
-import Avatar from "./Avatar";
+import Avatar, { nickname } from "./Avatar";
 import { clsKey } from "./Drugs";
 import { useData } from "./useData";
 
@@ -63,6 +63,12 @@ function Detail({ id, onBack, onRemoved, onOpen }: { id: number; onBack: () => v
   const [confirm, setConfirm] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
+  const [hi, setHi] = useState(true);
+  useEffect(() => {
+    if (!hi) return;
+    const t = setTimeout(() => setHi(false), 1800);
+    return () => clearTimeout(t);
+  }, [hi]);
 
   if (error) return <><button onClick={onBack}>← All patients</button><p className="state err">Could not load this patient.</p></>;
   if (!data) return <p className="state">Loading…</p>;
@@ -98,9 +104,12 @@ function Detail({ id, onBack, onRemoved, onOpen }: { id: number; onBack: () => v
     <>
       <p><button onClick={onBack}>← All patients</button></p>
       <div className="profile-head">
-        <Avatar id={data.patient_id} size={84} />
+        <button className="av-btn" onClick={() => setHi(true)} aria-label={`Say hi to ${nickname(data.patient_id)}`}>
+          <Avatar id={data.patient_id} size={84} waving={hi} />
+          {hi && <span className="say" role="status">Hi, I'm {nickname(data.patient_id)}!</span>}
+        </button>
         <div>
-          <h2>Patient #{data.patient_id}</h2>
+          <h2>{nickname(data.patient_id)} <span className="pid">Patient #{data.patient_id}</span></h2>
           <p className="lede">{age(data.birth_year)} years old · {data.city} · clinic {data.clinic_id}</p>
           <p>
             <span className="cond">{conditionLabel(data.primary_condition)}</span>
@@ -156,10 +165,36 @@ function Detail({ id, onBack, onRemoved, onOpen }: { id: number; onBack: () => v
         ))}
       </ol>
       <p className="note">
-        Synthetic patient. Drug classes are the same four used in the Medicaid data.{" "}
+        Synthetic patient. The nickname is made up in your browser from the patient number; it is not stored and is not a real name. Drug classes are the same four used in the Medicaid data.{" "}
         <button className="linkish" onClick={() => onOpen("drugs")}>What do these classes do? →</button>
       </p>
     </>
+  );
+}
+
+function Card({ p, onPick }: { p: Row; onPick: () => void }) {
+  const [hi, setHi] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  const nick = nickname(p.patient_id);
+  const click = () => {
+    if (hi) return;
+    setHi(true);
+    timer.current = setTimeout(onPick, 800);
+  };
+  return (
+    <button className={"pcard" + (hi ? " hi" : "")} onClick={click}>
+      <span className="av-wrap">
+        <Avatar id={p.patient_id} size={52} waving={hi} />
+        {hi && <span className="say" role="status">Hi, I'm {nick}!</span>}
+      </span>
+      <span className="pbody">
+        <strong>{nick} <span className="pid">#{p.patient_id}</span></strong>
+        <span className="note">{age(p.birth_year)} · {p.city}</span>
+        <span className="cond">{conditionLabel(p.primary_condition)}</span>
+        <span className="chips"><Chips classes={p.current_classes} />{p.demo_created && <span className="tagnew">New</span>}</span>
+      </span>
+    </button>
   );
 }
 
@@ -211,8 +246,8 @@ export default function Patients({ onOpen }: { onOpen: (t: "drugs") => void }) {
     <>
       <div className="listbar">
         <p className="note">
-          {list.data.length} synthetic patients in your clinic. Names and birth dates are hidden from every role. Select a
-          patient for the full history.
+          {list.data.length} synthetic patients in your clinic. Real names and birth dates are hidden from every role, so each
+          patient gets a friendly nickname made up in your browser. Select one to say hi and open the full history.
         </p>
         <button className="primary" onClick={add} disabled={adding}>{adding ? "Adding…" : "+ Add synthetic patient"}</button>
       </div>
@@ -223,15 +258,7 @@ export default function Patients({ onOpen }: { onOpen: (t: "drugs") => void }) {
       </p>
       <div className="pgrid">
         {list.data.map((p) => (
-          <button key={p.patient_id} className="pcard" onClick={() => setOpen(p.patient_id)}>
-            <Avatar id={p.patient_id} size={52} />
-            <span className="pbody">
-              <strong>Patient #{p.patient_id}</strong>
-              <span className="note">{age(p.birth_year)} · {p.city}</span>
-              <span className="cond">{conditionLabel(p.primary_condition)}</span>
-              <span className="chips"><Chips classes={p.current_classes} />{p.demo_created && <span className="tagnew">New</span>}</span>
-            </span>
-          </button>
+          <Card key={p.patient_id} p={p} onPick={() => setOpen(p.patient_id)} />
         ))}
       </div>
     </>

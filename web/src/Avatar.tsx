@@ -21,7 +21,17 @@ function mix(seed: number) {
   };
 }
 
-export default function Avatar({ id, size = 56 }: { id: number; size?: number }) {
+// Friendly display nicknames, picked from the patient number in the browser. They are not stored,
+// not sent anywhere, and not real names: the database still hides every patient's name.
+const NICKS = [
+  "Willow", "Sunny", "Juniper", "Ollie", "Maple", "Rowan", "Poppy", "Finn", "Hazel", "Teddy", "Luna", "Milo",
+  "Piper", "Wren", "Clover", "Archie", "Daisy", "Felix", "Ivy", "Jasper", "Mabel", "Nico", "Olive", "Pip",
+  "Quinn", "Remy", "Stella", "Theo", "Uma", "Violet", "Wyatt", "Zoe", "Bea", "Cleo", "Dex", "Elio",
+  "Faye", "Gus", "Hugo", "Iris", "June", "Kai", "Lola", "Moss", "Nell", "Otis", "Pearl", "Rex",
+];
+export const nickname = (id: number) => NICKS[Math.floor(mix(id + 101)() * NICKS.length)];
+
+export default function Avatar({ id, size = 56, waving = false }: { id: number; size?: number; waving?: boolean }) {
   const r = mix(id + 7);
   const skin = SKIN[Math.floor(r() * SKIN.length)];
   const hair = HAIR[Math.floor(r() * HAIR.length)];
@@ -31,7 +41,7 @@ export default function Avatar({ id, size = 56 }: { id: number; size?: number })
   const glasses = r() < 0.3;
   const gid = `av${id}`;
   return (
-    <svg width={size} height={size} viewBox="0 0 64 64" role="img" aria-label={`Avatar for patient ${id}`} className="avatar">
+    <svg width={size} height={size} viewBox="0 0 64 64" role="img" aria-label={`Avatar for patient ${id}`} className={"avatar" + (waving ? " waving" : "")}>
       <defs>
         <linearGradient id={gid} x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stopColor={b1} />
@@ -63,14 +73,31 @@ export default function Avatar({ id, size = 56 }: { id: number; size?: number })
             <path d="M19 28c0-10 6-14 13-14s13 4 13 14c-3-5-8-7-13-7s-10 2-13 7z" />
           </g>
         )}
-        <circle cx="27.5" cy="29" r="1.5" fill="#2b2b2b" />
-        <circle cx="36.5" cy="29" r="1.5" fill="#2b2b2b" />
-        <path d="M27.5 34.5c1.2 1.6 7.8 1.6 9 0" stroke="#7a3b2e" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+        {waving ? (
+          <>
+            <path d="M25 29.5q2.5-3 5 0M34 29.5q2.5-3 5 0" stroke="#2b2b2b" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+            <path d="M25.5 33.5c1.5 6 11.5 6 13 0z" fill="#fff" stroke="#7a3b2e" strokeWidth="1.3" strokeLinejoin="round" />
+            <circle cx="23.5" cy="33" r="2.2" fill="#f08a7a" opacity="0.45" />
+            <circle cx="40.5" cy="33" r="2.2" fill="#f08a7a" opacity="0.45" />
+          </>
+        ) : (
+          <>
+            <circle className="av-eye" cx="27.5" cy="29" r="1.5" fill="#2b2b2b" />
+            <circle className="av-eye" cx="36.5" cy="29" r="1.5" fill="#2b2b2b" />
+            <path d="M27.5 34.5c1.2 1.6 7.8 1.6 9 0" stroke="#7a3b2e" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+          </>
+        )}
         {glasses && (
           <g fill="none" stroke="#33413b" strokeWidth="1.2">
             <circle cx="27.5" cy="29" r="4.2" />
             <circle cx="36.5" cy="29" r="4.2" />
             <path d="M31.7 29h0.6" />
+          </g>
+        )}
+        {waving && (
+          <g className="av-hand">
+            <rect x="46" y="40" width="6" height="18" rx="3" fill={shirt} />
+            <circle cx="49" cy="37" r="4.6" fill={skin} />
           </g>
         )}
       </g>
