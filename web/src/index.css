@@ -475,3 +475,8 @@ table.data .num { text-align: right; font-variant-numeric: tabular-nums; }
 tr.denied td { color: #8a948f; background: #f5f7f6; }
 tr.denied code { color: #8a948f; }
 @media (max-width: 600px) { .facts.compact { grid-template-columns: 1fr; } }
+
+/* ---------- audit log ---------- */
+.toggle { display: inline-flex; align-items: center; gap: 8px; margin: 6px 0 12px; color: var(--muted); font-size: 14px; }
+td.nowrap { white-space: nowrap; }
+td.detail { color: var(--muted); max-width: 46ch; }

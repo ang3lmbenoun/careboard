@@ -6,6 +6,7 @@ import Operations from "./Operations";
 import Assistant from "./Assistant";
 import Overview from "./Overview";
 import Settings from "./Settings";
+import Audit from "./Audit";
 import { useData } from "./useData";
 
 type TabId = "overview" | "medicaid" | "operations" | "catalog" | "patients" | "audit" | "settings";
@@ -77,7 +78,7 @@ const HEADINGS: Record<TabId, { title: string; lede: string }> = {
   },
   audit: {
     title: "Audit log",
-    lede: "Actions recorded by the API. Only administrators can read this table.",
+    lede: "Every sign-in, page view and question asked of Carry. Only administrators can read this log.",
   },
   settings: {
     title: "Settings",
@@ -101,7 +102,7 @@ function TableView({ path }: { path: string }) {
     <div className="table-wrap">
       <table className="data">
         <thead>
-          <tr>{cols.map((c) => <th key={c}>{c}</th>)}</tr>
+          <tr>{cols.map((c) => <th key={c}>{c.replace(/_/g, " ")}</th>)}</tr>
         </thead>
         <tbody>
           {data.map((r, i) => (
@@ -232,7 +233,7 @@ export default function Dashboard({ user, email, onSignOut }: { user: User; emai
             {tab === "operations" && <Operations />}
             {tab === "catalog" && <Catalog role={user.role} />}
             {tab === "patients" && <TableView key="patients" path="patients" />}
-            {tab === "audit" && <TableView key="audit" path="audit" />}
+            {tab === "audit" && <Audit />}
             {tab === "settings" && (
               <Settings email={email} role={user.role} defaultName={user.name} custom={custom} onSave={saveName} access={ROLE_NOTE[user.role]} />
             )}

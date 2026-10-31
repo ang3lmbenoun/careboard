@@ -79,7 +79,7 @@ import { registerAssistant } from "./assistant.js";
    app.get("/patients", auth, (req, res) =>
      guarded(req, res, "view_patients", "SELECT patient_id, clinic_id, birth_year, city, primary_condition FROM clinical.patients ORDER BY patient_id"));
    app.get("/audit", auth, (req, res) =>
-     guarded(req, res, "view_audit", "SELECT id, at, user_id, role, action FROM app.audit_log ORDER BY id DESC LIMIT 50"));
+     guarded(req, res, "view_audit", "SELECT a.id, a.at, COALESCE(u.display_name, 'Unknown user') AS who, a.role, a.action, a.detail FROM app.audit_log a LEFT JOIN app.users u ON u.id = a.user_id ORDER BY a.id DESC LIMIT 50"));
 
    const DIMS: Record<string, string> = { class: "drug_class", drug: "drug", state: "state" };
    const strOrNull = (v: unknown) => (typeof v === "string" && v !== "" ? v : null);
