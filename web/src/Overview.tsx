@@ -356,7 +356,7 @@ function Story() {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="period" tickFormatter={(p) => String(p).slice(0, 7)} minTickGap={36} />
-                <YAxis tickFormatter={(v) => pct(v, 0)} domain={[lo, hi]} width={44} allowDataOverflow />
+                <YAxis tickFormatter={(v) => pct(v, 1)} domain={[lo, hi]} width={44} allowDataOverflow />
                 <Tooltip formatter={(v) => pct(Number(v))} labelFormatter={(p) => String(p).slice(0, 7)} />
                 <ReferenceLine y={TARGET} stroke="#9b2c2c" strokeDasharray="4 4" label={{ value: `${pct(TARGET, 0)} target (assumption)`, fill: "#9b2c2c", fontSize: 11, position: "insideBottomRight" }} />
                 <Area type="monotone" dataKey="no_show_rate" name="No-show rate" stroke="#a8782a" strokeWidth={2.5} fill="url(#ovg)" isAnimationActive={false} />
