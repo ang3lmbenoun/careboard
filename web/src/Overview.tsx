@@ -1,12 +1,15 @@
 import type { ReactNode } from "react";
 import { Area, AreaChart, CartesianGrid, ReferenceDot, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { useState } from "react";
 import { useData } from "./useData";
+import SignalInfo from "./SignalInfo";
+import type { SignalId } from "./signalContent";
 import { money, num, pct } from "./riskUi";
 
 type Role = "admin" | "clinician" | "executive";
 export type Dest =
   | "medicaid" | "operations" | "drugs" | "catalog" | "patients" | "audit"
-  | "riskcare" | "riskops" | "riskspend" | "riskcomp";
+  | "riskcare" | "riskops" | "riskspend" | "riskcomp" | "signals";
 
 type Cls = { label: string; prescriptions: number; spend: number };
 type Trend = { period: string; scheduled: number; completed: number; no_shows: number; no_show_rate: number };
@@ -84,6 +87,8 @@ const Arrow = () => (
 );
 
 function Signal(props: {
+  id?: SignalId;
+  onInfo?: (id: SignalId) => void;
   label: string;
   value: string | null;
   sub: ReactNode;
@@ -95,6 +100,7 @@ function Signal(props: {
   onOpen: () => void;
 }) {
   return (
+    <div className="sig-wrap">
     <button className={`sig sig-${props.tone ?? "neutral"}`} onClick={props.onOpen}>
       <span className="sig-top">
         <span className="sig-label">{props.label}</span>
@@ -106,6 +112,19 @@ function Signal(props: {
       <span className="sig-sub">{props.sub}</span>
       <span className="sig-cta">{props.cta} <Arrow /></span>
     </button>
+    {props.id && props.onInfo && (
+      <button
+        type="button"
+        className="sig-info"
+        data-tour="sig-info"
+        aria-label={`Where "${props.label}" comes from`}
+        title="Where this comes from"
+        onClick={() => props.onInfo!(props.id!)}
+      >
+        i
+      </button>
+    )}
+    </div>
   );
 }
 
@@ -134,7 +153,7 @@ function twelve(ops: OpsP | null) {
   return { s, n, rate: s ? n / s : 0 };
 }
 
-function ExecSignals({ onOpen }: { onOpen: (d: Dest) => void }) {
+function ExecSignals({ onOpen, onInfo }: { onOpen: (d: Dest) => void; onInfo: (id: SignalId) => void }) {
   const spend = useData<SpendP>("risk/spend");
   const ops = useData<OpsP>("risk/ops");
   const reg = useData<Register>("risk/register");
@@ -153,21 +172,21 @@ function ExecSignals({ onOpen }: { onOpen: (d: Dest) => void }) {
   return (
     <>
       <Signal
-        label="Medicaid drug spend, 2024"
+        id="spend" onInfo={onInfo} label="Medicaid drug spend, 2024"
         value={spend.error ? "n/a" : total ? money(total) : null}
         shares={shares}
         sub={top ? <><strong>{top.label}</strong> is {pct(top.share, 0)} of it. Four drug classes, all states.</> : "Four drug classes, all states."}
         tag="real" cta="Explore drug spend" onOpen={() => onOpen("medicaid")}
       />
       <Signal
-        label="Spend concentration"
+        id="hhi" onInfo={onInfo} label="Spend concentration"
         value={spend.error ? "n/a" : h === null ? null : num(h)}
         tone={h !== null && h >= 3500 ? "warn" : "neutral"}
         sub={h === null ? "" : <><strong>{level}.</strong> Index runs from 2,500 (four equal classes) to 10,000 (one class).</>}
         tag="real" cta="See what moves it" onOpen={() => onOpen("riskspend")}
       />
       <Signal
-        label="Revenue at risk, last 12 months"
+        id="revenue" onInfo={onInfo} label="Revenue at risk, last 12 months"
         value={ops.error ? "n/a" : t ? money(t.n * VISIT_VALUE) : null}
         tone="warn"
         spark={monthlyRates(ops.data)}
@@ -175,7 +194,7 @@ function ExecSignals({ onOpen }: { onOpen: (d: Dest) => void }) {
         tag="synthetic" cta="Test the assumptions" onOpen={() => onOpen("riskops")}
       />
       <Signal
-        label="Controls in place"
+        id="controls" onInfo={onInfo} label="Controls in place"
         value={reg.error ? "n/a" : ctl.length ? `${inPlace} of ${ctl.length}` : null}
         tone={hi ? "warn" : "ok"}
         sub={ctl.length ? <>{hi} {hi === 1 ? "risk still rates" : "risks still rate"} High or Critical after controls. Gaps are listed openly.</> : ""}
@@ -230,7 +249,7 @@ function ClinSignals({ onOpen }: { onOpen: (d: Dest) => void }) {
   );
 }
 
-function AdminSignals({ onOpen }: { onOpen: (d: Dest) => void }) {
+function AdminSignals({ onOpen, onInfo }: { onOpen: (d: Dest) => void; onInfo: (id: SignalId) => void }) {
   const sec = useData<Security>("risk/security");
   const reg = useData<Register>("risk/register");
   const tests = sec.data?.tests ?? [];
@@ -246,27 +265,27 @@ function AdminSignals({ onOpen }: { onOpen: (d: Dest) => void }) {
   return (
     <>
       <Signal
-        label="Control tests passing"
+        id="tests" onInfo={onInfo} label="Control tests passing"
         value={sec.error ? "n/a" : tests.length ? `${tp} of ${tests.length}` : null}
         tone={tests.length && tp === tests.length ? "ok" : "bad"}
         sub="Queried from the database each time this page loads, so a changed permission shows up here."
         tag="live" cta="See each test" onOpen={() => onOpen("riskcomp")}
       />
       <Signal
-        label="Data health checks"
+        id="checks" onInfo={onInfo} label="Data health checks"
         value={sec.error ? "n/a" : checks.length ? `${cp} of ${checks.length}` : null}
         tone={checks.length && cp === checks.length ? "ok" : "warn"}
         sub="Row counts, freshness and referential checks on the data."
         tag="live" cta="See the checks" onOpen={() => onOpen("riskcomp")}
       />
       <Signal
-        label="Refused, last 30 days"
+        id="refused" onInfo={onInfo} label="Refused, last 30 days"
         value={sec.error ? "n/a" : sec.data ? num(failed + denied) : null}
         sub={sec.data ? <>{num(failed)} failed sign-ins and {num(denied)} blocked requests.</> : ""}
         tag="live" cta="Open the audit log" onOpen={() => onOpen("audit")}
       />
       <Signal
-        label="Known gaps"
+        id="gaps" onInfo={onInfo} label="Known gaps"
         value={reg.error ? "n/a" : ctl.length ? num(gaps + partial) : null}
         tone={gaps ? "warn" : "neutral"}
         sub={ctl.length ? <>{gaps} open and {partial} partial among {ctl.length} controls. Listed on purpose.</> : ""}
@@ -310,7 +329,7 @@ function Story() {
   const hi = rates.length ? Math.max(...rates, TARGET) + 0.01 : 0.2;
 
   return (
-    <section className="ov-sec" aria-labelledby="ov-story">
+    <section className="ov-sec" aria-labelledby="ov-story" data-tour="story">
       <div className="ov-sec-head">
         <h2 id="ov-story">What the data says</h2>
         <p>Two stories behind the numbers above.</p>
@@ -406,6 +425,8 @@ const LEDE: Record<Role, string> = {
 
 export default function Overview({ role, name, onOpen }: { role: Role; name: string; onOpen: (tab: Dest) => void }) {
   const lens = LENS[role];
+  const [info, setInfo] = useState<SignalId | null>(null);
+  const canTrace = role !== "clinician";
   const today = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
 
   return (
@@ -426,12 +447,12 @@ export default function Overview({ role, name, onOpen }: { role: Role; name: str
       <section className="ov-sec" aria-labelledby="ov-sig">
         <div className="ov-sec-head">
           <h2 id="ov-sig">Signals to watch</h2>
-          <p>Select a card to open the full view.</p>
+          <p>{canTrace ? "Select a card to open the full view, or i to see where the number comes from." : "Select a card to open the full view."}</p>
         </div>
-        <div className="sigs">
-          {role === "executive" && <ExecSignals onOpen={onOpen} />}
+        <div className="sigs" data-tour="signals">
+          {role === "executive" && <ExecSignals onOpen={onOpen} onInfo={setInfo} />}
           {role === "clinician" && <ClinSignals onOpen={onOpen} />}
-          {role === "admin" && <AdminSignals onOpen={onOpen} />}
+          {role === "admin" && <AdminSignals onOpen={onOpen} onInfo={setInfo} />}
         </div>
       </section>
 
@@ -460,6 +481,7 @@ export default function Overview({ role, name, onOpen }: { role: Role; name: str
         </p>
         <p>Not sure what a number means? Select <strong>Ask Carry</strong> in the corner, or open the Data catalog.</p>
       </footer>
+      {info && canTrace && <SignalInfo id={info} onClose={() => setInfo(null)} onOpen={(to) => onOpen(to)} />}
     </div>
   );
 }

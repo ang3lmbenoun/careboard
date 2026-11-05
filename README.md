@@ -24,7 +24,7 @@ I built CareBoard as a mock company would brief it: a small health system with t
 - **Operational risk.** Revenue at risk from no-shows, with adjustable visit value and target rate.
 - **Financial exposure.** Spend concentration index, price versus volume, and a what-if slider. Scenarios, not forecasts.
 - **Risk & compliance.** A 16-item risk register, a 15-item control map tied to HIPAA Security Rule areas, live security metrics, data-health checks, and 8 control tests that query the database each time the page loads.
-- **Patients.** Synthetic patients with avatars, A1C and weight charts, and medication history. Clinicians can add and remove demo patients under hard limits.
+- **Patients.** Synthetic patients with illustrated avatars (AI-generated pictures of fictional people, chosen by patient number), A1C and weight charts, and medication history. Clinicians can add and remove demo patients under hard limits.
 - **Data catalog.** What each number means, where it comes from, a sensitivity label on every column, and which columns your role cannot read.
 - **Audit log.** Sign-ins, failed sign-ins, denied requests, data views, and every question asked of the assistant.
 - **Business intelligence.** A published Tableau dashboard fed by aggregate exports. See the section below.

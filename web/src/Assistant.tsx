@@ -180,6 +180,7 @@ export default function Assistant() {
 
       <button
         className="chat-fab"
+        data-tour="chat-fab"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-label={open ? "Close the assistant" : "Open the assistant"}

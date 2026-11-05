@@ -8,6 +8,7 @@ import Overview from "./Overview";
 import Settings from "./Settings";
 import Audit from "./Audit";
 import Tour from "./Tour";
+import Signals from "./Signals";
 import ErrorBoundary from "./ErrorBoundary";
 import Patients from "./Patients";
 import Drugs from "./Drugs";
@@ -18,7 +19,7 @@ import RiskCompliance from "./RiskCompliance";
 
 type TabId =
   | "overview" | "medicaid" | "operations" | "drugs" | "riskcare" | "riskops" | "riskspend" | "riskcomp"
-  | "catalog" | "patients" | "audit" | "settings";
+  | "catalog" | "patients" | "audit" | "settings" | "signals";
 
 type Item = { id: TabId; label: string; roles: User["role"][] };
 const ALL: User["role"][] = ["admin", "clinician", "executive"];
@@ -43,7 +44,14 @@ const GROUPS: { id: string; label: string; items: Item[] }[] = [
       { id: "riskcomp", label: "Risk & compliance", roles: ["admin", "executive"] },
     ],
   },
-  { id: "reference", label: "Reference", items: [{ id: "catalog", label: "Data catalog", roles: ALL }] },
+  {
+    id: "reference",
+    label: "Reference",
+    items: [
+      { id: "signals", label: "Signals", roles: ["admin", "executive"] },
+      { id: "catalog", label: "Data catalog", roles: ALL },
+    ],
+  },
   {
     id: "restricted",
     label: "Restricted",
@@ -102,6 +110,10 @@ const HEADINGS: Record<TabId, { title: string; lede: string }> = {
   riskcomp: {
     title: "Risk & compliance",
     lede: "The risks to the data and the business, the controls against them mapped to HIPAA Security Rule areas, and live checks that those controls still hold.",
+  },
+  signals: {
+    title: "Signals",
+    lede: "Where every number on the Overview comes from: the source, the calculation, and what to keep in mind before relying on it.",
   },
   catalog: {
     title: "Data catalog",
@@ -185,6 +197,7 @@ export default function Dashboard({ user, email, onSignOut }: { user: User; emai
     <button
       key={i.id}
       className={"nav-item" + (tab === i.id ? " active" : "")}
+      data-tour={`nav-${i.id}`}
       aria-current={tab === i.id ? "page" : undefined}
       onClick={() => go(i.id)}
     >
@@ -202,7 +215,7 @@ export default function Dashboard({ user, email, onSignOut }: { user: User; emai
           </svg>
           CareBoard
         </div>
-        <nav className="side-nav">
+        <nav className="side-nav" data-tour="nav">
           {link(HOME)}
           {groups.map((g) => {
             const isShut = !!shut[g.id];
@@ -257,6 +270,7 @@ export default function Dashboard({ user, email, onSignOut }: { user: User; emai
             {tab === "medicaid" && <Medicaid />}
             {tab === "operations" && <Operations />}
             {tab === "catalog" && <Catalog role={user.role} />}
+            {tab === "signals" && <Signals role={user.role} onOpen={go} />}
             {tab === "patients" && <Patients onOpen={go} />}
             {tab === "drugs" && <Drugs role={user.role} />}
             {tab === "riskcare" && <CareRisk role={user.role} />}
@@ -272,7 +286,7 @@ export default function Dashboard({ user, email, onSignOut }: { user: User; emai
         </div>
       </div>
       <Assistant />
-      {tour && <Tour role={user.role} onClose={closeTour} />}
+      {tour && <Tour role={user.role} onClose={closeTour} onGo={(t) => setTab(t)} onNav={(o) => mobile() && setOpen(o)} />}
     </div>
   );
 }

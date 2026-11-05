@@ -105,7 +105,7 @@ function Detail({ id, onBack, onRemoved, onOpen }: { id: number; onBack: () => v
       <p><button onClick={onBack}>← All patients</button></p>
       <div className="profile-head">
         <button className="av-btn" onClick={() => setHi(true)} aria-label={`Say hi to ${nickname(data.patient_id)}`}>
-          <Avatar id={data.patient_id} size={84} waving={hi} />
+          <Avatar id={data.patient_id} size={128} waving={hi} age={age(data.birth_year)} />
           {hi && <span className="say" role="status">Hi, I'm {nickname(data.patient_id)}!</span>}
         </button>
         <div>
@@ -185,7 +185,7 @@ function Card({ p, onPick }: { p: Row; onPick: () => void }) {
   return (
     <button className={"pcard" + (hi ? " hi" : "")} onClick={click}>
       <span className="av-wrap">
-        <Avatar id={p.patient_id} size={52} waving={hi} />
+        <Avatar id={p.patient_id} size={52} waving={hi} age={age(p.birth_year)} />
         {hi && <span className="say" role="status">Hi, I'm {nick}!</span>}
       </span>
       <span className="pbody">
