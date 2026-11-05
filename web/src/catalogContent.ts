@@ -19,6 +19,14 @@ export const TABLES: Record<string, TableInfo> = {
     grain: "One row per state, quarter and drug",
     usedOn: "Overview, Medicaid",
   },
+  "serving.medicare_part_d_annual": {
+    title: "Medicare Part D diabetes drug spending, 2020 to 2024",
+    summary:
+      "How much Medicare Part D spent nationally on the same four drug classes as the Medicaid data, and how many prescription fills that paid for. There is no state split.",
+    source: "public",
+    grain: "One row per year and drug",
+    usedOn: "Medicaid vs Medicare",
+  },
   "serving.clinic_daily": {
     title: "Clinic appointments and no-shows",
     summary:

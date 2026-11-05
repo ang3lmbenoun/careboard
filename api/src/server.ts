@@ -265,6 +265,31 @@ import { registerRisk } from "./risk.js";
      )
    );
 
+   // Medicare Part D, national, by year. Same four classes as the Medicaid data.
+   const intOrNull = (v: unknown) => (typeof v === "string" && /^\d{4}$/.test(v) ? Number(v) : null);
+
+   app.get("/medicare/trend", auth, (req, res) =>
+     guarded(
+       req, res, "view_medicare_trend",
+       `SELECT year, drug_class AS label, SUM(claims)::float8 AS claims, SUM(spend)::float8 AS spend
+        FROM serving.medicare_part_d_annual GROUP BY year, drug_class ORDER BY year, drug_class`
+     )
+   );
+
+   app.get("/medicare/breakdown", auth, (req, res) => {
+     const by = String(req.query.by);
+     if (by !== "class" && by !== "drug") return res.status(400).json({ error: "by must be class or drug" });
+     guarded(
+       req, res, "view_medicare_breakdown",
+       `SELECT ${by === "class" ? "drug_class" : "drug"} AS label, SUM(claims)::float8 AS claims, SUM(spend)::float8 AS spend
+        FROM serving.medicare_part_d_annual
+        WHERE year = COALESCE($1::int, (SELECT max(year) FROM serving.medicare_part_d_annual))
+          AND ($2::text IS NULL OR drug_class = $2)
+        GROUP BY 1 ORDER BY spend DESC`,
+       [intOrNull(req.query.year), strOrNull(req.query.class)]
+     );
+   });
+
 const GRAINS = new Set(["year", "month", "week", "day"]);
 const OPS_DIMS: Record<string, string> = { clinic: "clinic_id::text", department: "department" };
 const dateOrNull = (v: unknown) =>

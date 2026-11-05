@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { User } from "./api";
 import Medicaid from "./Medicaid";
+import Payers from "./Payers";
 import Catalog from "./Catalog";
 import Operations from "./Operations";
 import Assistant from "./Assistant";
@@ -18,7 +19,7 @@ import SpendRisk from "./SpendRisk";
 import RiskCompliance from "./RiskCompliance";
 
 type TabId =
-  | "overview" | "medicaid" | "operations" | "drugs" | "riskcare" | "riskops" | "riskspend" | "riskcomp"
+  | "overview" | "medicaid" | "payers" | "operations" | "drugs" | "riskcare" | "riskops" | "riskspend" | "riskcomp"
   | "catalog" | "patients" | "audit" | "settings" | "signals";
 
 type Item = { id: TabId; label: string; roles: User["role"][] };
@@ -30,6 +31,7 @@ const GROUPS: { id: string; label: string; items: Item[] }[] = [
     label: "Analytics",
     items: [
       { id: "medicaid", label: "Medicaid", roles: ALL },
+      { id: "payers", label: "Medicaid vs Medicare", roles: ALL },
       { id: "operations", label: "Operations", roles: ALL },
       { id: "drugs", label: "Drug classes", roles: ALL },
     ],
@@ -86,6 +88,10 @@ const HEADINGS: Record<TabId, { title: string; lede: string }> = {
   medicaid: {
     title: "Medicaid drug spend",
     lede: "State Medicaid spending on four diabetes drug classes in 2024. Click a bar to drill from drug class to drug to state.",
+  },
+  payers: {
+    title: "Medicaid vs Medicare",
+    lede: "The same four diabetes drug classes under the two public programs: state Medicaid in 2024 and national Medicare Part D from 2020 to 2024.",
   },
   operations: {
     title: "Clinic operations",
@@ -268,6 +274,7 @@ export default function Dashboard({ user, email, onSignOut }: { user: User; emai
             <ErrorBoundary key={tab}>
             {tab === "overview" && <Overview role={user.role} name={shown} onOpen={go} />}
             {tab === "medicaid" && <Medicaid />}
+            {tab === "payers" && <Payers />}
             {tab === "operations" && <Operations />}
             {tab === "catalog" && <Catalog role={user.role} />}
             {tab === "signals" && <Signals role={user.role} onOpen={go} />}

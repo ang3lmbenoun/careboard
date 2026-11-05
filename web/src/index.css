@@ -1022,3 +1022,8 @@ h3 { font-size: 19px; }
 @media (prefers-reduced-motion: reduce) {
   .tr-spot, .tr-pop, .si { animation: none; transition: none; }
 }
+
+/* ---------- Medicaid vs Medicare ---------- */
+.story-line { margin: 0 0 6px; padding: 12px 14px; border-radius: 12px; background: var(--green-100); color: var(--green-900); font-size: 15px; line-height: 1.5; }
+.bars-note ul { margin: 6px 0 0; padding-left: 18px; }
+.bars-note li { margin: 3px 0; }

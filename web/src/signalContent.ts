@@ -84,7 +84,7 @@ export const SIGNALS: SignalInfo[] = [
   {
     id: "checks", group: "admin", label: "Data health checks", tag: "live", page: "riskcomp",
     source: "app.data_checks(), a database function.",
-    how: "Nine checks on row counts, reconciliation between tables, and freshness.",
+    how: "Eleven checks on row counts, reconciliation between tables, and freshness.",
     caution: "The CMS data has cells hidden by the source's small-cell suppression. A check reports that honestly instead of hiding it.",
   },
   {
@@ -121,5 +121,5 @@ export const SYNTHETIC_NOTES = [
   "The clinic appointment generator uses a fixed random seed (42). Base no-show rates are 8% for Primary care, 12% for Behavioral health and 6% for Endocrinology, with Mondays 1.5 points higher. Behavioral health drifts up 1.5 points a year.",
   "Seed patients are shaped on purpose: roughly one in five type 2 diabetes patients is poorly controlled, and some stop a GLP-1, start insulin, or stop having readings.",
   "So the clinic and patient signals show what my assumptions built in. Read them as a demonstration of method: how a number is defined, protected and traced.",
-  "The Medicaid figures are the only real-world signals, and they cover one year and four drug classes.",
+  "The Medicaid and Medicare figures are the only real-world signals. Medicaid covers 2024 by state; Medicare Part D covers 2020 to 2024 nationally; both cover the same four drug classes.",
 ];

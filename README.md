@@ -20,6 +20,7 @@ I built CareBoard as a mock company would brief it: a small health system with t
 ## What is in it
 
 - **Overview, Medicaid, Operations, Drug classes.** Public Medicaid drug spend (2024) and synthetic clinic appointments, with drill-downs.
+- **Medicaid vs Medicare.** The same four drug classes under both public programs: state Medicaid in 2024 next to national Medicare Part D from 2020 to 2024. Medicare is about 3.8 times Medicaid on these classes in 2024 ($41.0B against $10.9B, computed in the browser from the two tables).
 - **Care risk.** A points-based risk score per synthetic patient with the reasons shown. Clinicians get a worklist for their clinic; executives and admins get counts with small cells hidden by the database.
 - **Operational risk.** Revenue at risk from no-shows, with adjustable visit value and target rate.
 - **Financial exposure.** Spend concentration index, price versus volume, and a what-if slider. Scenarios, not forecasts.
@@ -82,7 +83,7 @@ I wrote the generators, so the findings are properties of my assumptions. They a
 
 - `api/scripts/generate_clinic_ops.ts` uses a fixed random seed (42). Base no-show rates are 8% for Primary care, 12% for Behavioral health and 6% for Endocrinology, with Mondays 1.5 points higher. Behavioral health drifts up by 1.5 points a year. That is why Behavioral health sits near 14% and why the overall rate creeps toward the 10% target.
 - Seed patients are shaped on purpose: about one in five type 2 diabetes patients is poorly controlled, some stop a GLP-1, some start insulin, some stop having readings. That gives the risk rules something to find.
-- The Medicaid figures are the only real-world signals, and they cover one year and four drug classes.
+- The Medicaid and Medicare figures are the only real-world signals. Medicaid covers 2024 by state; Medicare Part D covers 2020 to 2024 nationally; both cover the same four drug classes.
 
 Read the clinic and patient signals as a demonstration of method: how a number is defined, protected and traced. They say nothing about real people or real clinics.
 
@@ -111,6 +112,7 @@ The key design choice: **the API does not decide who sees what. The database doe
 | Dataset | Source | Notes |
 |---|---|---|
 | `serving.medicaid_drug_quarterly` | CMS State Drug Utilization Data, 2024, prepared by my separate diabetes-glp1-pipeline project | Four classes: GLP-1, insulin, DPP-4, metformin. SGLT2 inhibitors are not included. Small cells may be hidden in the source, so totals can understate. Spend is the amount reimbursed; as far as I know it is before manufacturer rebates. |
+| `serving.medicare_part_d_annual` | CMS Medicare Part D Spending by Drug, 2020 to 2024, built by `api/scripts/export_medicare.ts` | National, no state split. Same four classes as Medicaid, assigned from the same brand-name list (insulin products not on the list are grouped as "Insulin (other)"). Only the file's `Overall` rows are used, because the file also lists each manufacturer and adding both would count spend twice. SGLT2 inhibitors are left out. Spend is before rebates, as far as I know. Medicaid and Medicare are counted differently, so compare them as rough size only. |
 | `serving.clinic_daily` | **Synthetic**, fixed random seed | Daily scheduled, completed and no-show counts for 2 clinics and 3 departments, weekdays, Jan 2024 to Oct 2026. |
 | `clinical.*` | **Synthetic** | 48 seeded patients (24 per clinic) plus demo-added ones. The seed shapes some patients as poorly controlled or lost to follow-up so the risk rules have something to find. These are not findings about real people. |
 
@@ -177,7 +179,7 @@ Prerequisites: Node 22 or newer, Docker Desktop. I have not run this from a clea
 3. Give the API login a password, matching `DATABASE_URL`: `docker exec -it careboard-db psql -U careboard_admin -d careboard -c "ALTER ROLE careboard_api PASSWORD '<choose one>'"`.
 4. In `api`, run `npm install`, then in this order:
    ```
-   npx tsx scripts/load_serving.ts       # Medicaid and clinic data from /data, plus column comments
+   npx tsx scripts/load_serving.ts       # Medicaid, Medicare and clinic data from /data, plus column comments
    npx tsx src/seed.ts                   # the three demo accounts
    npx tsx scripts/apply_assistant.ts    # the read-only role for Carry
    npx tsx scripts/seed_patients.ts      # synthetic patients, medications, readings
@@ -210,7 +212,7 @@ api/src        server.ts (routes), risk.ts (risk routes), assistant.ts (Carry), 
 api/scripts    setup, loading and check scripts
 db/init        schemas, roles, tables, grants
 db/*.sql       patients.sql, assistant.sql, risk.sql, comments.sql (idempotent; run by the scripts)
-data           Medicaid and clinic CSVs loaded into the serving schema
+data           Medicaid, Medicare and clinic CSVs loaded into the serving schema
 bi/data        aggregate CSV exports for the dashboard (no patient-level data)
 bi/tableau     flat extract source for the published Tableau dashboard
 web/src        pages (Overview, Medicaid, Operations, CareRisk, OpsRisk, SpendRisk, RiskCompliance, ...)
@@ -224,4 +226,4 @@ Add automated tests that sign in as each role and compare row sets, schedule the
 
 ## Data sources and credits
 
-Medicaid data: Centers for Medicare & Medicaid Services, State Drug Utilization Data. Everything else, including every patient, appointment and risk score, is synthetic and generated by the scripts in this repository.
+Medicaid data: Centers for Medicare & Medicaid Services, State Drug Utilization Data. Medicare data: Centers for Medicare & Medicaid Services, Medicare Part D Spending by Drug. Everything else, including every patient, appointment and risk score, is synthetic and generated by the scripts in this repository.

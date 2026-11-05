@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import pg from "pg";
 import { parse } from "csv-parse/sync";
 
-type Spec = { file: string; table: string; ddl: string; cols: string[]; types: string[] };
+type Spec = { file: string; table: string; ddl: string; cols: string[]; types: string[]; assistant?: boolean };
 
 const specs: Spec[] = [
   {
@@ -17,6 +17,18 @@ const specs: Spec[] = [
       PRIMARY KEY (state, year, quarter, drug_class, drug))`,
     cols: ["state", "year", "quarter", "drug_class", "drug", "prescriptions", "spend"],
     types: ["text", "int", "int", "text", "text", "numeric", "numeric"],
+    assistant: true,
+  },
+  {
+    file: "medicare_part_d_annual.csv",
+    table: "serving.medicare_part_d_annual",
+    ddl: `CREATE TABLE IF NOT EXISTS serving.medicare_part_d_annual (
+      year int NOT NULL, drug_class text NOT NULL, drug text NOT NULL,
+      claims numeric NOT NULL, spend numeric NOT NULL,
+      PRIMARY KEY (year, drug_class, drug))`,
+    cols: ["year", "drug_class", "drug", "claims", "spend"],
+    types: ["int", "text", "text", "numeric", "numeric"],
+    // Not given to the assistant: Carry is limited to the two tables it was designed and tested for.
   },
   {
     file: "clinic_daily.csv",
@@ -27,6 +39,7 @@ const specs: Spec[] = [
       PRIMARY KEY (day, clinic_id, department))`,
     cols: ["date", "clinic_id", "department", "scheduled", "completed", "no_shows"],
     types: ["date", "int", "text", "int", "int", "int"],
+    assistant: true,
   },
 ];
 
@@ -48,7 +61,7 @@ try {
     await c.query(s.ddl);
     await c.query(`GRANT SELECT ON ${s.table} TO role_admin, role_clinician, role_executive`);
     // The assistant role exists only after scripts/apply_assistant.ts has run; keep its grants when tables are reloaded.
-    await c.query(`DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'role_assistant') THEN GRANT SELECT ON ${s.table} TO role_assistant; END IF; END $$`);
+    if (s.assistant) await c.query(`DO $$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'role_assistant') THEN GRANT SELECT ON ${s.table} TO role_assistant; END IF; END $$`);
     await c.query(`TRUNCATE ${s.table}`);
     await c.query(`INSERT INTO ${s.table} SELECT * FROM unnest(${placeholders})`, arrays);
     console.log("loaded", rows.length, "rows into", s.table);

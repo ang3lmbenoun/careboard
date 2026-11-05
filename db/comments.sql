@@ -28,3 +28,9 @@
 
    COMMENT ON TABLE app.users IS 'Application accounts: role, clinic and password hash. Readable by the API login for sign-in and by the admin role.';
    COMMENT ON TABLE app.audit_log IS 'Every login and data view, written by all roles and readable only by admin.';
+COMMENT ON TABLE serving.medicare_part_d_annual IS 'Medicare Part D spending by drug (CMS, national, 2020 to 2024), grouped into the same four classes as the Medicaid table: GLP-1, insulin, DPP-4, metformin. SGLT2 inhibitors are not included. Built by api/scripts/export_medicare.ts.';
+COMMENT ON COLUMN serving.medicare_part_d_annual.year IS 'Calendar year of the benefit';
+COMMENT ON COLUMN serving.medicare_part_d_annual.drug_class IS 'GLP-1, Insulin, DPP-4 or Metformin, assigned from the same brand-name list the Medicaid data uses';
+COMMENT ON COLUMN serving.medicare_part_d_annual.drug IS 'Brand name from the Medicaid list; insulin products not on that list are grouped as Insulin (other)';
+COMMENT ON COLUMN serving.medicare_part_d_annual.claims IS 'Number of Part D prescription fills, including refills';
+COMMENT ON COLUMN serving.medicare_part_d_annual.spend IS 'Total Part D spending in US dollars as published by CMS; as far as I know it is before manufacturer rebates';

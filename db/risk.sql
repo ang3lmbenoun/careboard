@@ -146,6 +146,7 @@ COMMENT ON TABLE app.data_classification IS 'Sensitivity label for each table or
 TRUNCATE app.data_classification;
 INSERT INTO app.data_classification VALUES
 ('serving', 'medicaid_drug_quarterly', '*', 'Public data'),
+('serving', 'medicare_part_d_annual', '*', 'Public data'),
 ('serving', 'clinic_daily', '*', 'Synthetic aggregate'),
 ('clinical', 'patients', '*', 'Health information'),
 ('clinical', 'patients', 'patient_id', 'Indirect identifier'),
@@ -297,6 +298,7 @@ CREATE OR REPLACE FUNCTION app.data_inventory()
 RETURNS TABLE (dataset text, row_count bigint, latest text)
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path = pg_catalog, pg_temp AS $$
   SELECT 'serving.medicaid_drug_quarterly', count(*), max(year::text || ' Q' || quarter::text) FROM serving.medicaid_drug_quarterly
+  UNION ALL SELECT 'serving.medicare_part_d_annual', count(*), max(year)::text FROM serving.medicare_part_d_annual
   UNION ALL SELECT 'serving.clinic_daily', count(*), max(day)::text FROM serving.clinic_daily
   UNION ALL SELECT 'clinical.patients', count(*), max(created_at)::date::text FROM clinical.patients
   UNION ALL SELECT 'clinical.patient_medications', count(*), max(started_on)::text FROM clinical.patient_medications
@@ -333,6 +335,16 @@ BEGIN
   name := 'Spend always has a prescription count';
   status := CASE WHEN n = 0 THEN 'pass' ELSE 'warn' END;
   detail := n || ' rows have spend but no prescription count (the source hides small counts)'; RETURN NEXT;
+
+  -- Medicare
+  SELECT count(*) INTO n FROM serving.medicare_part_d_annual WHERE spend IS NULL OR spend < 0 OR claims < 0;
+  area := 'Medicare spend'; name := 'No missing or negative amounts';
+  status := CASE WHEN n = 0 THEN 'pass' ELSE 'fail' END; detail := n || ' rows with a missing or negative value'; RETURN NEXT;
+
+  SELECT count(DISTINCT year) INTO q FROM serving.medicare_part_d_annual;
+  name := 'Five years present, four classes each';
+  status := CASE WHEN q = 5 AND (SELECT count(DISTINCT drug_class) FROM serving.medicare_part_d_annual) = 4 THEN 'pass' ELSE 'warn' END;
+  detail := q || ' distinct years loaded'; RETURN NEXT;
 
   -- Patients
   SELECT count(*) INTO n FROM clinical.patients p WHERE NOT EXISTS (SELECT 1 FROM clinical.patient_readings r WHERE r.patient_id = p.patient_id);
