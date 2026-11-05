@@ -3,7 +3,7 @@
 export type SignalTag = "real" | "synthetic" | "live" | "self";
 export type SignalGroup = "executive" | "clinician" | "admin";
 export type SignalId =
-  | "spend" | "hhi" | "revenue" | "controls"
+  | "spend" | "payergap" | "hhi" | "revenue" | "controls" | "coverage"
   | "patients" | "attention" | "a1c" | "noshow"
   | "tests" | "checks" | "refused" | "gaps";
 
@@ -16,7 +16,7 @@ export type SignalInfo = {
   how: string;
   caution: string;
   /** The page where the detail lives, when there is one. */
-  page?: "medicaid" | "riskspend" | "riskops" | "riskcomp" | "riskcare" | "patients" | "audit" | "catalog";
+  page?: "medicaid" | "riskspend" | "riskops" | "riskcomp" | "riskcare" | "patients" | "audit" | "catalog" | "payers";
 };
 
 export const TAG_TEXT: Record<SignalTag, { name: string; means: string }> = {
@@ -32,6 +32,12 @@ export const SIGNALS: SignalInfo[] = [
     source: "CMS State Drug Utilization Data, 2024, prepared in my separate diabetes-glp1-pipeline project and exported by api/scripts/export_medicaid.ts (the export checks its total against that project's own class summary).",
     how: "Sum of the amount reimbursed across four classes: GLP-1, insulin, DPP-4 and metformin, over all states.",
     caution: "Four classes only; SGLT2 inhibitors are left out. Small cells are hidden in the source, so totals can understate. As far as I know, spend is before manufacturer rebates.",
+  },
+  {
+    id: "payergap", group: "executive", label: "Medicare vs Medicaid drug spend, 2024", tag: "real", page: "payers",
+    source: "CMS Medicare Part D Spending by Drug (2020 to 2024, national), exported by api/scripts/export_medicare.ts, next to the Medicaid 2024 table above.",
+    how: "Medicare Part D spend in 2024 divided by Medicaid spend in 2024, for the same four classes (GLP-1, insulin, DPP-4, metformin). Both use the same brand list, so the comparison does not depend on my definitions. Only the Overall rows of the Medicare file are counted; the per-manufacturer rows would double the total.",
+    caution: "Medicare is national and Medicaid is summed over states, and the programs cover different people: Medicare mainly people 65 and over, Medicaid people with low income. The ratio compares spending, not cost per person. As far as I know, both are before rebates.",
   },
   {
     id: "hhi", group: "executive", label: "Spend concentration", tag: "real", page: "riskspend",
@@ -56,6 +62,12 @@ export const SIGNALS: SignalInfo[] = [
     source: "clinical.care_risk, built on synthetic patients seeded by api/scripts/seed_patients.ts.",
     how: "A row count. Row-level security means a clinician only receives rows from their own clinic.",
     caution: "Names and birth dates are unreadable by every role. Demo-added patients expire after 6 hours.",
+  },
+  {
+    id: "coverage", group: "clinician", label: "Patients on Medicare", tag: "synthetic", page: "patients",
+    source: "clinical.patients.payer, assigned by a fixed rule in api/src/patientGen.ts (and by the same rule in db/patients.sql for patients that existed before the column).",
+    how: "Count of your clinic's patients whose coverage is Medicare or Dual (both Medicare and Medicaid). The Patients page also filters by Medicaid and Commercial.",
+    caution: "Coverage is invented, not real. From 65 on the rule gives mostly Medicare with some Dual; under 65 it gives mostly Commercial or Medicaid with a few Medicare. The percentages are my assumption. The medicine history beside it is synthetic too.",
   },
   {
     id: "attention", group: "clinician", label: "Need attention first", tag: "synthetic", page: "riskcare",

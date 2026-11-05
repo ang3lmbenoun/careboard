@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { TAG_TEXT, byId, type SignalId } from "./signalContent";
 
-type Go = "medicaid" | "riskspend" | "riskops" | "riskcomp" | "riskcare" | "patients" | "audit" | "catalog" | "signals";
+type Go = "medicaid" | "riskspend" | "riskops" | "riskcomp" | "riskcare" | "patients" | "audit" | "catalog" | "signals" | "payers";
 
 // A side panel that says where one Overview signal comes from. Shown to administrators and executives only.
 // This is a design choice, not security: the text describes methods and holds no patient data.

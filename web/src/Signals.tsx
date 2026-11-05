@@ -1,7 +1,7 @@
 import { GROUP_TITLE, PATH_STEPS, SIGNALS, SYNTHETIC_NOTES, TAG_TEXT, type SignalGroup } from "./signalContent";
 
 type Role = "admin" | "clinician" | "executive";
-type Go = "medicaid" | "riskspend" | "riskops" | "riskcomp" | "riskcare" | "patients" | "audit" | "catalog";
+type Go = "medicaid" | "riskspend" | "riskops" | "riskcomp" | "riskcare" | "patients" | "audit" | "catalog" | "payers";
 
 const ORDER: SignalGroup[] = ["executive", "clinician", "admin"];
 

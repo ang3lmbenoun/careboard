@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 type Role = "admin" | "clinician" | "executive";
-export type TourTab = "overview" | "signals" | "riskcomp" | "riskcare" | "patients" | "audit" | "medicaid" | "catalog";
+export type TourTab = "overview" | "signals" | "riskcomp" | "riskcare" | "patients" | "audit" | "medicaid" | "payers" | "catalog";
 
 type Step = {
   /** Value of the data-tour attribute on the element to spotlight. No target means a centered card. */
@@ -42,7 +42,7 @@ function steps(role: Role): Step[] {
     {
       target: "story", tab: "overview",
       title: "What the data says",
-      body: "Two short stories behind the numbers: where Medicaid drug money goes, and whether missed appointments are rising. The headlines are computed from the data, not typed in.",
+      body: "Two short stories behind the numbers: where Medicaid drug money goes, and whether missed appointments are rising. The Medicare comparison has its own page. The headlines are computed from the data, not typed in.",
     },
     {
       target: "nav-signals", nav: true, tab: "signals", roles: ["admin", "executive"],
@@ -60,6 +60,11 @@ function steps(role: Role): Step[] {
       body: "Real 2024 spending on four diabetes drug classes. Click a bar to drill from class to drug to state.",
     },
     {
+      target: "nav-payers", nav: true, tab: "payers",
+      title: "Medicaid vs Medicare",
+      body: "The same four drug classes under both programs: 2024 side by side, then Medicare from 2020 to 2024. Medicare is national and mostly people 65 and over; Medicaid is by state and covers people with low income. Read the caveats on the page before comparing.",
+    },
+    {
       target: "nav-audit", nav: true, tab: "audit", roles: ["admin"],
       title: "The audit log",
       body: "Every sign-in, failed sign-in, refused request and question asked of Carry is recorded by the database. Only administrators can read it.",
@@ -72,7 +77,7 @@ function steps(role: Role): Step[] {
     {
       target: "nav-patients", nav: true, tab: "patients", roles: ["clinician"],
       title: "Patients",
-      body: "A1C and weight over time, and every medicine started or stopped. Names and birth dates are hidden from every role by the database, not by the page.",
+      body: "Each patient shows who pays (Medicare, Medicaid, both, or commercial), A1C and weight over time, and every medicine started or stopped. Filter by coverage to see who uses what. Coverage is synthetic; names and birth dates are hidden from every role by the database, not by the page.",
     },
     {
       target: "nav-catalog", nav: true, tab: "catalog",

@@ -9,7 +9,7 @@ import { money, num, pct } from "./riskUi";
 type Role = "admin" | "clinician" | "executive";
 export type Dest =
   | "medicaid" | "operations" | "drugs" | "catalog" | "patients" | "audit"
-  | "riskcare" | "riskops" | "riskspend" | "riskcomp" | "signals";
+  | "riskcare" | "riskops" | "riskspend" | "riskcomp" | "signals" | "payers";
 
 type Cls = { label: string; prescriptions: number; spend: number };
 type Trend = { period: string; scheduled: number; completed: number; no_shows: number; no_show_rate: number };
@@ -22,6 +22,7 @@ type SpendP = { classes: Cls[] };
 type Risk = { residual_band: string };
 type Control = { status: "Implemented" | "Partial" | "Gap" | "Inherited" };
 type Register = { risks: Risk[]; controls: Control[] };
+type PatientCover = { payer: "Medicaid" | "Medicare" | "Dual" | "Commercial" };
 type Care = { tier: "High" | "Medium" | "Low"; latest_a1c: number | null; demo_created: boolean };
 type Security = {
   totals: Record<string, number>;
@@ -157,6 +158,7 @@ function ExecSignals({ onOpen, onInfo }: { onOpen: (d: Dest) => void; onInfo: (i
   const spend = useData<SpendP>("risk/spend");
   const ops = useData<OpsP>("risk/ops");
   const reg = useData<Register>("risk/register");
+  const mcare = useData<Cls[]>("medicare/breakdown?by=class");
 
   const classes = spend.data?.classes ?? [];
   const total = classes.reduce((a, c) => a + c.spend, 0);
@@ -165,6 +167,8 @@ function ExecSignals({ onOpen, onInfo }: { onOpen: (d: Dest) => void; onInfo: (i
   const h = shares.length ? hhi(shares.map((s) => s.share)) : null;
   const level = h === null ? "" : h >= 5000 ? "Very concentrated" : h >= 3500 ? "Concentrated" : "Moderately spread";
   const t = twelve(ops.data);
+  const mcTotal = (mcare.data ?? []).reduce((a, c) => a + c.spend, 0);
+  const ratio = total && mcTotal ? mcTotal / total : null;
   const ctl = reg.data?.controls ?? [];
   const inPlace = ctl.filter((c) => c.status === "Implemented" || c.status === "Inherited").length;
   const hi = reg.data?.risks.filter((r) => r.residual_band === "High" || r.residual_band === "Critical").length ?? 0;
@@ -177,6 +181,12 @@ function ExecSignals({ onOpen, onInfo }: { onOpen: (d: Dest) => void; onInfo: (i
         shares={shares}
         sub={top ? <><strong>{top.label}</strong> is {pct(top.share, 0)} of it. Four drug classes, all states.</> : "Four drug classes, all states."}
         tag="real" cta="Explore drug spend" onOpen={() => onOpen("medicaid")}
+      />
+      <Signal
+        id="payergap" onInfo={onInfo} label="Medicare vs Medicaid drug spend, 2024"
+        value={mcare.error ? "n/a" : ratio ? `${ratio.toFixed(1)}×` : null}
+        sub={ratio ? <>Medicare Part D spent {money(mcTotal)} on the same four classes, against {money(total)} for Medicaid.</> : ""}
+        tag="real" cta="Compare the programs" onOpen={() => onOpen("payers")}
       />
       <Signal
         id="hhi" onInfo={onInfo} label="Spend concentration"
@@ -207,6 +217,9 @@ function ExecSignals({ onOpen, onInfo }: { onOpen: (d: Dest) => void; onInfo: (i
 function ClinSignals({ onOpen }: { onOpen: (d: Dest) => void }) {
   const care = useData<Care[]>("risk/care");
   const ops = useData<OpsP>("risk/ops");
+  const cover = useData<PatientCover[]>("patients");
+  const mc = cover.data?.filter((r) => r.payer === "Medicare" || r.payer === "Dual").length ?? 0;
+  const mcaid = cover.data?.filter((r) => r.payer === "Medicaid").length ?? 0;
   const rows = care.data;
   const high = rows?.filter((r) => r.tier === "High").length ?? 0;
   const med = rows?.filter((r) => r.tier === "Medium").length ?? 0;
@@ -222,6 +235,12 @@ function ClinSignals({ onOpen }: { onOpen: (d: Dest) => void }) {
         value={care.error ? "n/a" : rows ? num(rows.length) : null}
         sub={rows ? (added ? <>{added} added in this demo. Names and birth dates are hidden from your role.</> : "Names and birth dates are hidden from your role.") : ""}
         tag="synthetic" cta="Open patients" onOpen={() => onOpen("patients")}
+      />
+      <Signal
+        label="Patients on Medicare"
+        value={cover.error ? "n/a" : cover.data ? num(mc) : null}
+        sub={cover.data ? <>Includes dual-coverage patients. {num(mcaid)} are on Medicaid only. Filter by coverage on the Patients page.</> : ""}
+        tag="synthetic" cta="See who uses what" onOpen={() => onOpen("patients")}
       />
       <Signal
         label="Need attention first"
@@ -394,12 +413,14 @@ function Story() {
 const EXPLORE: Record<Role, { q: string; a: string; to: Dest }[]> = {
   executive: [
     { q: "Which drug classes cost the most?", a: "Drill from class to drug to state.", to: "medicaid" },
+    { q: "How does Medicare compare with Medicaid?", a: "The same four drug classes, side by side, with Medicare back to 2020.", to: "payers" },
     { q: "What does a missed visit cost us?", a: "Move two sliders and watch revenue at risk change.", to: "riskops" },
     { q: "Are the controls holding?", a: "A 16-item risk register mapped to HIPAA areas.", to: "riskcomp" },
   ],
   clinician: [
     { q: "Who needs attention first?", a: "A ranked worklist, with the reason beside every flag.", to: "riskcare" },
     { q: "What is one patient's story?", a: "A1C and weight over time, and every medicine started or stopped.", to: "patients" },
+    { q: "Which patients are on Medicare or Medicaid?", a: "Filter patients by coverage and read each one's medicine history.", to: "patients" },
     { q: "Where are visits being missed?", a: "No-show rate by clinic, department and weekday.", to: "operations" },
   ],
   admin: [
@@ -416,7 +437,7 @@ const LENS: Record<Role, { label: string; can: string[]; cannot: string[] }> = {
 };
 
 const LEDE: Record<Role, string> = {
-  executive: "Where Medicaid drug spend sits, what missed appointments cost, and whether the controls hold. All of it is aggregate.",
+  executive: "Where Medicaid and Medicare drug spend sit, what missed appointments cost, and whether the controls hold. All of it is aggregate.",
   clinician: "Which of your patients need attention first, and how the clinic is doing on missed visits.",
   admin: "Whether the controls still work and what has been refused lately. You can read the audit log but never a patient record.",
 };
@@ -475,7 +496,7 @@ export default function Overview({ role, name, onOpen }: { role: Role; name: str
 
       <footer className="ov-foot">
         <p>
-          <span className="tag tag-real">Real data</span> public CMS Medicaid figures, 2024, four drug classes (SGLT2 not included).{" "}
+          <span className="tag tag-real">Real data</span> public CMS figures: Medicaid 2024 by state and Medicare Part D 2020 to 2024, four drug classes (SGLT2 not included).{" "}
           <span className="tag tag-synthetic">Synthetic</span> every patient, appointment and risk score.{" "}
           <span className="tag tag-live">Live check</span> queried from the database as you load the page.
         </p>
