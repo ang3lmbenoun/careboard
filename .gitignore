@@ -156,3 +156,6 @@ bi/tableau/*.twbx
 bi/tableau/*.twb
 bi/data/*.twb
 bi/tableau/careboard_dashboard_background.png
+
+# demo video working files (audio, captions, recordings)
+video/
