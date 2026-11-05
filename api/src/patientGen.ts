@@ -22,6 +22,7 @@ export type Med = {
   stopped_on: string | null;
   stop_reason: string | null;
 };
+export type Payer = "Medicaid" | "Medicare" | "Dual" | "Commercial";
 export type Reading = { taken_on: string; a1c: number | null; weight_kg: number | null };
 export type Patient = {
   full_name: string;
@@ -29,6 +30,7 @@ export type Patient = {
   city: string;
   primary_condition: "Type 2 diabetes" | "Prediabetes" | "Obesity";
   diagnosed_on: string;
+  payer: Payer;
   meds: Med[];
   readings: Reading[];
 };
@@ -44,6 +46,18 @@ const between = (r: Rand, lo: number, hi: number) => lo + r() * (hi - lo);
 
 // Typical A1C lowering by drug class (percentage points). Invented for the demo, not clinical guidance.
 const A1C_EFFECT = { Metformin: 1.0, "DPP-4": 0.6, "GLP-1": 1.4, Insulin: 1.6 } as const;
+
+// Who pays for the patient's care. Invented for the demo, with proportions that are plausible, not measured:
+// from 65 on, most people have Medicare and some also have Medicaid ("Dual"); under 65, Medicaid or an employer plan,
+// and a few have Medicare through disability. It uses a hash of the patient's details, not the random stream, so adding
+// it did not change any other generated value.
+export function payerFor(age: number, key: string): Payer {
+  let h = 2166136261;
+  for (let i = 0; i < key.length; i++) h = Math.imul(h ^ key.charCodeAt(i), 16777619);
+  const u = (h >>> 0) / 4294967296;
+  if (age >= 65) return u < 0.7 ? "Medicare" : u < 0.92 ? "Dual" : "Commercial";
+  return u < 0.38 ? "Medicaid" : u < 0.96 ? "Commercial" : "Medicare";
+}
 
 export function generatePatient(r: Rand, today: number): Patient {
   const roll = r();
@@ -128,6 +142,7 @@ export function generatePatient(r: Rand, today: number): Patient {
     city: pick(r, CITIES),
     primary_condition: condition,
     diagnosed_on: iso(diagnosed),
+    payer: payerFor(age, `${birth}|${condition}`),
     meds,
     readings,
   };

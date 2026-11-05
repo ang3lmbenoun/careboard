@@ -5,6 +5,19 @@ import Avatar, { nickname } from "./Avatar";
 import { clsKey } from "./Drugs";
 import { useData } from "./useData";
 
+type Payer = "Medicaid" | "Medicare" | "Dual" | "Commercial";
+type Go = (t: "drugs" | "payers") => void;
+const PAYERS: Payer[] = ["Medicare", "Medicaid", "Dual", "Commercial"];
+const PAYER_NOTE: Record<Payer, string> = {
+  Medicare: "Federal program, mainly for people 65 and over",
+  Medicaid: "Joint federal and state program for people with low income",
+  Dual: "Has both Medicare and Medicaid",
+  Commercial: "Employer or private insurance",
+};
+function PayerTag({ payer }: { payer: Payer }) {
+  return <span className={"payer payer-" + payer.toLowerCase()} title={PAYER_NOTE[payer]}>{payer}</span>;
+}
+
 type Row = {
   patient_id: number;
   clinic_id: number;
@@ -13,6 +26,7 @@ type Row = {
   primary_condition: string;
   diagnosed_on: string | null;
   demo_created: boolean;
+  payer: Payer;
   current_classes: string[];
 };
 type Med = { med_id: number; drug: string; drug_class: string; indication: string; started_on: string; stopped_on: string | null; stop_reason: string | null };
@@ -58,7 +72,7 @@ function Trend({ data, keyName, unit, goal, title }: { data: Reading[]; keyName:
   );
 }
 
-function Detail({ id, onBack, onRemoved, onOpen }: { id: number; onBack: () => void; onRemoved: () => void; onOpen: (t: "drugs") => void }) {
+function Detail({ id, onBack, onRemoved, onOpen }: { id: number; onBack: () => void; onRemoved: () => void; onOpen: Go }) {
   const { data, error } = useData<Profile>(`patients/${id}`);
   const [confirm, setConfirm] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -115,6 +129,10 @@ function Detail({ id, onBack, onRemoved, onOpen }: { id: number; onBack: () => v
             <span className="cond">{conditionLabel(data.primary_condition)}</span>
             {data.diagnosed_on && <span className="note"> since {month(data.diagnosed_on)} ({yearsSince(data.diagnosed_on)} years)</span>}
             {data.demo_created && <span className="tagnew">Added in demo</span>}
+          </p>
+          <p>
+            <PayerTag payer={data.payer} /> <span className="note">{PAYER_NOTE[data.payer]}.</span>{" "}
+            <button className="linkish" onClick={() => onOpen("payers")}>Compare Medicaid and Medicare →</button>
           </p>
         </div>
         <div className="profile-actions">
@@ -191,6 +209,7 @@ function Card({ p, onPick }: { p: Row; onPick: () => void }) {
       <span className="pbody">
         <strong>{nick} <span className="pid">#{p.patient_id}</span></strong>
         <span className="note">{age(p.birth_year)} · {p.city}</span>
+        <span><PayerTag payer={p.payer} /></span>
         <span className="cond">{conditionLabel(p.primary_condition)}</span>
         <span className="chips"><Chips classes={p.current_classes} />{p.demo_created && <span className="tagnew">New</span>}</span>
       </span>
@@ -198,12 +217,13 @@ function Card({ p, onPick }: { p: Row; onPick: () => void }) {
   );
 }
 
-export default function Patients({ onOpen }: { onOpen: (t: "drugs") => void }) {
+export default function Patients({ onOpen }: { onOpen: Go }) {
   const [version, setVersion] = useState(0);
   const [open, setOpen] = useState<number | null>(null);
   const [adding, setAdding] = useState(false);
   const [msg, setMsg] = useState("");
   const list = useData<Row[]>(`patients?v=${version}`);
+  const [cover, setCover] = useState<Payer | "All">("All");
 
   async function add() {
     setAdding(true);
@@ -242,6 +262,9 @@ export default function Patients({ onOpen }: { onOpen: (t: "drugs") => void }) {
   if (list.error) return <p className="state err">{list.error}</p>;
   if (!list.data) return <p className="state">Loading…</p>;
 
+  const counts = PAYERS.map((k) => [k, list.data!.filter((r) => r.payer === k).length] as const);
+  const shown = cover === "All" ? list.data : list.data.filter((r) => r.payer === cover);
+
   return (
     <>
       <div className="listbar">
@@ -256,8 +279,18 @@ export default function Patients({ onOpen }: { onOpen: (t: "drugs") => void }) {
         Add creates a random fictional patient. No typing is needed, so no real information can be entered. Only
         patients added here can be removed.
       </p>
+      <div className="payer-filter" role="group" aria-label="Filter by coverage">
+        <button className={cover === "All" ? "on" : ""} onClick={() => setCover("All")}>All ({list.data.length})</button>
+        {counts.map(([k, n]) => (
+          <button key={k} className={cover === k ? "on" : ""} onClick={() => setCover(k)} title={PAYER_NOTE[k]}>{k} ({n})</button>
+        ))}
+      </div>
+      <p className="note">
+        Coverage is a synthetic field assigned by a fixed rule from age (65 and over mostly Medicare, some also Medicaid; under 65
+        mostly Medicaid or an employer plan). It shows how a clinician would see who pays, and is not real coverage.
+      </p>
       <div className="pgrid">
-        {list.data.map((p) => (
+        {shown.map((p) => (
           <Card key={p.patient_id} p={p} onPick={() => setOpen(p.patient_id)} />
         ))}
       </div>

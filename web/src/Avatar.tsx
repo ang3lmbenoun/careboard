@@ -249,20 +249,21 @@ function SvgAvatar({ id, size = 56, waving = false, age }: AvatarProps) {
   );
 }
 
-// Illustrated portraits live in public/avatars as female-01..06 and male-01..06, each with a neutral and a waving image.
+// Illustrated portraits live in public/avatars as female-01..10 and male-01..10, each with a neutral and a waving image.
 // The patient number picks one, so the same patient always gets the same face. Nothing is sent anywhere.
-const VARIANTS = 6;
-const GREY_MAN = 5; // male-05 has grey hair, so he is used for older patients and kept away from younger ones
+// Faces with grey hair are kept for older patients, and young-looking faces for younger ones, so the picture fits the age.
+const OLDER: Record<"female" | "male", number[]> = { female: [9, 10], male: [5, 9, 10] };
+const YOUNGER: Record<"female" | "male", number[]> = { female: [1, 2, 3, 4, 5, 6, 7, 8], male: [1, 2, 3, 4, 6, 7, 8] };
+const ANY: Record<"female" | "male", number[]> = {
+  female: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+  male: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+};
 
 function pick(id: number, female: boolean, age?: number) {
   const r = mix(id + 701);
-  let v = Math.floor(r() * VARIANTS) + 1;
-  const older = r() < 0.6;
-  if (!female) {
-    if (age !== undefined && age >= 55 && older) v = GREY_MAN;
-    else if (v === GREY_MAN && (age === undefined || age < 45)) v = 2;
-  }
-  return v;
+  const g = female ? "female" : "male";
+  const pool = age === undefined ? ANY[g] : age >= 60 ? OLDER[g] : YOUNGER[g];
+  return pool[Math.floor(r() * pool.length)];
 }
 
 export default function Avatar(props: AvatarProps) {
@@ -270,7 +271,7 @@ export default function Avatar(props: AvatarProps) {
   const [failed, setFailed] = useState(false);
   const { female, name } = who(id);
   const v = pick(id, female, age);
-  const base = `/avatars/${female ? "female" : "male"}-0${v}`;
+  const base = `/avatars/${female ? "female" : "male"}-${String(v).padStart(2, "0")}`;
 
   // Load the waving picture ahead of the click so the swap is instant.
   useEffect(() => {

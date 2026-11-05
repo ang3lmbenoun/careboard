@@ -8,6 +8,8 @@ import { generatePatient, seeded, shapeCohort } from "../src/patientGen.js";
 //                               npx tsx scripts/seed_patients.ts --neon   -> Neon
 // Applies db/patients.sql, then replaces the seed patients with 48 synthetic ones (24 per clinic).
 // Patients added through the demo button are left alone.
+// With --schema-only it applies db/patients.sql and stops, so existing patients keep their numbers (use this on Neon
+// after a schema change; it fills in coverage for patients that have none).
 const neon = process.argv.includes("--neon");
 const adminUrl = neon ? process.env.NEON_ADMIN_URL : process.env.ADMIN_DATABASE_URL;
 if (!adminUrl) throw new Error(neon ? "NEON_ADMIN_URL missing in api/.env" : "ADMIN_DATABASE_URL missing in api/.env");
@@ -17,6 +19,13 @@ await db.connect();
 try {
   await db.query("BEGIN");
   await db.query(fs.readFileSync(fileURLToPath(new URL("../../db/patients.sql", import.meta.url)), "utf8"));
+  if (process.argv.includes("--schema-only")) {
+    const { rows } = await db.query("SELECT payer, count(*)::int AS n FROM clinical.patients GROUP BY 1 ORDER BY 1");
+    await db.query("COMMIT");
+    console.log("schema applied, patients by coverage:", rows.map((r) => `${r.payer} ${r.n}`).join(", "), neon ? "(Neon)" : "(local)");
+    await db.end();
+    process.exit(0);
+  }
   await db.query("DELETE FROM clinical.patients WHERE NOT demo_created");
 
   const rand = seeded(42);
@@ -27,9 +36,9 @@ try {
     for (let i = 0; i < 24; i++) {
       const p = shapeCohort(generatePatient(rand, today), seeded(9000 + clinic * 100 + i), today);
       const { rows } = await db.query(
-        `INSERT INTO clinical.patients (clinic_id, full_name, birth_date, city, primary_condition, diagnosed_on)
-         VALUES ($1,$2,$3,$4,$5,$6) RETURNING patient_id`,
-        [clinic, p.full_name, p.birth_date, p.city, p.primary_condition, p.diagnosed_on]
+        `INSERT INTO clinical.patients (clinic_id, full_name, birth_date, city, primary_condition, diagnosed_on, payer)
+         VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING patient_id`,
+        [clinic, p.full_name, p.birth_date, p.city, p.primary_condition, p.diagnosed_on, p.payer]
       );
       const id = rows[0].patient_id;
       for (const m of p.meds) {

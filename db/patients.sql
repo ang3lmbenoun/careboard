@@ -4,6 +4,19 @@
 ALTER TABLE clinical.patients ADD COLUMN IF NOT EXISTS diagnosed_on date;
 ALTER TABLE clinical.patients ADD COLUMN IF NOT EXISTS demo_created boolean NOT NULL DEFAULT false;
 ALTER TABLE clinical.patients ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE clinical.patients ADD COLUMN IF NOT EXISTS payer text;
+-- Patients that have no coverage yet get one from a fixed rule (a hash of the patient number, so it never changes):
+-- from 65 on, mostly Medicare, some also Medicaid (Dual); under 65, Medicaid or an employer plan, a few Medicare. Synthetic.
+UPDATE clinical.patients p SET payer = CASE
+  WHEN EXTRACT(YEAR FROM current_date)::int - p.birth_year >= 65 THEN
+    CASE WHEN h.u < 0.70 THEN 'Medicare' WHEN h.u < 0.92 THEN 'Dual' ELSE 'Commercial' END
+  ELSE CASE WHEN h.u < 0.38 THEN 'Medicaid' WHEN h.u < 0.96 THEN 'Commercial' ELSE 'Medicare' END
+END
+FROM (SELECT patient_id, get_byte(decode(md5(patient_id::text), 'hex'), 0) / 256.0 AS u FROM clinical.patients) h
+WHERE h.patient_id = p.patient_id AND p.payer IS NULL;
+ALTER TABLE clinical.patients ALTER COLUMN payer SET NOT NULL;
+ALTER TABLE clinical.patients DROP CONSTRAINT IF EXISTS patients_payer_check;
+ALTER TABLE clinical.patients ADD CONSTRAINT patients_payer_check CHECK (payer IN ('Medicaid', 'Medicare', 'Dual', 'Commercial'));
 
 CREATE TABLE IF NOT EXISTS clinical.patient_medications (
   med_id      serial PRIMARY KEY,
@@ -32,6 +45,7 @@ CREATE INDEX IF NOT EXISTS patient_readings_patient ON clinical.patient_readings
 COMMENT ON COLUMN clinical.patients.diagnosed_on IS 'Date the main condition was diagnosed (synthetic)';
 COMMENT ON COLUMN clinical.patients.demo_created IS 'True for patients added through the demo button; only these can be removed';
 COMMENT ON COLUMN clinical.patients.created_at IS 'When the row was created';
+COMMENT ON COLUMN clinical.patients.payer IS 'Who pays for the patient''s care (synthetic): Medicaid, Medicare, Dual (both) or Commercial. Assigned by a fixed rule from age; not real coverage.';
 COMMENT ON TABLE clinical.patient_medications IS 'SYNTHETIC medication history: one row per prescription course, with its drug class, reason for use, start and stop dates.';
 COMMENT ON COLUMN clinical.patient_medications.drug IS 'Drug name, with the brand in brackets where the brand decides the use';
 COMMENT ON COLUMN clinical.patient_medications.drug_class IS 'GLP-1, Insulin, DPP-4 or Metformin, the same classes as the Medicaid data';
@@ -45,7 +59,7 @@ COMMENT ON COLUMN clinical.patient_readings.a1c IS 'A1C in percent; lower is bet
 COMMENT ON COLUMN clinical.patient_readings.weight_kg IS 'Body weight in kilograms. Empty if not measured that day.';
 
 -- Read access: clinicians see only rows that belong to patients they can already see.
-GRANT SELECT (diagnosed_on, demo_created, created_at) ON clinical.patients TO role_clinician;
+GRANT SELECT (diagnosed_on, demo_created, created_at, payer) ON clinical.patients TO role_clinician;
 GRANT SELECT ON clinical.patient_medications, clinical.patient_readings TO role_clinician;
 GRANT USAGE ON SEQUENCE clinical.patient_medications_med_id_seq, clinical.patient_readings_reading_id_seq TO role_clinician;
 ALTER TABLE clinical.patient_medications ENABLE ROW LEVEL SECURITY;
@@ -59,7 +73,7 @@ CREATE POLICY clinician_read ON clinical.patient_readings FOR SELECT TO role_cli
   USING (EXISTS (SELECT 1 FROM clinical.patients p WHERE p.patient_id = patient_readings.patient_id));
 
 -- Write access, demo patients only. Names are write-only: no role can read them back.
-GRANT INSERT (clinic_id, full_name, birth_date, city, primary_condition, diagnosed_on, demo_created)
+GRANT INSERT (clinic_id, full_name, birth_date, city, primary_condition, diagnosed_on, demo_created, payer)
   ON clinical.patients TO role_clinician;
 GRANT USAGE ON SEQUENCE clinical.patients_patient_id_seq TO role_clinician;
 GRANT DELETE ON clinical.patients TO role_clinician;

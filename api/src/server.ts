@@ -111,7 +111,7 @@ import { registerRisk } from "./risk.js";
      guarded(
        req, res, "view_patients",
        `SELECT p.patient_id, p.clinic_id, p.birth_year, p.city, p.primary_condition,
-               p.diagnosed_on::text AS diagnosed_on, p.demo_created,
+               p.diagnosed_on::text AS diagnosed_on, p.demo_created, p.payer,
                COALESCE((SELECT array_agg(DISTINCT m.drug_class ORDER BY m.drug_class)
                          FROM clinical.patient_medications m
                          WHERE m.patient_id = p.patient_id AND m.stopped_on IS NULL), '{}') AS current_classes
@@ -134,7 +134,7 @@ import { registerRisk } from "./risk.js";
        const out = await withRole(req.user, async (c) => {
          const p = (
            await c.query(
-             `SELECT patient_id, clinic_id, birth_year, city, primary_condition, diagnosed_on::text AS diagnosed_on, demo_created
+             `SELECT patient_id, clinic_id, birth_year, city, primary_condition, diagnosed_on::text AS diagnosed_on, demo_created, payer
               FROM clinical.patients WHERE patient_id = $1`,
              [id]
            )
@@ -181,9 +181,9 @@ import { registerRisk } from "./risk.js";
          // Housekeeping: demo patients expire after six hours so the cap never fills up for good.
          await c.query("DELETE FROM clinical.patients WHERE demo_created AND created_at < now() - interval '6 hours'");
          const r = await c.query(
-           `INSERT INTO clinical.patients (clinic_id, full_name, birth_date, city, primary_condition, diagnosed_on, demo_created)
-            VALUES ($1, $2, $3, $4, $5, $6, true) RETURNING patient_id`,
-           [req.user.clinicId, p.full_name, p.birth_date, p.city, p.primary_condition, p.diagnosed_on]
+           `INSERT INTO clinical.patients (clinic_id, full_name, birth_date, city, primary_condition, diagnosed_on, demo_created, payer)
+            VALUES ($1, $2, $3, $4, $5, $6, true, $7) RETURNING patient_id`,
+           [req.user.clinicId, p.full_name, p.birth_date, p.city, p.primary_condition, p.diagnosed_on, p.payer]
          );
          const pid = r.rows[0].patient_id;
          await c.query(
