@@ -1,0 +1,6 @@
+name,value,note
+visit_value_usd,150,Assumed average value of one completed visit. Not from billing. Change it to test revenue at risk.
+target_no_show_rate,0.10,Working target. Avoidable loss counts only no-shows above this rate.
+min_cell_size,5,Patient counts below this are hidden by the database.
+data_note_medicaid,CMS State Drug Utilization Data 2024,Four drug classes. SGLT2 inhibitors not included. Small cells may be suppressed in the source.
+data_note_synthetic,Synthetic,"Clinic activity, patients and risk scores are invented for this project."

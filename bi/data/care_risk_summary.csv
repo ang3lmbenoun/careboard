@@ -1,0 +1,7 @@
+clinic_id,condition,patients,elevated,low,patients_hidden,bands_hidden
+1,Obesity,9,,,false,true
+1,Prediabetes,5,,,false,true
+1,Type 2 diabetes,10,5,5,false,false
+2,Obesity,5,,,false,true
+2,Prediabetes,,,,true,true
+2,Type 2 diabetes,15,7,8,false,false

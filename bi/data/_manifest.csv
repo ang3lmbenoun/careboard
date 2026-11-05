@@ -1,0 +1,13 @@
+file,rows
+dim_date.csv,1031
+dim_clinic.csv,2
+dim_department.csv,3
+dim_drug.csv,18
+fact_clinic_daily.csv,4386
+fact_medicaid_quarterly.csv,3512
+care_risk_summary.csv,6
+risk_register.csv,16
+control_map.csv,15
+risk_control_bridge.csv,17
+data_classification.csv,28
+assumptions.csv,5

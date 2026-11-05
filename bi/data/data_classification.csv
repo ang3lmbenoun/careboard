@@ -1,0 +1,29 @@
+object_schema,object_name,column_name,label
+app,audit_log,*,Activity log
+app,control_map,*,Governance
+app,data_classification,*,Governance
+app,risk_register,*,Governance
+app,users,*,Operational
+app,users,display_name,Direct identifier
+app,users,email,Direct identifier
+app,users,password_hash,Credential
+clinical,care_risk,*,Health information
+clinical,care_risk,clinic_id,Indirect identifier
+clinical,care_risk,patient_id,Indirect identifier
+clinical,patient_medications,*,Health information
+clinical,patient_medications,med_id,Operational
+clinical,patient_medications,patient_id,Indirect identifier
+clinical,patient_readings,*,Health information
+clinical,patient_readings,patient_id,Indirect identifier
+clinical,patient_readings,reading_id,Operational
+clinical,patients,*,Health information
+clinical,patients,birth_date,Direct identifier
+clinical,patients,birth_year,Indirect identifier
+clinical,patients,city,Indirect identifier
+clinical,patients,clinic_id,Indirect identifier
+clinical,patients,created_at,Operational
+clinical,patients,demo_created,Operational
+clinical,patients,full_name,Direct identifier
+clinical,patients,patient_id,Indirect identifier
+serving,clinic_daily,*,Synthetic aggregate
+serving,medicaid_drug_quarterly,*,Public data

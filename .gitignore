@@ -147,3 +147,12 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# Tableau working files
+*.twbr
+~*
+*.hyper
+bi/tableau/*.twbx
+bi/tableau/*.twb
+bi/data/*.twb
+bi/tableau/careboard_dashboard_background.png
