@@ -20,7 +20,7 @@
    export type Role = keyof typeof ROLE;
 
    export async function withRole<T>(
-     user: { role: Role; clinicId: number | null },
+     user: { role: Role; clinicId: number | null; sub?: number },
      fn: (c: pg.PoolClient) => Promise<T>
    ): Promise<T> {
      const c = await pool.connect();
@@ -30,6 +30,7 @@
        await c.query("SELECT set_config('app.clinic_id', $1, true)", [
          user.clinicId == null ? "" : String(user.clinicId),
        ]);
+       await c.query("SELECT set_config('app.user_id', $1, true)", [user.sub == null ? "" : String(user.sub)]);
        const out = await fn(c);
        await c.query("COMMIT");
        return out;

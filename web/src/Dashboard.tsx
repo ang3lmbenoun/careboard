@@ -17,10 +17,11 @@ import CareRisk from "./CareRisk";
 import OpsRisk from "./OpsRisk";
 import SpendRisk from "./SpendRisk";
 import RiskCompliance from "./RiskCompliance";
+import Agent from "./Agent";
 
 type TabId =
   | "overview" | "medicaid" | "payers" | "operations" | "drugs" | "riskcare" | "riskops" | "riskspend" | "riskcomp"
-  | "catalog" | "patients" | "audit" | "settings" | "signals";
+  | "catalog" | "patients" | "audit" | "settings" | "signals" | "agent";
 
 type Item = { id: TabId; label: string; roles: User["role"][] };
 const ALL: User["role"][] = ["admin", "clinician", "executive"];
@@ -45,6 +46,11 @@ const GROUPS: { id: string; label: string; items: Item[] }[] = [
       { id: "riskspend", label: "Financial exposure", roles: ALL },
       { id: "riskcomp", label: "Risk & compliance", roles: ["admin", "executive"] },
     ],
+  },
+  {
+    id: "agent",
+    label: "Agent",
+    items: [{ id: "agent", label: "Care agent", roles: ALL }],
   },
   {
     id: "reference",
@@ -88,6 +94,10 @@ const HEADINGS: Record<TabId, { title: string; lede: string }> = {
   medicaid: {
     title: "Medicaid drug spend",
     lede: "State Medicaid spending on four diabetes drug classes in 2024. Click a bar to drill from drug class to drug to state.",
+  },
+  agent: {
+    title: "Care agent",
+    lede: "An assistant that runs as your role. It uses fixed tools, every step is logged, and anything it proposes waits for your approval.",
   },
   payers: {
     title: "Medicaid vs Medicare",
@@ -275,6 +285,7 @@ export default function Dashboard({ user, email, onSignOut }: { user: User; emai
             {tab === "overview" && <Overview role={user.role} name={shown} onOpen={go} />}
             {tab === "medicaid" && <Medicaid />}
             {tab === "payers" && <Payers />}
+            {tab === "agent" && <Agent role={user.role} />}
             {tab === "operations" && <Operations />}
             {tab === "catalog" && <Catalog role={user.role} />}
             {tab === "signals" && <Signals role={user.role} onOpen={go} />}

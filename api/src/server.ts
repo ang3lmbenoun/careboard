@@ -9,6 +9,7 @@
 import { registerAssistant } from "./assistant.js";
 import { generatePatient } from "./patientGen.js";
 import { registerRisk } from "./risk.js";
+import { registerAgent } from "./agent.js";
 
    const SECRET = process.env.JWT_SECRET;
    if (!SECRET) throw new Error("JWT_SECRET missing in api/.env");
@@ -352,6 +353,7 @@ app.get("/ops/breakdown", auth, (req, res) => {
    
         registerAssistant(app, { auth, audit });
         registerRisk(app, { auth, audit });
+        registerAgent(app, { auth, audit });
         app.get("/health", (_req, res) => res.json({ ok: true }));
      app.use(express.static(fileURLToPath(new URL("../../web/dist", import.meta.url))));
 
