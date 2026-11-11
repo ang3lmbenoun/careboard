@@ -26,11 +26,12 @@ type Row = {
   primary_condition: string;
   diagnosed_on: string | null;
   demo_created: boolean;
+  by_nurse?: boolean | null;
   payer: Payer;
   current_classes: string[];
 };
-type Med = { med_id: number; drug: string; drug_class: string; indication: string; started_on: string; stopped_on: string | null; stop_reason: string | null };
-type Reading = { taken_on: string; a1c: number | null; weight_kg: number | null };
+type Med = { med_id: number; drug: string; drug_class: string; indication: string; started_on: string; stopped_on: string | null; stop_reason: string | null; by_nurse?: boolean | null };
+type Reading = { taken_on: string; a1c: number | null; weight_kg: number | null; by_nurse?: boolean | null };
 type Profile = Row & { medications: Med[]; readings: Reading[] };
 
 const age = (y: number) => new Date().getFullYear() - y;
@@ -98,9 +99,14 @@ function Detail({ id, onBack, onRemoved, onOpen }: { id: number; onBack: () => v
   const events = [
     ...(data.diagnosed_on ? [{ date: data.diagnosed_on, text: data.primary_condition === "Obesity" ? "Began weight-management care" : `Diagnosed: ${data.primary_condition}`, kind: "dx" }] : []),
     ...data.medications.flatMap((m) => [
-      { date: m.started_on, text: `Started ${m.drug} for ${m.indication.toLowerCase()}`, kind: m.drug_class },
+      { date: m.started_on, text: `Started ${m.drug} for ${m.indication.toLowerCase()}${m.by_nurse ? " (entered by nurse)" : ""}`, kind: m.drug_class },
       ...(m.stopped_on ? [{ date: m.stopped_on, text: `Stopped ${m.drug}${m.stop_reason ? ` (${m.stop_reason})` : ""}`, kind: "stop" }] : []),
     ]),
+    ...data.readings.filter((r) => r.by_nurse).map((r) => ({
+      date: r.taken_on,
+      text: `Reading entered by nurse: ${[r.a1c !== null ? `A1C ${r.a1c}%` : "", r.weight_kg !== null ? `${r.weight_kg} kg` : ""].filter(Boolean).join(", ")}`,
+      kind: "nurse",
+    })),
   ].sort((a, b) => a.date.localeCompare(b.date));
 
   async function remove() {
@@ -128,7 +134,7 @@ function Detail({ id, onBack, onRemoved, onOpen }: { id: number; onBack: () => v
           <p>
             <span className="cond">{conditionLabel(data.primary_condition)}</span>
             {data.diagnosed_on && <span className="note"> since {month(data.diagnosed_on)} ({yearsSince(data.diagnosed_on)} years)</span>}
-            {data.demo_created && <span className="tagnew">Added in demo</span>}
+            {data.by_nurse ? <span className="tagnew nurse">Added by nurse</span> : data.demo_created && <span className="tagnew">Added in demo</span>}
           </p>
           <p>
             <PayerTag payer={data.payer} /> <span className="note">{PAYER_NOTE[data.payer]}.</span>{" "}
@@ -211,7 +217,7 @@ function Card({ p, onPick }: { p: Row; onPick: () => void }) {
         <span className="note">{age(p.birth_year)} · {p.city}</span>
         <span><PayerTag payer={p.payer} /></span>
         <span className="cond">{conditionLabel(p.primary_condition)}</span>
-        <span className="chips"><Chips classes={p.current_classes} />{p.demo_created && <span className="tagnew">New</span>}</span>
+        <span className="chips"><Chips classes={p.current_classes} />{p.by_nurse ? <span className="tagnew nurse">Added by nurse</span> : p.demo_created && <span className="tagnew">New</span>}</span>
       </span>
     </button>
   );

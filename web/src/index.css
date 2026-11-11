@@ -1703,3 +1703,7 @@ html[data-theme="dark"] .lg2 { --lg-g: 99, 181, 126; --lg-gold: 217, 181, 82; }
 @keyframes lg-orbit { to { transform: rotate(360deg); } }
 @keyframes lg-breathe { 0%, 100% { transform: scale(0.85); opacity: 0.6; } 50% { transform: scale(1.25); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .lg2-float, .lg2-float::before, .lg2-float::after, .lg2-aic::after { animation: none; } }
+
+/* Records a nurse entered, shown to the clinician */
+.tagnew.nurse { background: var(--gold-soft); color: var(--gold-ink); border: 1px solid var(--border); }
+.timeline .ev-nurse::before { background: var(--gold); }

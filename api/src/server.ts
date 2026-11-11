@@ -129,10 +129,11 @@ import { registerDigest } from "./digest.js";
        req, res, "view_patients",
        `SELECT p.patient_id, p.clinic_id, p.birth_year, p.city, p.primary_condition,
                p.diagnosed_on::text AS diagnosed_on, p.demo_created, p.payer,
+               (p.entered_via = 'role_nurse') AS by_nurse, p.created_at,
                COALESCE((SELECT array_agg(DISTINCT m.drug_class ORDER BY m.drug_class)
                          FROM clinical.patient_medications m
                          WHERE m.patient_id = p.patient_id AND m.stopped_on IS NULL), '{}') AS current_classes
-        FROM clinical.patients p ORDER BY p.patient_id`
+        FROM clinical.patients p ORDER BY (p.entered_via = 'role_nurse') DESC NULLS LAST, p.demo_created DESC, p.created_at DESC, p.patient_id`
      ));
 
    // Patients now taking each drug class, among the patients the caller may see.
@@ -151,7 +152,7 @@ import { registerDigest } from "./digest.js";
        const out = await withRole(req.user, async (c) => {
          const p = (
            await c.query(
-             `SELECT patient_id, clinic_id, birth_year, city, primary_condition, diagnosed_on::text AS diagnosed_on, demo_created, payer
+             `SELECT patient_id, clinic_id, birth_year, city, primary_condition, diagnosed_on::text AS diagnosed_on, demo_created, payer, (entered_via = 'role_nurse') AS by_nurse
               FROM clinical.patients WHERE patient_id = $1`,
              [id]
            )
@@ -159,14 +160,14 @@ import { registerDigest } from "./digest.js";
          if (!p) return null;
          const medications = (
            await c.query(
-             `SELECT med_id, drug, drug_class, indication, started_on::text AS started_on, stopped_on::text AS stopped_on, stop_reason
+             `SELECT med_id, drug, drug_class, indication, started_on::text AS started_on, stopped_on::text AS stopped_on, stop_reason, (entered_via = 'role_nurse') AS by_nurse
               FROM clinical.patient_medications WHERE patient_id = $1 ORDER BY started_on, med_id`,
              [id]
            )
          ).rows;
          const readings = (
            await c.query(
-             `SELECT taken_on::text AS taken_on, a1c::float8 AS a1c, weight_kg::float8 AS weight_kg
+             `SELECT taken_on::text AS taken_on, a1c::float8 AS a1c, weight_kg::float8 AS weight_kg, (entered_via = 'role_nurse') AS by_nurse
               FROM clinical.patient_readings WHERE patient_id = $1 ORDER BY taken_on`,
              [id]
            )
