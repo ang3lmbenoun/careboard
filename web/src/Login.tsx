@@ -1,6 +1,8 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { setToken, type User } from "./api";
-import Sparkles from "./Sparkles";
+import Icon2 from "./Icon";
+import { TiffanyStage } from "./Characters";
+import { resolvedTheme, useAppearance, watchSystemTheme } from "./appearance";
 
 type RoleId = User["role"];
 
@@ -11,7 +13,7 @@ const README = "https://github.com/ang3lmbenoun/careboard#demo-accounts";
 const REPO = "https://github.com/ang3lmbenoun/careboard";
 
 const Icon = ({ children }: { children: ReactNode }) => (
-  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     {children}
   </svg>
 );
@@ -62,12 +64,7 @@ const ROWS: { what: string; sees: Record<RoleId, boolean>; lock?: boolean }[] = 
 ];
 
 function Mark() {
-  return (
-    <svg className="lg-mark" viewBox="0 0 24 24" aria-hidden="true">
-      <rect width="24" height="24" rx="7" fill="#e8c478" />
-      <path d="M12 6v12M6 12h12" stroke="#12352b" strokeWidth="2.4" strokeLinecap="round" />
-    </svg>
-  );
+  return <span className="lg2-mark" aria-hidden="true" />;
 }
 
 export default function Login({ onSignedIn }: { onSignedIn: (user: User, email: string) => void }) {
@@ -77,6 +74,9 @@ export default function Login({ onSignedIn }: { onSignedIn: (user: User, email: 
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [slow, setSlow] = useState(false);
+  const [look, setLook] = useAppearance();
+  useEffect(() => watchSystemTheme(), []);
+  const dark = resolvedTheme(look.theme) === "dark";
 
   useEffect(() => {
     if (!busy) {
@@ -129,106 +129,128 @@ export default function Login({ onSignedIn }: { onSignedIn: (user: User, email: 
     }
   }
 
-  return (
-    <div className="login">
-      <div className="aurora" aria-hidden="true"><i /><i /><i /></div>
-      <Sparkles />
+  const [show, setShow] = useState(false);
 
-      <header className="lg-hero">
-        <div className="lg-brand"><Mark /> CareBoard</div>
-        <h1>
-          Health data that knows<br />
-          <span className="lg-wavy">who&rsquo;s asking.</span>
-        </h1>
-        <p className="lg-lede">
-          CareBoard is a health-analytics app where the database, not the web page, decides who sees what. Pick a role and watch the table below change.
-        </p>
+  return (
+    <div className="lg2">
+      <div className="lg2-bg" aria-hidden="true"><i /><i /><i /><i /><b /><svg className="lg2-wave" viewBox="0 0 1440 160" preserveAspectRatio="none"><path d="M0 90C240 20 420 150 720 96S1200 20 1440 80V160H0z" /></svg></div>
+      <header className="lg2-top">
+        <div className="lg2-brand"><Mark /> CareBoard</div>
+        <button className="theme-btn" type="button" onClick={() => setLook({ theme: dark ? "light" : "dark" })} aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}>
+          <Icon2 name={dark ? "sun" : "moon"} />
+          {dark ? "Light mode" : "Dark mode"}
+        </button>
       </header>
 
-      <section className="lg-matrix" aria-labelledby="lg-m-title">
-        <h2 id="lg-m-title" className="sr">What each role can open</h2>
-        <div className="table-wrap">
-          <table className="lg-table">
-            <thead>
-              <tr>
-                <th scope="col"><span className="sr">Data</span></th>
-                {ROLES.map((r) => (
-                  <th scope="col" key={r.id} className={r.id === role ? "on" : ""}>
-                    <button type="button" onClick={() => pick(r.id)} aria-pressed={r.id === role}>{r.id === "admin" ? "Admin" : r.label}</button>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {ROWS.map((row, i) => (
-                <tr key={row.what} className={row.lock ? "lock" : ""}>
-                  <th scope="row">{row.what}{row.lock && <em> · not even admin</em>}</th>
-                  {ROLES.map((r) => (
-                    <td key={r.id} className={r.id === role ? "on" : ""}>
-                      <span
-                        key={`${r.id === role}-${role}`}
-                        className={"dot " + (row.sees[r.id] ? "yes" : "no")}
-                        style={{ animationDelay: `${i * 45}ms` }}
-                      >
-                        <span className="sr">{row.sees[r.id] ? "Can open" : "Refused by the database"}</span>
-                      </span>
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <p className="lg-says" aria-live="polite">{current.says}</p>
-        <p className="lg-src">
-          Medicaid figures are public CMS data (2024). Patients and clinic activity are synthetic. <a href={REPO} target="_blank" rel="noreferrer">Read the source on GitHub</a>.
-        </p>
-      </section>
+      <div className="lg2-grid">
+        <aside className="lg2-hero" aria-label="Tiffany, the CareBoard AI agent">
+          <div className="lg2-arch"><TiffanyStage pose="calm" /></div>
+          <p className="lg2-cap"><b>Tiffany</b><span>AI agent. Drafts, never acts alone.</span></p>
+        </aside>
 
-      <main className="lg-formwrap">
-        <form className="lg-form" onSubmit={login}>
-          <h2>Try it as&hellip;</h2>
-          <div className="lg-roles" role="radiogroup" aria-label="Demo account">
-            {ROLES.map((r) => (
-              <button
-                type="button"
-                role="radio"
-                aria-checked={r.id === role}
-                key={r.id}
-                className={"lg-role" + (r.id === role ? " on" : "")}
-                onClick={() => pick(r.id)}
-              >
-                <span className="lg-ico">{r.icon}</span>
-                <span className="lg-rt"><strong>{r.label}</strong><span>{r.blurb}</span></span>
-              </button>
-            ))}
-          </div>
-
-          <label className="field">
-            Email
-            <input type="email" autoComplete="username" value={email} onChange={(e) => typed(e.target.value)} />
-          </label>
-          <label className="field">
-            Password
-            <input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Demo password" />
-          </label>
-          <p className="lg-hint">
-            {DEMO_PASSWORD
-              ? "Demo password filled in for you. It only protects synthetic data."
-              : <>The demo password is in the <a href={README} target="_blank" rel="noreferrer">README</a>. It only protects synthetic data.</>}
+        <section className="lg2-intro">
+          <span className="lg2-pill"><Icon2 name="shield" size={13} /> Demo with synthetic patients</span>
+          <h1>Health data that knows <em>who&rsquo;s asking.</em></h1>
+          <p className="lg2-lede">
+            CareBoard shows each person only what their role allows. The database enforces it, not the web page, so you get the right access at the right time.
           </p>
 
-          <button type="submit" className="primary" disabled={busy}>
-            {busy ? "Signing in…" : `Sign in as ${current.label}`}
-          </button>
-          {slow && (
-            <p className="lg-wake" role="status">
-              <span className="lg-spin" aria-hidden="true" /> Waking the free-tier database. The first sign-in after a quiet spell can take up to a minute.
+          <ul className="lg2-feats">
+            <li><span className="lg2-fi"><Icon2 name="shield" size={17} /></span><span><b>Secure access</b><small>Your role decides every row you can read. Names and birth dates stay hidden for everyone.</small></span></li>
+            <li><span className="lg2-fi"><Icon2 name="spark" size={17} /></span><span><b>Two AI assistants</b><small>Carey answers questions in plain language. Tiffany drafts follow-up lists. Both read only what your role can.</small></span></li>
+            <li><span className="lg2-fi"><Icon2 name="check" size={17} /></span><span><b>You stay in control</b><small>Nothing Tiffany drafts happens until a person approves it.</small></span></li>
+          </ul>
+
+          <details className="lg2-matrix" open>
+            <summary id="lg-m-title">What each role can open <Icon2 name="chev" size={14} /></summary>
+            <div className="table-wrap">
+              <table className="lg2-table">
+                <thead>
+                  <tr>
+                    <th scope="col"><span className="sr">Data</span></th>
+                    {ROLES.map((r) => (
+                      <th scope="col" key={r.id} className={r.id === role ? "on" : ""}>
+                        <button type="button" onClick={() => pick(r.id)} aria-pressed={r.id === role}>{r.id === "admin" ? "Admin" : r.label}</button>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {ROWS.map((row) => (
+                    <tr key={row.what}>
+                      <th scope="row">{row.what}{row.lock && <em> · not even admin</em>}</th>
+                      {ROLES.map((r) => (
+                        <td key={r.id} className={r.id === role ? "on" : ""}>
+                          <span className={"lg2-dot " + (row.sees[r.id] ? "yes" : "no")}>
+                            <span className="sr">{row.sees[r.id] ? "Can open" : "Refused by the database"}</span>
+                          </span>
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="lg2-says" aria-live="polite">{current.says}</p>
+          </details>
+          <p className="lg2-src">
+            Medicaid figures are public CMS data (2024). Patients and clinic activity are synthetic. <a href={REPO} target="_blank" rel="noreferrer">Read the source on GitHub</a>.
+          </p>
+        </section>
+
+        <main className="lg2-formwrap">
+          <form className="lg2-form" onSubmit={login}>
+            <h2>Welcome back</h2>
+            <p className="lg2-sub">Sign in to your CareBoard account</p>
+            <div className="lg2-lab">Sign in with your role</div>
+            <div className="lg2-roles" role="radiogroup" aria-label="Demo account">
+              {ROLES.map((r) => (
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={r.id === role}
+                  key={r.id}
+                  className={"lg2-role" + (r.id === role ? " on" : "")}
+                  onClick={() => pick(r.id)}
+                >
+                  <span className="lg2-ico">{r.icon}</span>
+                  <span className="lg2-rt"><strong>{r.label}</strong><span>{r.blurb}</span></span>
+                  {r.id === role && <span className="lg2-tick" aria-hidden="true"><Icon2 name="check" size={11} /></span>}
+                </button>
+              ))}
+            </div>
+
+            <label className="lg2-field">
+              Email address
+              <span className="lg2-inp"><Icon2 name="mail" size={15} /><input type="email" autoComplete="username" value={email} onChange={(e) => typed(e.target.value)} /></span>
+            </label>
+            <label className="lg2-field">
+              Password
+              <span className="lg2-inp">
+                <Icon2 name="lock" size={15} />
+                <input type={show ? "text" : "password"} autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Demo password" />
+                <button type="button" className="lg2-eye" onClick={() => setShow((v) => !v)} aria-label={show ? "Hide password" : "Show password"}><Icon2 name={show ? "eyeoff" : "eye"} size={15} /></button>
+              </span>
+            </label>
+            <p className="lg2-hint">
+              {DEMO_PASSWORD
+                ? "Demo password filled in for you. It only protects synthetic data."
+                : <>The demo password is in the <a href={README} target="_blank" rel="noreferrer">README</a>. It only protects synthetic data.</>}
             </p>
-          )}
-          {error && <p className="error" role="alert">{error}</p>}
-        </form>
-      </main>
+
+            <button type="submit" className="lg2-go" disabled={busy}>
+              {busy ? "Signing in…" : <>Sign in as {current.label} <Icon2 name="arrow" size={14} /></>}
+            </button>
+            {slow && (
+              <p className="lg2-wake" role="status">
+                <span className="lg-spin" aria-hidden="true" /> Waking the free-tier database. The first sign-in after a quiet spell can take up to a minute.
+              </p>
+            )}
+            {error && <p className="error" role="alert">{error}</p>}
+          </form>
+          <p className="lg2-tag">Role-based &middot; Audited &middot; Synthetic data</p>
+        </main>
+      </div>
     </div>
   );
 }
