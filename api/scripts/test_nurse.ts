@@ -2,7 +2,7 @@ import "dotenv/config";
 import { spawn } from "node:child_process";
 import pg from "pg";
 import { pool, withRole } from "../src/db.js";
-import { runAgent } from "../src/agent.js";
+import { toolsFor } from "../src/agent.js";
 import { patientSchema, medicationSchema, readingSchema } from "../src/entry.js";
 
 // Tests the nurse data-entry role: what it can add, what it can never read or change, and the API guards.
@@ -72,18 +72,14 @@ for (const [what, sql] of [
   ["the care risk worklist", "SELECT * FROM clinical.care_risk"],
   ["aggregate analytics", "SELECT * FROM serving.kpi_demo"],
   ["the audit log", "SELECT * FROM app.audit_log"],
-  ["agent runs", "SELECT * FROM app.agent_runs"],
-  ["agent settings", "SELECT * FROM app.agent_settings"],
   ["the policy library", "SELECT * FROM app.policy_chunks"],
   ["the user list", "SELECT * FROM app.users"],
   ["control tests", "SELECT * FROM app.control_tests()"],
 ] as const) ok(`nurse cannot read ${what}`, await denied(sql));
 ok("nurse can write an audit entry but not read it", (await code("INSERT INTO app.audit_log (user_id, role, action) VALUES ($1,'nurse','test')", [nurse.sub])) === "ok");
 
-// 6. The agent is not available to the nurse
-let agentErr = 0;
-try { await runAgent(nurse, "hello"); } catch (e: any) { agentErr = e.status; }
-ok("agent refuses the nurse role", agentErr === 403);
+// 6. The nurse agent only has its own tools (the full set of agent tests is in test_handoff.ts)
+ok("the nurse agent is shown no analytics tools", toolsFor("nurse").every((t) => ["my_tasks", "draft_handoff"].includes(t.name)));
 
 // 7. Demo housekeeping works without a DELETE right
 const old = (await admin_db.query(NEW.replace("$1, $2", "$1, true").replace(/\$2/g, "true"), [nurse.clinicId])).rows[0].patient_id;
@@ -123,10 +119,10 @@ const login = async (email: string) => {
 const get = async (t: string, path: string) => (await fetch(base + path, { headers: { authorization: `Bearer ${t}` } })).status;
 const tn = await login("nurse@careboard.dev"), tc = await login("clinician@careboard.dev");
 ok("nurse can sign in", !!tn);
-const blocked = ["/kpis", "/patients", "/patients/1", "/audit", "/risk/register", "/risk/care/summary", "/agent/runs", "/agent/settings", "/medicaid/trend", "/catalog"];
+const blocked = ["/kpis", "/patients", "/patients/1", "/audit", "/risk/register", "/risk/care/summary", "/agent/ledger", "/agent/kill", "/digest/log", "/eval/latest", "/medicaid/trend", "/catalog"];
 const codes = await Promise.all(blocked.map((p) => get(tn, p)));
 ok(`nurse gets 403 on ${blocked.length} routes outside data entry`, codes.every((c) => c === 403), codes.join(","));
-ok("nurse cannot use the assistant", (await fetch(base + "/assistant", { method: "POST", headers: { authorization: `Bearer ${tn}`, "content-type": "application/json" }, body: JSON.stringify({ question: "hello there" }) })).status === 403);
+ok("nurse reaches her own helper (an empty question is a 400, not a 403)", (await fetch(base + "/assistant", { method: "POST", headers: { authorization: `Bearer ${tn}`, "content-type": "application/json" }, body: JSON.stringify({ message: "" }) })).status === 400);
 ok("nurse can list entry patients", (await get(tn, "/entry/patients")) === 200);
 ok("clinician cannot use data entry routes", (await get(tc, "/entry/patients")) === 403);
 const bad = await fetch(base + "/entry/patients", { method: "POST", headers: { authorization: `Bearer ${tn}`, "content-type": "application/json" }, body: JSON.stringify({ full_name: "Bob 123" }) });

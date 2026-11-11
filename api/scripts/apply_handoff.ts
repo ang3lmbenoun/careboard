@@ -22,5 +22,17 @@ try {
       has_column_privilege('role_nurse','clinical.patients','entered_via','INSERT') AS n_ins`)).rows[0];
   report(g.c_sel, "a clinician can read who entered a record");
   report(!g.c_ins && !g.n_ins, "nobody can type the label themselves");
+  const tbl = async (schema: string, t: string) => (await db.query("SELECT 1 FROM information_schema.tables WHERE table_schema=$1 AND table_name=$2", [schema, t])).rowCount === 1;
+  report((await tbl("app", "messages")) && (await tbl("app", "record_checks")) && (await tbl("clinical", "stock_items")) && (await tbl("clinical", "stock_counts")), "messages, record checks and stock tables exist");
+  const fn = (await db.query("SELECT count(*)::int AS n FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace WHERE n.nspname='app' AND p.proname IN ('clinic_contacts','can_message')")).rows[0].n;
+  report(fn === 2, "contact and message-permission functions exist");
+  const rls = (await db.query("SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE c.relrowsecurity AND ((n.nspname='app' AND c.relname IN ('messages','record_checks')) OR (n.nspname='clinical' AND c.relname = 'stock_counts'))")).rows[0].n;
+  report(rls === 3, "row-level security is on for messages, record checks and stock counts");
+  const p = (await db.query(`SELECT has_column_privilege('role_nurse','app.messages','body','INSERT') AS n_msg, has_table_privilege('role_nurse','app.messages','DELETE') AS n_del,
+      has_column_privilege('role_nurse','clinical.stock_counts','quantity','INSERT') AS n_cnt, has_column_privilege('role_clinician','clinical.stock_counts','quantity','INSERT') AS c_cnt,
+      has_table_privilege('role_executive','app.messages','SELECT') AS x_msg, has_table_privilege('role_admin','app.messages','SELECT') AS a_msg`)).rows[0];
+  report(p.n_msg && !p.n_del, "a nurse can send but never delete messages");
+  report(p.n_cnt && !p.c_cnt, "only a nurse can enter a stock count");
+  report(!p.x_msg && !p.a_msg, "executives and administrators cannot read messages");
 } finally { await db.end(); }
 process.exit(failed ? 1 : 0);

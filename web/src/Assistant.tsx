@@ -54,9 +54,16 @@ function failureText(e: unknown) {
   return "Something went wrong on my side. Please try again in a moment.";
 }
 
-export default function Assistant() {
+const NURSE_GREETING: Msg = {
+  from: "bot",
+  text: "Hi, I'm Carey. I can tell you what is waiting for you today: unread messages, records to verify and medicine that is running low. Ask me what to do next.",
+};
+const NURSE_SUGGESTIONS = ["What do I have to do today?", "Which medicines are low?", "Which records still need verifying?", "Who can I message?"];
+
+export default function Assistant({ role }: { role?: string } = {}) {
+  const nurse = role === "nurse";
   const [open, setOpen] = useState(false);
-  const [msgs, setMsgs] = useState<Msg[]>([GREETING]);
+  const [msgs, setMsgs] = useState<Msg[]>([nurse ? NURSE_GREETING : GREETING]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const bottom = useRef<HTMLDivElement>(null);
@@ -165,7 +172,7 @@ export default function Assistant() {
             {busy && <div className="bubble bot typing">Carey is thinking…</div>}
             {msgs.length === 1 && !busy && (
               <div className="chips">
-                {SUGGESTIONS.map((s) => (
+                {(nurse ? NURSE_SUGGESTIONS : SUGGESTIONS).map((s) => (
                   <button key={s} type="button" className="chip" onClick={() => void ask(s)}>
                     {s}
                   </button>

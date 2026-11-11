@@ -16,7 +16,10 @@ type Run = {
   role?: string;
 };
 type Step = { seq: number; kind: "model" | "tool" | "result" | "blocked" | "answer"; content: Record<string, unknown> };
-type Action = { id: number; run_id: number; tier: number; type: string; payload: { patient_ids: number[]; reason: string }; status: string; outcome?: string | null };
+type Payload = { patient_ids?: number[]; reason?: string; to_name?: string; patient_id?: number | null; subject?: string; body?: string };
+type Action = { id: number; run_id: number; tier: number; type: string; payload: Payload; status: string; outcome?: string | null };
+const isMsg = (a: { type: string }) => a.type === "handoff_message";
+const ids = (a: Action) => a.payload.patient_ids ?? [];
 type EmailRes = { status: string; reason?: string; to?: string[] };
 const isMail = (a: { type: string }) => a.type === "email_followup_list";
 const mailNote = (e?: EmailRes) =>
@@ -32,7 +35,7 @@ const SUGGEST: Record<User["role"], string[]> = {
   clinician: ["Which of my patients need follow up this week?", "Email me the follow-up list for my highest risk patients.", "Compare Medicaid and Medicare drug spend."],
   executive: ["Compare Medicaid and Medicare drug spend.", "Which clinic has the higher no-show rate?", "Which patients need follow up this week?"],
   admin: ["Compare Medicaid and Medicare drug spend.", "Which clinic has the higher no-show rate?"],
-  nurse: [],
+  nurse: ["What do I have to do today?", "Draft a message to the clinician about low stock.", "Draft a message about records that need correction."],
 };
 const KIND_LABEL: Record<Step["kind"], string> = { model: "Model", tool: "Tool call", result: "Database result", blocked: "Blocked", answer: "Answer" };
 
@@ -106,11 +109,13 @@ export default function Agent({ role }: { role: User["role"] }) {
   }
 
   const [note, setNote] = useState("");
+  const [edits, setEdits] = useState<Record<number, { subject: string; body: string }>>({});
   async function decide(id: number, decision: "approved" | "rejected") {
     setNote("");
     try {
-      const r = await post<{ ok: boolean; email?: EmailRes }>(`agent/actions/${id}/decision`, { decision });
+      const r = await post<{ ok: boolean; email?: EmailRes; message_id?: number }>(`agent/actions/${id}/decision`, { decision, edit: decision === "approved" ? edits[id] : undefined });
       if (r.email) setNote(mailNote(r.email));
+      if (r.message_id) setNote("Message sent to the clinician. They will see it in Messages.");
       await refresh();
     } catch { setErr("Could not record that decision."); }
   }
@@ -141,7 +146,13 @@ export default function Agent({ role }: { role: User["role"] }) {
   const approved = actions.filter((a) => a.status === "approved");
   const mine = open ? pending.filter((a) => a.run_id === open.run.id) : [];
   const flows: { title: string; text: string; button: string; run?: () => void; note?: string }[] =
-    role === "clinician"
+    role === "nurse"
+      ? [
+          { title: "What to do today", text: "Reads your unread messages, unverified records and low stock.", button: "Ask", run: () => ask(undefined, "What do I have to do today?") },
+          { title: "Message a clinician", text: "Drafts a short message. You edit it and approve before anything is sent.", button: "Draft a message", run: () => ask(undefined, "Draft a message to the clinician about records that need correction.") },
+          { title: "Stock alert", text: "Writes up medicines below their reorder level.", button: "Draft a stock message", run: () => ask(undefined, "Draft a message to the clinician about low stock.") },
+        ]
+      : role === "clinician"
       ? [
           { title: "Follow-up call lists", text: "Finds patients due for a call and drafts the list.", button: "Draft a list", run: () => ask(undefined, "Which of my patients need follow up this week?") },
           { title: "Clinic rules", text: "Looks up your clinic's policies and quotes them.", button: "Ask about a rule", run: () => ask(undefined, "What is our A1C follow-up rule?") },
@@ -171,9 +182,9 @@ export default function Agent({ role }: { role: User["role"] }) {
             {pending.length === 0 ? <p className="hm-sub">Nothing waiting.</p> : (
               <ul className="hm-list">
                 {pending.map((a) => (
-                  <li key={a.id}>
-                    <div className="hm-grow">{isMail(a) ? "Email" : "Call list"}, {a.payload.patient_ids.length} patient{a.payload.patient_ids.length === 1 ? "" : "s"}<div className="hm-sub">{a.payload.reason}</div></div>
-                    <button className="hm-btn pri" onClick={() => decide(a.id, "approved")}>{isMail(a) ? "Approve and send" : "Approve"}</button>
+                  <li key={a.id} style={{ flexWrap: "wrap", rowGap: 8 }}>
+                    <div className="hm-grow" style={{ flexBasis: "100%" }}>{isMsg(a) ? `Message to ${a.payload.to_name ?? "a clinician"}` : <>{isMail(a) ? "Email" : "Call list"}, {ids(a).length} patient{ids(a).length === 1 ? "" : "s"}</>}<div className="hm-sub">{isMsg(a) ? a.payload.subject : a.payload.reason}</div></div>
+                    <button className="hm-btn pri" onClick={() => decide(a.id, "approved")}>{isMail(a) || isMsg(a) ? "Approve and send" : "Approve"}</button>
                     <button className="hm-btn" onClick={() => decide(a.id, "rejected")}>Not now</button>
                   </li>
                 ))}
@@ -200,12 +211,26 @@ export default function Agent({ role }: { role: User["role"] }) {
                     <>
                       <div className="tw-answer">{open.run.answer ?? ""}</div>
                       {mine.map((a) => (
+                        isMsg(a) ? (
+                          <div key={a.id} className="hm-card tw-draft">
+                            <div className="hm-row"><div><b>Draft message to {a.payload.to_name ?? "a clinician"}</b> <span className="hm-pill">Waiting for you</span>{a.payload.patient_id ? <div className="hm-sub">About patient #{a.payload.patient_id}</div> : null}</div></div>
+                            <label className="field">Subject
+                              <input maxLength={120} value={(edits[a.id] ?? { subject: a.payload.subject ?? "" }).subject} onChange={(e) => setEdits((x) => ({ ...x, [a.id]: { subject: e.target.value, body: x[a.id]?.body ?? a.payload.body ?? "" } }))} />
+                            </label>
+                            <label className="field">Message
+                              <textarea rows={6} maxLength={1500} value={(edits[a.id] ?? { body: a.payload.body ?? "" }).body} onChange={(e) => setEdits((x) => ({ ...x, [a.id]: { subject: x[a.id]?.subject ?? a.payload.subject ?? "", body: e.target.value } }))} />
+                            </label>
+                            <p className="hm-sub">Edit anything you like. It is sent only when you approve.</p>
+                            <div className="hm-actions" style={{ marginTop: 8 }}><button className="hm-btn pri" onClick={() => decide(a.id, "approved")}>Approve and send</button><button className="hm-btn" onClick={() => decide(a.id, "rejected")}>Not now</button></div>
+                          </div>
+                        ) : (
                         <div key={a.id} className="hm-card tw-draft">
                           <div className="hm-row">
-                            <div><b>{isMail(a) ? "Draft email" : "Draft call list"}</b> <span className="hm-pill">Waiting for you</span><div className="hm-sub">{a.payload.patient_ids.length} patient{a.payload.patient_ids.length === 1 ? "" : "s"}: {a.payload.patient_ids.map((p) => "#" + p).join(", ")}</div></div>
+                            <div><b>{isMail(a) ? "Draft email" : "Draft call list"}</b> <span className="hm-pill">Waiting for you</span><div className="hm-sub">{ids(a).length} patient{ids(a).length === 1 ? "" : "s"}: {ids(a).map((p) => "#" + p).join(", ")}</div></div>
                             <div className="hm-actions"><button className="hm-btn pri" onClick={() => decide(a.id, "approved")}>{isMail(a) ? "Approve and send" : "Approve"}</button><button className="hm-btn" onClick={() => decide(a.id, "rejected")}>Not now</button></div>
                           </div>
                         </div>
+                        )
                       ))}
                       <details className="tw-how">
                         <summary>How Tiffany worked this out</summary>
@@ -253,9 +278,9 @@ export default function Agent({ role }: { role: User["role"] }) {
             {approved.length === 0 ? <p className="hm-sub" style={{ marginTop: 6 }}>Approve a draft and it appears here.</p> : (
               <ul className="hm-list">
                 {approved.map((a) => (
-                  <li key={a.id}>
-                    <div className="hm-grow">{isMail(a) ? "Emailed list: " : "Call patients "}{a.payload.patient_ids.map((p) => "#" + p).join(", ")}<div className="hm-sub">{a.payload.reason}{a.outcome ? " · " + a.outcome : ""}</div></div>
-                    {!(a.outcome ?? "").startsWith("emailed") && <button className="hm-btn" onClick={() => emailIt(a.id)}>Email me this</button>}
+                  <li key={a.id} style={{ flexWrap: "wrap", rowGap: 8 }}>
+                    <div className="hm-grow" style={{ flexBasis: "100%" }}>{isMsg(a) ? "" : isMail(a) ? "Emailed list: " : "Call patients "}{isMsg(a) ? `Message to ${a.payload.to_name ?? "clinician"}: ${a.payload.subject ?? ""}` : ids(a).map((p) => "#" + p).join(", ")}<div className="hm-sub">{isMsg(a) ? "" : a.payload.reason}{a.outcome ? " · " + a.outcome : ""}</div></div>
+                    {!isMsg(a) && !(a.outcome ?? "").startsWith("emailed") && <button className="hm-btn" onClick={() => emailIt(a.id)}>Email me this</button>}
                   </li>
                 ))}
               </ul>

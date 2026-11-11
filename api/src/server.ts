@@ -12,6 +12,7 @@ import { registerRisk } from "./risk.js";
 import { registerAgent } from "./agent.js";
 import { registerEntry } from "./entry.js";
 import { registerDigest } from "./digest.js";
+import { registerHandoff } from "./handoff.js";
 
    const SECRET = process.env.JWT_SECRET;
    if (!SECRET) throw new Error("JWT_SECRET missing in api/.env");
@@ -29,13 +30,15 @@ import { registerDigest } from "./digest.js";
        next();
      });
 
-   // The nurse role may only sign in, read its own identity and use data entry. Everything else is refused before any
-   // handler runs (the database would refuse it too: this is a second layer).
+   // The nurse role may only sign in, read its own identity, use data entry and the hand-off routes (messages, record
+   // checks, stock), and talk to her own helper and agent. Everything else is refused before any handler runs
+   // (the database would refuse it too: this is a second layer). Analytics, patients, audit, digest and eval stay closed.
    app.use((req: any, res, next) => {
      const token = (req.headers.authorization ?? "").replace(/^Bearer /, "");
      let role: string | null = null;
      try { role = (jwt.verify(token, SECRET!) as any).role; } catch { /* unauthenticated: the route's own check answers */ }
-     const open = req.path === "/me" || req.path === "/health" || req.path.startsWith("/auth/") || req.path.startsWith("/entry/");
+     const NURSE_OPEN = ["/me", "/health", "/assistant", "/messages", "/stock", "/checks", "/handoff/", "/auth/", "/entry/", "/agent/run", "/agent/runs", "/agent/actions", "/agent/settings"];
+     const open = NURSE_OPEN.some((p) => req.path === p || (p.endsWith("/") ? req.path.startsWith(p) : req.path.startsWith(p + "/")));
      if (role === "nurse" && !open) {
        try { const c = jwt.decode(token) as any; audit(c, "access_denied", { route: req.path.replace(/^\//, "") }).catch(() => {}); } catch { /* ignore */ }
        return res.status(403).json({ error: "forbidden" });
@@ -373,6 +376,7 @@ app.get("/ops/breakdown", auth, (req, res) => {
         registerAgent(app, { auth, audit });
 registerEntry(app, { auth, audit });
 registerDigest(app, { auth, audit });
+registerHandoff(app, { auth, audit });
         app.get("/health", (_req, res) => res.json({ ok: true }));
      app.use(express.static(fileURLToPath(new URL("../../web/dist", import.meta.url))));
 

@@ -22,19 +22,23 @@ import RiskCompliance from "./RiskCompliance";
 import Agent from "./Agent";
 import DataEntry from "./DataEntry";
 import Evaluation from "./Evaluation";
+import { Messages, Verify, Stock } from "./Handoff";
 import { resolvedTheme, useAppearance, watchSystemTheme } from "./appearance";
 
 type TabId =
   | "home" | "overview" | "medicaid" | "payers" | "operations" | "drugs" | "riskcare" | "riskops" | "riskspend" | "riskcomp"
-  | "catalog" | "patients" | "audit" | "settings" | "signals" | "agent" | "entry" | "eval";
+  | "catalog" | "patients" | "audit" | "settings" | "signals" | "agent" | "entry" | "eval" | "messages" | "verify" | "stock";
 
 type Item = { id: TabId; label: string; icon: string; roles: User["role"][] };
 const ALL: User["role"][] = ["admin", "clinician", "executive"];
 const TOP: Item[] = [
   { id: "home", label: "Home", icon: "home", roles: ["admin", "clinician", "executive", "nurse"] },
-  { id: "agent", label: "Tiffany", icon: "spark", roles: ALL },
+  { id: "agent", label: "Tiffany", icon: "spark", roles: [...ALL, "nurse"] },
   { id: "patients", label: "Patients", icon: "user", roles: ["clinician"] },
   { id: "entry", label: "Add records", icon: "plus", roles: ["nurse"] },
+  { id: "messages", label: "Messages", icon: "mail", roles: ["nurse", "clinician"] },
+  { id: "verify", label: "Verify records", icon: "shield", roles: ["nurse", "clinician"] },
+  { id: "stock", label: "Medicine stock", icon: "plus", roles: ["nurse", "clinician"] },
 ];
 const GROUPS: { id: string; label: string; icon: string; items: Omit<Item, "icon">[] }[] = [
   {
@@ -88,6 +92,9 @@ const HEADINGS: Record<TabId, { title: string; lede: string }> = {
     title: "Add patient records",
     lede: "Enter a new patient, a medicine or a measurement for your clinic. The database accepts additions only: no names back, no edits, no deletes.",
   },
+  messages: { title: "Messages", lede: "Talk with the nurses and clinicians of your clinic. Use patient numbers, never names. A short email notice tells the other person to sign in." },
+  verify: { title: "Verify records", lede: "Nurse-entered records and whether they were checked. Corrections are new entries, never edits." },
+  stock: { title: "Medicine stock", lede: "Shelf counts entered by the nurse, with items below their reorder level listed first." },
   overview: {
     title: "Overview",
     lede: "Headline numbers from the Medicaid and clinic data. Select a card to open the full view.",
@@ -157,7 +164,7 @@ const HEADINGS: Record<TabId, { title: string; lede: string }> = {
 const ROLE_NOTE: Record<User["role"], string> = {
   admin: "Administrator access: aggregate data, the audit log, and risk and compliance. The database denies patient records to this role.",
   clinician: "Clinician access: patients of your own clinic, without names or birth dates, plus aggregate data.",
-  nurse: "Nurse access: add patients, medicines and measurements for your own clinic. You cannot read names back, change entries or see analysis.",
+  nurse: "Nurse access: add patients, medicines and measurements for your own clinic, count stock, and message your clinicians. You cannot read names back, change entries or see analysis.",
   executive: "Executive access: aggregate Medicaid and operations data, patient counts with small groups hidden, and the risk register.",
 };
 
@@ -304,6 +311,9 @@ export default function Dashboard({ user, email, onSignOut }: { user: User; emai
             {tab === "payers" && <Payers />}
             {tab === "agent" && <Agent role={user.role} />}
             {tab === "entry" && user.role === "nurse" && <DataEntry />}
+            {tab === "messages" && (user.role === "nurse" || user.role === "clinician") && <Messages role={user.role} />}
+            {tab === "verify" && (user.role === "nurse" || user.role === "clinician") && <Verify role={user.role} />}
+            {tab === "stock" && (user.role === "nurse" || user.role === "clinician") && <Stock role={user.role} />}
             {tab === "operations" && <Operations />}
             {tab === "catalog" && <Catalog role={user.role} />}
             {tab === "signals" && <Signals role={user.role} onOpen={go} />}
@@ -322,7 +332,7 @@ export default function Dashboard({ user, email, onSignOut }: { user: User; emai
           </main>
         </div>
       </div>
-      {user.role !== "nurse" && <Assistant />}
+      <Assistant role={user.role} />
       {tour && <Tour role={user.role} onClose={closeTour} onGo={(t) => setTab(t)} onNav={(o) => mobile() && setOpen(o)} />}
     </div>
   );

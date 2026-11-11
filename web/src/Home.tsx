@@ -8,7 +8,7 @@ import { money, num, pct } from "./riskUi";
 type Role = User["role"];
 export type HomeDest =
   | "agent" | "patients" | "riskcare" | "riskops" | "riskspend" | "riskcomp" | "operations" | "payers"
-  | "audit" | "entry" | "overview" | "catalog" | "medicaid" | "eval";
+  | "audit" | "entry" | "messages" | "verify" | "stock" | "overview" | "catalog" | "medicaid" | "eval";
 
 type Care = { tier: "High" | "Medium" | "Low"; latest_a1c: number | null };
 type Action = { id: number; status: string; payload: { patient_ids: number[] }; type: string };
@@ -124,6 +124,7 @@ function Help({ onTour, onOpen }: { onTour?: () => void; onOpen: (d: HomeDest) =
 /* ---------------------------------------------------------------- roles */
 
 function Clinician({ onOpen }: { onOpen: (d: HomeDest) => void }) {
+  const hs = useData<Summary>("handoff/summary").data;
   const care = useData<Care[]>("risk/care");
   const ops = useData<OpsP>("risk/ops");
   const acts = useData<Action[]>("agent/actions");
@@ -140,6 +141,8 @@ function Clinician({ onOpen }: { onOpen: (d: HomeDest) => void }) {
           sub={rows ? `${high} high priority, ${med} medium` : ""} action="Open the worklist" onAction={() => onOpen("riskcare")} />
         <Goal title="Waiting for your approval" value={acts.data ? num(pending) : null}
           sub="Call lists Tiffany drafted" action="Review drafts" gold onAction={() => onOpen("agent")} />
+        <Goal title="Unread messages" value={hs ? num(hs.unread) : null} tone={hs && hs.unread ? "bad" : undefined}
+          sub={hs ? `${hs.unverified} nurse records not yet checked, ${hs.low_stock.length} medicines low` : ""} action="Open Messages" onAction={() => onOpen("messages")} />
         <Goal title="Clinic no-show rate, 12 months" value={ops.error ? "n/a" : r === null ? null : pct(r)}
           sub={r === null ? "" : r > TARGET ? `Above the ${pct(TARGET, 0)} working target` : `Within the ${pct(TARGET, 0)} working target`}>
           <Spark values={monthly(ops.data)} />
@@ -200,9 +203,18 @@ function Admin({ onOpen }: { onOpen: (d: HomeDest) => void }) {
   );
 }
 
+type Summary = { unread: number; unverified: number; needs_correction: number; low_stock: { drug: string }[] };
+
 function Nurse({ onOpen }: { onOpen: (d: HomeDest) => void }) {
+  const s = useData<Summary>("handoff/summary").data;
   return (
     <>
+      <div className="hm-label">What needs you today</div>
+      <div className="hm-grid">
+        <Goal title="Unread messages" value={s ? num(s.unread) : null} tone={s && s.unread ? "bad" : undefined} sub="From your clinicians" action="Open Messages" onAction={() => onOpen("messages")} />
+        <Goal title="Records to verify" value={s ? num(s.unverified + s.needs_correction) : null} sub={s ? `${s.unverified} not checked, ${s.needs_correction} need correction` : ""} action="Verify records" gold onAction={() => onOpen("verify")} />
+        <Goal title="Medicine below reorder level" value={s ? num(s.low_stock.length) : null} tone={s && s.low_stock.length ? "bad" : undefined} sub={s && s.low_stock.length ? s.low_stock.slice(0, 3).map((x) => x.drug).join(", ") : "Nothing low right now"} action="Count stock" onAction={() => onOpen("stock")} />
+      </div>
       <div className="hm-label">Your work</div>
       <div className="hm-grid">
         <Goal title="Add a patient record" value={<Icon name="plus" size={22} />} sub="A new patient, a medicine or a measurement for your clinic."
