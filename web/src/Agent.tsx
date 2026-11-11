@@ -16,7 +16,11 @@ type Run = {
   role?: string;
 };
 type Step = { seq: number; kind: "model" | "tool" | "result" | "blocked" | "answer"; content: Record<string, unknown> };
-type Action = { id: number; run_id: number; tier: number; type: string; payload: { patient_ids: number[]; reason: string }; status: string };
+type Action = { id: number; run_id: number; tier: number; type: string; payload: { patient_ids: number[]; reason: string }; status: string; outcome?: string | null };
+type EmailRes = { status: string; reason?: string; to?: string[] };
+const isMail = (a: { type: string }) => a.type === "email_followup_list";
+const mailNote = (e?: EmailRes) =>
+  !e ? "" : e.status === "sent" ? "Email sent. Check your inbox." : e.status === "dry_run" ? "Saved as a dry run: no email provider key is set on this server, so nothing was sent." : e.status === "skipped" ? "That list was already emailed." : `Not sent: ${e.reason ?? e.status}.`;
 type Ledger = {
   rows: { id: number; run_id: number; status: string; tier: number; payload: { patient_ids: number[]; reason: string }; clinic_id: number | null; created_at: string; decided_at: string | null; user_name: string | null; user_role: string | null }[];
   counts: { status: string; n: number }[];
@@ -25,7 +29,7 @@ type DigestInfo = { log: { id: number; at: string; recipient: string; status: st
 type Settings = { enabled: boolean; maxSteps: number; maxTokens: number; dailyRuns: number };
 
 const SUGGEST: Record<User["role"], string[]> = {
-  clinician: ["Which of my patients need follow up this week?", "Compare Medicaid and Medicare drug spend.", "Give me the names of the patients."],
+  clinician: ["Which of my patients need follow up this week?", "Email me the follow-up list for my highest risk patients.", "Compare Medicaid and Medicare drug spend."],
   executive: ["Compare Medicaid and Medicare drug spend.", "Which clinic has the higher no-show rate?", "Which patients need follow up this week?"],
   admin: ["Compare Medicaid and Medicare drug spend.", "Which clinic has the higher no-show rate?"],
   nurse: [],
@@ -101,8 +105,18 @@ export default function Agent({ role }: { role: User["role"] }) {
     } finally { setBusy(false); }
   }
 
+  const [note, setNote] = useState("");
   async function decide(id: number, decision: "approved" | "rejected") {
-    try { await post(`agent/actions/${id}/decision`, { decision }); await refresh(); } catch { setErr("Could not record that decision."); }
+    setNote("");
+    try {
+      const r = await post<{ ok: boolean; email?: EmailRes }>(`agent/actions/${id}/decision`, { decision });
+      if (r.email) setNote(mailNote(r.email));
+      await refresh();
+    } catch { setErr("Could not record that decision."); }
+  }
+  async function emailIt(id: number) {
+    setNote("");
+    try { setNote(mailNote((await post<{ email: EmailRes }>(`agent/actions/${id}/email`, {})).email)); await refresh(); } catch { setErr("Could not send the email."); }
   }
   async function previewDigest() {
     setDgBusy(true); setDgMsg(""); setPreview("");
@@ -158,14 +172,15 @@ export default function Agent({ role }: { role: User["role"] }) {
               <ul className="hm-list">
                 {pending.map((a) => (
                   <li key={a.id}>
-                    <div className="hm-grow">Call list, {a.payload.patient_ids.length} patient{a.payload.patient_ids.length === 1 ? "" : "s"}<div className="hm-sub">{a.payload.reason}</div></div>
-                    <button className="hm-btn pri" onClick={() => decide(a.id, "approved")}>Approve</button>
+                    <div className="hm-grow">{isMail(a) ? "Email" : "Call list"}, {a.payload.patient_ids.length} patient{a.payload.patient_ids.length === 1 ? "" : "s"}<div className="hm-sub">{a.payload.reason}</div></div>
+                    <button className="hm-btn pri" onClick={() => decide(a.id, "approved")}>{isMail(a) ? "Approve and send" : "Approve"}</button>
                     <button className="hm-btn" onClick={() => decide(a.id, "rejected")}>Not now</button>
                   </li>
                 ))}
               </ul>
             )}
-            <p className="hm-sub" style={{ marginTop: 8 }}>Approving records your decision in the log. This demo sends nothing outside the app.</p>
+            {note && <p className="hm-sub" role="status" style={{ marginTop: 8, color: "var(--ink)" }}>{note}</p>}
+            <p className="hm-sub" style={{ marginTop: 8 }}>Nothing happens until you approve. An approved email goes only to the allow-listed address and holds patient numbers, never names.</p>
           </div>
         </div>
 
@@ -187,8 +202,8 @@ export default function Agent({ role }: { role: User["role"] }) {
                       {mine.map((a) => (
                         <div key={a.id} className="hm-card tw-draft">
                           <div className="hm-row">
-                            <div><b>Draft call list</b> <span className="hm-pill">Waiting for you</span><div className="hm-sub">{a.payload.patient_ids.length} patient{a.payload.patient_ids.length === 1 ? "" : "s"}: {a.payload.patient_ids.map((p) => "#" + p).join(", ")}</div></div>
-                            <div className="hm-actions"><button className="hm-btn pri" onClick={() => decide(a.id, "approved")}>Approve</button><button className="hm-btn" onClick={() => decide(a.id, "rejected")}>Not now</button></div>
+                            <div><b>{isMail(a) ? "Draft email" : "Draft call list"}</b> <span className="hm-pill">Waiting for you</span><div className="hm-sub">{a.payload.patient_ids.length} patient{a.payload.patient_ids.length === 1 ? "" : "s"}: {a.payload.patient_ids.map((p) => "#" + p).join(", ")}</div></div>
+                            <div className="hm-actions"><button className="hm-btn pri" onClick={() => decide(a.id, "approved")}>{isMail(a) ? "Approve and send" : "Approve"}</button><button className="hm-btn" onClick={() => decide(a.id, "rejected")}>Not now</button></div>
                           </div>
                         </div>
                       ))}
@@ -234,11 +249,14 @@ export default function Agent({ role }: { role: User["role"] }) {
 
           <div className="hm-card">
             <h2>Follow-ups</h2>
-            <p className="hm-sub">Call lists you approved. Nothing is sent outside the app.</p>
+            <p className="hm-sub">Lists you approved. Email one to yourself with the button.</p>
             {approved.length === 0 ? <p className="hm-sub" style={{ marginTop: 6 }}>Approve a draft and it appears here.</p> : (
               <ul className="hm-list">
                 {approved.map((a) => (
-                  <li key={a.id}><div className="hm-grow">Call patients {a.payload.patient_ids.map((p) => "#" + p).join(", ")}<div className="hm-sub">{a.payload.reason}</div></div></li>
+                  <li key={a.id}>
+                    <div className="hm-grow">{isMail(a) ? "Emailed list: " : "Call patients "}{a.payload.patient_ids.map((p) => "#" + p).join(", ")}<div className="hm-sub">{a.payload.reason}{a.outcome ? " · " + a.outcome : ""}</div></div>
+                    {!(a.outcome ?? "").startsWith("emailed") && <button className="hm-btn" onClick={() => emailIt(a.id)}>Email me this</button>}
+                  </li>
                 ))}
               </ul>
             )}
