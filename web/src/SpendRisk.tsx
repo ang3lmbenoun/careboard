@@ -77,7 +77,7 @@ export default function SpendRisk() {
               <YAxis type="category" dataKey="label" width={84} />
               <Tooltip formatter={(v) => `${v}%`} />
               <Bar dataKey="pct" name="Share of spend" radius={[0, 6, 6, 0]} isAnimationActive={false}>
-                {calc.classes.map((c, i) => <Cell key={c.label} fill={i === 0 ? "#b8903f" : "#1f5c4a"} />)}
+                {calc.classes.map((c, i) => <Cell key={c.label} fill={i === 0 ? "#b8903f" : "var(--chart-1)"} />)}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
@@ -90,7 +90,7 @@ export default function SpendRisk() {
               <XAxis type="number" unit="%" />
               <YAxis type="category" dataKey="label" width={40} />
               <Tooltip formatter={(v) => `${v}%`} />
-              <Bar dataKey="pct" name="Share of spend" fill="#1f5c4a" radius={[0, 6, 6, 0]} isAnimationActive={false} />
+              <Bar dataKey="pct" name="Share of spend" fill="var(--chart-1)" radius={[0, 6, 6, 0]} isAnimationActive={false} />
             </BarChart>
           </ResponsiveContainer>
           <p className="note">State concentration index: {num(calc.stateHhi)} across {calc.states.length} states.</p>

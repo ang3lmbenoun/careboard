@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ApiError, post } from "./api";
+import { Carey } from "./Characters";
 
 type Reply = {
   mode: "sql" | "explain" | "refuse";
@@ -23,7 +24,7 @@ type Msg = {
 const GREETING: Msg = {
   from: "bot",
   text:
-    "Hi, I'm Carry, your CareBoard assistant. I can explain the numbers on this page in plain language, or look up " +
+    "Hi, I'm Carey, your CareBoard assistant. I can explain the numbers on this page in plain language, or look up " +
     "answers in the Medicaid and clinic summary tables. What would you like to know?",
 };
 
@@ -60,6 +61,7 @@ export default function Assistant() {
   const [busy, setBusy] = useState(false);
   const bottom = useRef<HTMLDivElement>(null);
   const field = useRef<HTMLInputElement>(null);
+  const askRef = useRef<(q: string) => void>(() => {});
 
   useEffect(() => {
     bottom.current?.scrollIntoView({ block: "end" });
@@ -73,6 +75,16 @@ export default function Assistant() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
+
+  useEffect(() => {
+    const onAsk = (e: Event) => {
+      const q = (e as CustomEvent<string>).detail;
+      setOpen(true);
+      if (q) window.setTimeout(() => askRef.current(q), 0);
+    };
+    window.addEventListener("careboard:ask", onAsk);
+    return () => window.removeEventListener("careboard:ask", onAsk);
+  }, []);
 
   async function ask(text: string) {
     const question = text.trim();
@@ -97,6 +109,8 @@ export default function Assistant() {
     }
   }
 
+  askRef.current = (q) => void ask(q);
+
   function submit(e: FormEvent) {
     e.preventDefault();
     void ask(input);
@@ -105,11 +119,11 @@ export default function Assistant() {
   return (
     <>
       {open && (
-        <section className="chat" role="dialog" aria-label="Carry, the CareBoard assistant">
+        <section className="chat" role="dialog" aria-label="Carey, the CareBoard assistant">
           <header className="chat-head">
-            <div>
-              <strong>Carry</strong>
-              <span>CareBoard assistant</span>
+            <div className="chat-who">
+              <Carey size={30} />
+              <div><strong>Carey</strong><span>CareBoard assistant</span></div>
             </div>
             <button className="ghost" onClick={() => setOpen(false)} aria-label="Close assistant">
               Close
@@ -118,7 +132,9 @@ export default function Assistant() {
 
           <div className="chat-body" aria-live="polite">
             {msgs.map((m, i) => (
-              <div key={i} className={"bubble " + m.from + (m.isError ? " bad" : "")}>
+              <div key={i} className={"msgrow " + m.from}>
+              {m.from === "bot" && <Carey size={26} tag={false} />}
+              <div className={"bubble " + m.from + (m.isError ? " bad" : "")}>
                 <p>{m.text}</p>
                 {m.rows && m.rows.length > 0 && m.columns && (
                   <div className="table-wrap">
@@ -144,8 +160,9 @@ export default function Assistant() {
                   </details>
                 )}
               </div>
+              </div>
             ))}
-            {busy && <div className="bubble bot typing">Carry is thinking…</div>}
+            {busy && <div className="bubble bot typing">Carey is thinking…</div>}
             {msgs.length === 1 && !busy && (
               <div className="chips">
                 {SUGGESTIONS.map((s) => (
@@ -172,7 +189,7 @@ export default function Assistant() {
             </button>
           </form>
           <p className="chat-foot">
-            AI-generated. Carry reads summary tables only, never patient records. Check the query shown under each
+            AI-generated. Carey reads summary tables only, never patient records. Check the query shown under each
             answer.
           </p>
         </section>
@@ -185,16 +202,8 @@ export default function Assistant() {
         aria-expanded={open}
         aria-label={open ? "Close the assistant" : "Open the assistant"}
       >
-        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
-          <path
-            d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H11l-4.2 3.6A.6.6 0 0 1 6 19.1V16h-.5A2.5 2.5 0 0 1 4 13.5z"
-            fill="#12352b"
-          />
-          <circle cx="9" cy="9.5" r="1.2" fill="#f3e9cf" />
-          <circle cx="12.5" cy="9.5" r="1.2" fill="#f3e9cf" />
-          <circle cx="16" cy="9.5" r="1.2" fill="#f3e9cf" />
-        </svg>
-        <span>{open ? "Close" : "Ask Carry"}</span>
+        <Carey size={22} tag={false} />
+        <span>{open ? "Close" : "Ask Carey"}</span>
       </button>
     </>
   );

@@ -6,6 +6,8 @@ import Catalog from "./Catalog";
 import Operations from "./Operations";
 import Assistant from "./Assistant";
 import Overview from "./Overview";
+import Home from "./Home";
+import Icon from "./Icon";
 import Settings from "./Settings";
 import Audit from "./Audit";
 import Tour from "./Tour";
@@ -19,59 +21,47 @@ import SpendRisk from "./SpendRisk";
 import RiskCompliance from "./RiskCompliance";
 import Agent from "./Agent";
 import DataEntry from "./DataEntry";
+import Evaluation from "./Evaluation";
+import { resolvedTheme, useAppearance, watchSystemTheme } from "./appearance";
 
 type TabId =
-  | "overview" | "medicaid" | "payers" | "operations" | "drugs" | "riskcare" | "riskops" | "riskspend" | "riskcomp"
-  | "catalog" | "patients" | "audit" | "settings" | "signals" | "agent" | "entry";
+  | "home" | "overview" | "medicaid" | "payers" | "operations" | "drugs" | "riskcare" | "riskops" | "riskspend" | "riskcomp"
+  | "catalog" | "patients" | "audit" | "settings" | "signals" | "agent" | "entry" | "eval";
 
-type Item = { id: TabId; label: string; roles: User["role"][] };
+type Item = { id: TabId; label: string; icon: string; roles: User["role"][] };
 const ALL: User["role"][] = ["admin", "clinician", "executive"];
-const HOME: Item = { id: "overview", label: "Overview", roles: ALL };
-const GROUPS: { id: string; label: string; items: Item[] }[] = [
+const TOP: Item[] = [
+  { id: "home", label: "Home", icon: "home", roles: ["admin", "clinician", "executive", "nurse"] },
+  { id: "agent", label: "Tiffany", icon: "spark", roles: ALL },
+  { id: "patients", label: "Patients", icon: "user", roles: ["clinician"] },
+  { id: "entry", label: "Add records", icon: "plus", roles: ["nurse"] },
+];
+const GROUPS: { id: string; label: string; icon: string; items: Omit<Item, "icon">[] }[] = [
   {
-    id: "analytics",
-    label: "Analytics",
+    id: "reports",
+    label: "Reports",
+    icon: "chart",
     items: [
+      { id: "overview", label: "Overview", roles: ALL },
       { id: "medicaid", label: "Medicaid", roles: ALL },
       { id: "payers", label: "Medicaid vs Medicare", roles: ALL },
       { id: "operations", label: "Operations", roles: ALL },
       { id: "drugs", label: "Drug classes", roles: ALL },
-    ],
-  },
-  {
-    id: "risk",
-    label: "Risk",
-    items: [
       { id: "riskcare", label: "Care risk", roles: ALL },
       { id: "riskops", label: "Operational risk", roles: ALL },
       { id: "riskspend", label: "Financial exposure", roles: ALL },
       { id: "riskcomp", label: "Risk & compliance", roles: ["admin", "executive"] },
-    ],
-  },
-  {
-    id: "agent",
-    label: "Agent",
-    items: [{ id: "agent", label: "Care agent", roles: ALL }],
-  },
-  {
-    id: "reference",
-    label: "Reference",
-    items: [
       { id: "signals", label: "Signals", roles: ["admin", "executive"] },
       { id: "catalog", label: "Data catalog", roles: ALL },
     ],
   },
   {
-    id: "entry",
-    label: "Data entry",
-    items: [{ id: "entry", label: "Add patient records", roles: ["nurse"] }],
-  },
-  {
-    id: "restricted",
-    label: "Restricted",
+    id: "admin",
+    label: "Admin",
+    icon: "shield",
     items: [
-      { id: "patients", label: "Patients", roles: ["clinician"] },
       { id: "audit", label: "Audit log", roles: ["admin"] },
+      { id: "eval", label: "Agent evaluation", roles: ["admin"] },
     ],
   },
 ];
@@ -93,6 +83,7 @@ function save(key: string, value: string | null) {
 }
 
 const HEADINGS: Record<TabId, { title: string; lede: string }> = {
+  home: { title: "Home", lede: "" },
   entry: {
     title: "Add patient records",
     lede: "Enter a new patient, a medicine or a measurement for your clinic. The database accepts additions only: no names back, no edits, no deletes.",
@@ -106,8 +97,8 @@ const HEADINGS: Record<TabId, { title: string; lede: string }> = {
     lede: "State Medicaid spending on four diabetes drug classes in 2024. Click a bar to drill from drug class to drug to state.",
   },
   agent: {
-    title: "Care agent",
-    lede: "An assistant that runs as your role. It uses fixed tools, every step is logged, and anything it proposes waits for your approval.",
+    title: "Tiffany's workspace",
+    lede: "Give her a task. She works on it, shows what she is doing, and waits for your approval.",
   },
   payers: {
     title: "Medicaid vs Medicare",
@@ -151,7 +142,11 @@ const HEADINGS: Record<TabId, { title: string; lede: string }> = {
   },
   audit: {
     title: "Audit log",
-    lede: "Every sign-in, page view and question asked of Carry. Only administrators can read this log.",
+    lede: "Every sign-in, page view and question asked of Carey. Only administrators can read this log.",
+  },
+  eval: {
+    title: "Agent evaluation",
+    lede: "Adversarial cases run against the agent with the real model. Each check inspects the data the agent was given, so a pass does not depend on the model saying the right words.",
   },
   settings: {
     title: "Settings",
@@ -178,11 +173,14 @@ function Chevron({ open }: { open: boolean }) {
 }
 
 export default function Dashboard({ user, email, onSignOut }: { user: User; email: string; onSignOut: () => void }) {
-  const [tab, setTab] = useState<TabId>(user.role === "nurse" ? "entry" : "overview");
-  const [open, setOpen] = useState<boolean>(() => (mobile() ? false : load("careboard.nav") !== "closed"));
-  const [shut, setShut] = useState<Record<string, boolean>>({});
+  const [tab, setTab] = useState<TabId>("home");
+  const [open, setOpen] = useState<boolean>(false);
+  const [shut, setShut] = useState<Record<string, boolean>>({ reports: true, admin: true });
   const [tour, setTour] = useState<boolean>(() => user.role !== "nurse" && load(`careboard.tour.${email}`) !== "done");
   const [custom, setCustom] = useState<string>(() => load(NAME_KEY(email)) ?? "");
+  const [look, setLook] = useAppearance();
+  useEffect(() => watchSystemTheme(), []);
+  const dark = resolvedTheme(look.theme) === "dark";
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -192,17 +190,19 @@ export default function Dashboard({ user, email, onSignOut }: { user: User; emai
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const toggleNav = () => {
-    const next = !open;
-    setOpen(next);
-    if (!mobile()) save("careboard.nav", next ? "open" : "closed");
-  };
+  const toggleNav = () => setOpen(!open);
+  // Open the group that holds the current page, so the active item is always visible (the tour moves between pages too).
+  useEffect(() => {
+    const g = GROUPS.find((x) => x.items.some((i) => i.id === tab));
+    if (g) setShut((c) => (c[g.id] ? { ...c, [g.id]: false } : c));
+  }, [tab]);
   const go = (id: TabId) => {
     setTab(id);
     if (mobile()) setOpen(false);
   };
   const closeTour = () => {
     setTour(false);
+    setTab("home");
     save(`careboard.tour.${email}`, "done");
   };
   const saveName = (v: string) => {
@@ -216,84 +216,90 @@ export default function Dashboard({ user, email, onSignOut }: { user: User; emai
     tab === "riskcare" && user.role !== "clinician"
         ? { title: "Care risk", lede: "How many patients fall in each risk group, by clinic and condition. Your role sees counts only, and small groups are hidden by the database. Synthetic patients; illustrative rules." }
         : HEADINGS[tab];
+  const topItems = TOP.filter((i) => i.roles.includes(user.role));
   const groups = GROUPS.map((g) => ({ ...g, items: g.items.filter((i) => i.roles.includes(user.role)) })).filter(
     (g) => g.items.length
   );
-  const crumb = tab === "overview" ? null : GROUPS.find((g) => g.items.some((i) => i.id === tab))?.label ?? null;
-  const link = (i: { id: TabId; label: string }) => (
+  const crumb = GROUPS.find((g) => g.items.some((i) => i.id === tab))?.label ?? (tab === "agent" ? "AI agent" : null);
+  const hour = new Date().getHours();
+  const hello = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+  const title = tab === "home" ? `${hello}, ${shown}` : head.title;
+  const eyebrow = tab === "home" ? new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }) : crumb;
+  const link = (i: { id: TabId; label: string; icon?: string }, sub = false) => (
     <button
       key={i.id}
-      className={"nav-item" + (tab === i.id ? " active" : "")}
+      className={"nav-item" + (sub ? " sub" : "") + (tab === i.id ? " active" : "")}
       data-tour={`nav-${i.id}`}
       aria-current={tab === i.id ? "page" : undefined}
       onClick={() => go(i.id)}
     >
+      {i.icon && <Icon name={i.icon} />}
       {i.label}
     </button>
   );
+  const initial = (shown || "?").trim().charAt(0).toUpperCase();
 
   return (
     <div className={"app" + (open ? " nav-open" : "")}>
       <aside className="side" id="side" aria-label="Main navigation">
         <div className="brand">
-          <svg className="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
-            <rect width="24" height="24" rx="7" fill="#b8903f" />
-            <path d="M12 6v12M6 12h12" stroke="#12352b" strokeWidth="2.4" strokeLinecap="round" />
-          </svg>
+          <span className="brand-dot" aria-hidden="true" />
           CareBoard
         </div>
         <nav className="side-nav" data-tour="nav">
-          {user.role !== "nurse" && link(HOME)}
+          {topItems.map((i) => link(i))}
           {groups.map((g) => {
             const isShut = !!shut[g.id];
             return (
               <div className="nav-group" key={g.id}>
                 <button
-                  className="nav-group-head"
+                  className="nav-item nav-group-head"
                   aria-expanded={!isShut}
                   onClick={() => setShut({ ...shut, [g.id]: !isShut })}
                 >
+                  <Icon name={g.icon} />
                   {g.label}
                   <Chevron open={!isShut} />
                 </button>
-                {!isShut && g.items.map(link)}
+                {!isShut && g.items.map((i) => link(i, true))}
               </div>
             );
           })}
+          {link({ id: "settings", label: "Settings", icon: "sliders" })}
         </nav>
         <div className="side-foot">
-          {link({ id: "settings", label: "Settings" })}
           <div className="side-user">
-            <span className="side-name">{shown}</span>
-            <span className="badge">{user.role}</span>
+            <span className="side-av" aria-hidden="true">{initial}</span>
+            <div className="side-who"><b>{shown}</b><span>{user.role}</span></div>
+            <button className="side-out" onClick={onSignOut} aria-label="Sign out" title="Sign out"><Icon name="out" /></button>
           </div>
-          <button className="ghost" onClick={onSignOut}>Sign out</button>
         </div>
       </aside>
       {open && <div className="scrim" onClick={() => setOpen(false)} />}
       <div className="main">
         <header className="bar">
           <button className="menu" onClick={toggleNav} aria-expanded={open} aria-controls="side" aria-label={open ? "Close navigation" : "Open navigation"}>
-            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-              <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
+            <Icon name="menu" size={18} />
           </button>
-          <span className="bar-title">
-            {crumb && <span className="bar-crumb">{crumb}<span aria-hidden="true"> / </span></span>}
-            {tab === "overview" ? "Overview" : head.title}
-          </span>
+          <span className="bar-title">CareBoard</span>
         </header>
         <div className="shell">
-          {tab !== "overview" && <p className="role-note"><span className="role-dot" aria-hidden="true" />{ROLE_NOTE[user.role]}</p>}
-          <main className={"card" + (tab === "overview" ? " bare" : "")}>
-            {tab !== "overview" && (
-              <div className="page-head">
-                <h1>{head.title}</h1>
-                <p className="lede">{head.lede}</p>
-              </div>
-            )}
+          <div className="top">
+            <div>
+              {eyebrow && <span className="mono">{eyebrow}</span>}
+              <h1>{title}</h1>
+              {head.lede && tab !== "home" && <p className="lede">{head.lede}</p>}
+            </div>
+            <button className="theme-btn" onClick={() => setLook({ theme: dark ? "light" : "dark" })} aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}>
+              <Icon name={dark ? "sun" : "moon"} />
+              {dark ? "Light mode" : "Dark mode"}
+            </button>
+          </div>
+          {tab !== "home" && tab !== "agent" && <p className="role-note"><span className="role-dot" aria-hidden="true" />{ROLE_NOTE[user.role]}</p>}
+          <main className={"card" + (tab === "home" || tab === "agent" || tab === "overview" ? " bare" : "")}>
             <ErrorBoundary key={tab}>
-            {tab === "overview" && <Overview role={user.role} name={shown} onOpen={go} />}
+            {tab === "home" && <Home role={user.role} onOpen={go} onTour={user.role === "nurse" ? undefined : () => setTour(true)} />}
+            {tab === "overview" && <Overview role={user.role} onOpen={go} />}
             {tab === "medicaid" && <Medicaid />}
             {tab === "payers" && <Payers />}
             {tab === "agent" && <Agent role={user.role} />}
@@ -308,6 +314,7 @@ export default function Dashboard({ user, email, onSignOut }: { user: User; emai
             {tab === "riskspend" && <SpendRisk />}
             {tab === "riskcomp" && <RiskCompliance role={user.role} />}
             {tab === "audit" && <Audit />}
+            {tab === "eval" && user.role === "admin" && <Evaluation />}
             {tab === "settings" && (
               <Settings onReplayTour={user.role === "nurse" ? undefined : () => setTour(true)} email={email} role={user.role} defaultName={user.name} custom={custom} onSave={saveName} access={ROLE_NOTE[user.role]} />
             )}

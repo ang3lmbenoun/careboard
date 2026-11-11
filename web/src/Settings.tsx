@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { FONTS, useAppearance, type FontKey, type Theme } from "./appearance";
 
 type Props = {
   email: string;
@@ -13,6 +14,7 @@ type Props = {
 export default function Settings({ email, role, defaultName, custom, access, onSave, onReplayTour }: Props) {
   const [value, setValue] = useState(custom);
   const [saved, setSaved] = useState(false);
+  const [look, setLook] = useAppearance();
 
   function submit(e: FormEvent) {
     e.preventDefault();
@@ -63,6 +65,25 @@ export default function Settings({ email, role, defaultName, custom, access, onS
           are set by the database and cannot be changed here.
         </p>
       </form>
+      <h2 className="sec">Appearance</h2>
+      <div className="appearance">
+        <div className="opt">
+          <span>Theme<small>Light, dark, or follow your device.</small></span>
+          <div className="seg" role="group" aria-label="Theme">
+            {(["light", "dark", "system"] as Theme[]).map((t) => (
+              <button key={t} type="button" className={look.theme === t ? "on" : ""} aria-pressed={look.theme === t} onClick={() => setLook({ theme: t })}>
+                {t === "system" ? "Match my device" : t[0].toUpperCase() + t.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="opt">
+          <span>Font<small>Stored in this browser only.</small></span>
+          <select value={look.font} onChange={(e) => setLook({ font: e.target.value as FontKey })} aria-label="Font">
+            {FONTS.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}
+          </select>
+        </div>
+      </div>
       {onReplayTour && (
         <>
           <h2 className="sec">Welcome tour</h2>

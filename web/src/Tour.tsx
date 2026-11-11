@@ -67,7 +67,7 @@ function steps(role: Role): Step[] {
     {
       target: "nav-audit", nav: true, tab: "audit", roles: ["admin"],
       title: "The audit log",
-      body: "Every sign-in, failed sign-in, refused request and question asked of Carry is recorded by the database. Only administrators can read it.",
+      body: "Every sign-in, failed sign-in, refused request and question asked of Carey is recorded by the database. Only administrators can read it.",
     },
     {
       target: "nav-riskcare", nav: true, tab: "riskcare", roles: ["clinician"],
@@ -86,8 +86,8 @@ function steps(role: Role): Step[] {
     },
     {
       target: "chat-fab", tab: "overview",
-      title: "Ask Carry",
-      body: "Ask a question in plain words. Carry writes one read-only query against two summary tables and explains the result. Ask it for a patient's name and watch it refuse.",
+      title: "Ask Carey",
+      body: "Ask a question in plain words. Carey writes one read-only query against two summary tables and explains the result. Ask it for a patient's name and watch it refuse.",
     },
     {
       tab: "overview",

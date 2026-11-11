@@ -130,12 +130,12 @@
                <Tooltip formatter={(v, name) => (name === "No-show rate" ? pct(Number(v)) : String(v))} />
                <Bar
                  yAxisId="l"
-                 dataKey="scheduled" fill="#1f5c4a" radius={[6, 6, 0, 0]}
+                 dataKey="scheduled" fill="var(--chart-1)" radius={[6, 6, 0, 0]}
                  name="Scheduled"
                  cursor={NEXT[grain] ? "pointer" : "default"}
                  onClick={(d: any) => drill(d.payload?.period ?? d.period)}
                />
-               <Line yAxisId="r" type="monotone" dataKey="no_show_rate" name="No-show rate" stroke="#a8782a" strokeWidth={2.5} dot={false} />
+               <Line yAxisId="r" type="monotone" dataKey="no_show_rate" name="No-show rate" stroke="var(--chart-2)" strokeWidth={2.5} dot={false} />
              </ComposedChart>
            </ResponsiveContainer>
          )}

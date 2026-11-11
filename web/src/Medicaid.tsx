@@ -49,7 +49,7 @@
                <Tooltip formatter={(v) => money(Number(v))} />
                <Bar
                  dataKey="spend"
-                 fill="#1f5c4a" radius={[0, 6, 6, 0]} cursor={by === "state" ? "default" : "pointer"}
+                 fill="var(--chart-1)" radius={[0, 6, 6, 0]} cursor={by === "state" ? "default" : "pointer"}
                  onClick={(d: any) => pick(d.payload?.label ?? d.label)}
                />
              </BarChart>
@@ -66,7 +66,7 @@
                <XAxis dataKey="period" />
                <YAxis tickFormatter={money} />
                <Tooltip formatter={(v) => money(Number(v))} />
-               <Line type="monotone" dataKey="spend" stroke="#a8782a" strokeWidth={2.5} />
+               <Line type="monotone" dataKey="spend" stroke="var(--chart-2)" strokeWidth={2.5} />
              </LineChart>
            </ResponsiveContainer>
          )}

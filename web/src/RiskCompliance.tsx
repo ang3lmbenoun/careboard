@@ -182,7 +182,7 @@ function Live() {
           <Stat label="Sign-ins" value={num(t.sign_ins)} note={`${t.active_users} distinct accounts`} />
           <Stat label="Failed sign-ins" value={num(t.failed_sign_ins)} note="Wrong password or unknown account" tone={t.failed_sign_ins > 0 ? "warn" : undefined} />
           <Stat label="Denied requests" value={num(t.denied_requests)} note="Blocked by role or database" tone={t.denied_requests > 0 ? "warn" : undefined} />
-          <Stat label="Carry questions" value={num(t.carry_questions)} note={`${t.carry_refusals} refused`} />
+          <Stat label="Carey questions" value={num(t.carry_questions)} note={`${t.carry_refusals} refused`} />
           <Stat label="Patient data views" value={num(t.patient_data_views)} note="List, profile, class and risk views" />
           <Stat label="Demo patients" value={`+${t.patients_added} / -${t.patients_removed}`} note="Added and removed" />
         </div>
@@ -195,9 +195,9 @@ function Live() {
               <YAxis allowDecimals={false} />
               <Tooltip />
               <Legend />
-              <Bar dataKey="sign_ins" name="Sign-ins" fill="#1f5c4a" isAnimationActive={false} />
+              <Bar dataKey="sign_ins" name="Sign-ins" fill="var(--chart-1)" isAnimationActive={false} />
               <Bar dataKey="failed" name="Failed sign-ins" fill="#b8903f" isAnimationActive={false} />
-              <Bar dataKey="denied" name="Denied requests" fill="#9b2c2c" isAnimationActive={false} />
+              <Bar dataKey="denied" name="Denied requests" fill="var(--danger)" isAnimationActive={false} />
             </BarChart>
           </ResponsiveContainer>
         </div>

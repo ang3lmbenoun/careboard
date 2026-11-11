@@ -15,7 +15,7 @@ type Payload = {
   months: { month: string; department: string; scheduled: number; no_shows: number }[];
 };
 
-const DEPT_COLOR: Record<string, string> = { "Primary care": "#1f5c4a", "Behavioral health": "#b8903f", Endocrinology: "#4a7fb0" };
+const DEPT_COLOR: Record<string, string> = { "Primary care": "var(--chart-1)", "Behavioral health": "#b8903f", Endocrinology: "#4a7fb0" };
 const DAYS = ["", "Mon", "Tue", "Wed", "Thu", "Fri"];
 const rate = (n: number, s: number) => (s > 0 ? n / s : 0);
 
@@ -118,7 +118,7 @@ export default function OpsRisk() {
               <YAxis unit="%" domain={[0, "auto"]} />
               <Tooltip formatter={(v) => `${v}%`} />
               <Legend />
-              <ReferenceLine y={target * 100} stroke="#9b2c2c" strokeDasharray="4 4" label={{ value: "target", fill: "#9b2c2c", fontSize: 11, position: "insideTopRight" }} />
+              <ReferenceLine y={target * 100} stroke="var(--danger)" strokeDasharray="4 4" label={{ value: "target", fill: "var(--danger)", fontSize: 11, position: "insideTopRight" }} />
               {calc.depts.map((d) => (
                 <Line key={d} type="monotone" dataKey={d} stroke={DEPT_COLOR[d] ?? "#666"} strokeWidth={2} dot={false} isAnimationActive={false} />
               ))}
@@ -133,7 +133,7 @@ export default function OpsRisk() {
               <XAxis dataKey="day" />
               <YAxis unit="%" domain={[0, "auto"]} />
               <Tooltip formatter={(v) => `${v}%`} />
-              <Bar dataKey="rate" name="No-show rate" fill="#1f5c4a" radius={[6, 6, 0, 0]} isAnimationActive={false} />
+              <Bar dataKey="rate" name="No-show rate" fill="var(--chart-1)" radius={[6, 6, 0, 0]} isAnimationActive={false} />
             </BarChart>
           </ResponsiveContainer>
         </div>

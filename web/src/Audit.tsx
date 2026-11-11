@@ -12,7 +12,7 @@ type Row = {
 
 const ACTIONS: Record<string, string> = {
   login: "Signed in",
-  assistant_query: "Asked Carry a question",
+  assistant_query: "Asked Carey a question",
   view_medicaid_breakdown: "Viewed Medicaid spending",
   view_medicaid_trend: "Viewed the Medicaid quarterly trend",
   view_ops_trend: "Viewed the clinic operations trend",
@@ -61,7 +61,7 @@ export default function Audit() {
   return (
     <>
       <p className="note">
-        Showing the latest {data.length} actions, newest first. Questions asked of Carry are recorded as typed (first 200 characters).
+        Showing the latest {data.length} actions, newest first. Questions asked of Carey are recorded as typed (first 200 characters).
       </p>
       <label className="toggle">
         <input type="checkbox" checked={tech} onChange={(e) => setTech(e.target.checked)} /> Show technical codes

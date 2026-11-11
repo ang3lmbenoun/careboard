@@ -8,7 +8,7 @@ const money = (v: number) =>
   v >= 1e9 ? `$${(v / 1e9).toFixed(1)}B` : v >= 1e6 ? `$${(v / 1e6).toFixed(0)}M` : `$${Math.round(v / 1e3)}K`;
 const pct = (v: number) => `${Math.round(v * 100)}%`;
 const CLASSES = ["GLP-1", "Insulin", "DPP-4", "Metformin"];
-const LINE: Record<string, string> = { "GLP-1": "#1f5c4a", Insulin: "#a8782a", "DPP-4": "#3d7ea6", Metformin: "#9a9aa2" };
+const LINE: Record<string, string> = { "GLP-1": "var(--chart-1)", Insulin: "var(--chart-2)", "DPP-4": "#3d7ea6", Metformin: "#9a9aa2" };
 
 // Medicaid and Medicare side by side, for the same four drug classes. The Medicaid numbers are state data for 2024;
 // the Medicare numbers are national. Everything shown is added up in the browser from the two tables.
@@ -71,8 +71,8 @@ export default function Payers() {
               <YAxis tickFormatter={money} />
               <Tooltip formatter={(v) => money(Number(v))} />
               <Legend />
-              <Bar dataKey="Medicaid" fill="#1f5c4a" radius={[6, 6, 0, 0]} />
-              <Bar dataKey="Medicare" fill="#a8782a" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="Medicaid" fill="var(--chart-1)" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="Medicare" fill="var(--chart-2)" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
 

@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { ApiError, api, post } from "./api";
 import type { User } from "./api";
+import { TiffanyStage, type Pose } from "./Characters";
 
 type Run = {
   id: number;
@@ -55,6 +56,10 @@ export default function Agent({ role }: { role: User["role"] }) {
   const [preview, setPreview] = useState("");
   const [dgMsg, setDgMsg] = useState("");
   const [dgBusy, setDgBusy] = useState(false);
+  const [pose, setPose] = useState<Pose>("calm");
+  const [asked, setAsked] = useState("");
+  const timer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
 
   const refresh = useCallback(async () => {
     try {
@@ -80,14 +85,19 @@ export default function Agent({ role }: { role: User["role"] }) {
     e?.preventDefault();
     const question = (text ?? q).trim();
     if (!question || busy) return;
-    setBusy(true); setErr(""); setQ(question);
+    setBusy(true); setErr(""); setQ(""); setAsked(question); setOpen(null);
+    window.clearTimeout(timer.current);
+    setPose("thinking");
     try {
       const r = await post<{ runId: number }>("agent/run", { question });
       await show(r.runId);
       await refresh();
+      setPose("speaking");
+      timer.current = window.setTimeout(() => setPose("calm"), 7000);
     } catch (x) {
       const s = x instanceof ApiError ? x.status : 0;
       setErr(s === 503 ? "The agent is switched off or not configured." : s === 429 ? "Run limit reached. Try again later." : "The agent could not run.");
+      setPose("calm");
     } finally { setBusy(false); }
   }
 
@@ -115,89 +125,144 @@ export default function Agent({ role }: { role: User["role"] }) {
 
   const pending = actions.filter((a) => a.status === "pending");
   const approved = actions.filter((a) => a.status === "approved");
+  const mine = open ? pending.filter((a) => a.run_id === open.run.id) : [];
+  const flows: { title: string; text: string; button: string; run?: () => void; note?: string }[] =
+    role === "clinician"
+      ? [
+          { title: "Follow-up call lists", text: "Finds patients due for a call and drafts the list.", button: "Draft a list", run: () => ask(undefined, "Which of my patients need follow up this week?") },
+          { title: "Clinic rules", text: "Looks up your clinic's policies and quotes them.", button: "Ask about a rule", run: () => ask(undefined, "What is our A1C follow-up rule?") },
+          { title: "Spend comparison", text: "Compares Medicaid and Medicare drug spend.", button: "Compare", run: () => ask(undefined, "Compare Medicaid and Medicare drug spend.") },
+        ]
+      : role === "executive"
+      ? [
+          { title: "Spend comparison", text: "Compares Medicaid and Medicare drug spend.", button: "Compare", run: () => ask(undefined, "Compare Medicaid and Medicare drug spend.") },
+          { title: "No-shows by clinic", text: "Shows which clinic misses more visits.", button: "Ask", run: () => ask(undefined, "Which clinic has the higher no-show rate?") },
+          { title: "Weekly summary", text: "Emails the leadership team the key numbers.", button: "See the schedule", note: "Sent by the scheduled digest. Admins can preview it." },
+        ]
+      : [
+          { title: "Spend comparison", text: "Compares Medicaid and Medicare drug spend.", button: "Compare", run: () => ask(undefined, "Compare Medicaid and Medicare drug spend.") },
+          { title: "No-shows by clinic", text: "Shows which clinic misses more visits.", button: "Ask", run: () => ask(undefined, "Which clinic has the higher no-show rate?") },
+          { title: "Weekly summary", text: "Emails the allow-listed team the key numbers.", button: "Preview", run: dg ? previewDigest : undefined },
+        ];
+
   return (
-    <div className="agent">
+    <div className="tw">
       {cfg && !cfg.enabled && <p className="agent-banner">Agents are switched off. New runs are blocked.</p>}
-      <div className="card agent-ask">
-        <h3>Ask the care agent</h3>
-        <p className="agent-note">The agent runs as your role. It cannot read more than you can, it sees patients by number only, and anything it proposes waits for your approval.</p>
-        <form onSubmit={ask} className="agent-form">
-          <label htmlFor="agent-q" className="sr-only">Question</label>
-          <input id="agent-q" value={q} onChange={(e) => setQ(e.target.value)} maxLength={500} placeholder="Ask about spend, no-shows or your patients" />
-          <button className="primary send" type="submit" disabled={busy || !q.trim()}>{busy ? "Running..." : "Run"}</button>
-        </form>
-        <div className="chips">
-          {SUGGEST[role].map((s) => (<button key={s} type="button" className="chip" disabled={busy} onClick={() => ask(undefined, s)}>{s}</button>))}
+      <div className="tw-work">
+        <div className="tw-stagecol">
+          <TiffanyStage pose={pose} />
+          <div className="hm-row"><div><b>Tiffany</b> <span className="hm-pill">AI agent</span></div></div>
+          <div className="hm-card">
+            <div className="hm-row"><h2>Waiting for you</h2><span className="hm-pill">{pending.length}</span></div>
+            {pending.length === 0 ? <p className="hm-sub">Nothing waiting.</p> : (
+              <ul className="hm-list">
+                {pending.map((a) => (
+                  <li key={a.id}>
+                    <div className="hm-grow">Call list, {a.payload.patient_ids.length} patient{a.payload.patient_ids.length === 1 ? "" : "s"}<div className="hm-sub">{a.payload.reason}</div></div>
+                    <button className="hm-btn pri" onClick={() => decide(a.id, "approved")}>Approve</button>
+                    <button className="hm-btn" onClick={() => decide(a.id, "rejected")}>Not now</button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="hm-sub" style={{ marginTop: 8 }}>Approving records your decision in the log. This demo sends nothing outside the app.</p>
+          </div>
         </div>
-        {err && <p className="agent-err" role="alert">{err}</p>}
-      </div>
 
-      {open && (
-        <div className="card">
-          <h3>Run {open.run.id}</h3>
-          <p className="agent-q">{open.run.question}</p>
-          <ol className="agent-trace">
-            {open.steps.map((s) => (
-              <li key={s.seq} className={"agent-step " + s.kind}>
-                <span className="agent-kind">{KIND_LABEL[s.kind]}</span>
-                <code>{summary(s)}</code>
-              </li>
-            ))}
-          </ol>
-          <div className="agent-answer"><strong>Answer</strong><p>{open.run.answer ?? ""}</p></div>
-          <p className="agent-meta">
-            Status {open.run.status}. {open.run.prompt_tokens + open.run.completion_tokens} tokens, {open.run.latency_ms ?? 0} ms
-            {open.run.est_cost_usd > 0 ? `, about $${open.run.est_cost_usd.toFixed(4)}` : ""}.
-          </p>
-        </div>
-      )}
-
-      <div className="card">
-        <h3>Approval inbox</h3>
-        {pending.length === 0 ? <p className="agent-note">Nothing waiting. Ask a clinician question to see a proposed action.</p> : (
-          <ul className="agent-inbox">
-            {pending.map((a) => (
-              <li key={a.id}>
-                <div><span className="agent-tier">Tier {a.tier}</span> Follow up call list for patients {a.payload.patient_ids.map((p) => "#" + p).join(", ")}<br /><small>{a.payload.reason}</small></div>
-                <div className="agent-btns">
-                  <button className="primary" type="button" onClick={() => decide(a.id, "approved")}>Approve</button>
-                  <button type="button" onClick={() => decide(a.id, "rejected")}>Reject</button>
+        <div className="tw-mainc">
+          <div className="hm-card tw-conv">
+            <div className="hm-chips">
+              {SUGGEST[role].map((s) => (<button key={s} type="button" className="hm-chip" disabled={busy} onClick={() => ask(undefined, s)}>{s}</button>))}
+            </div>
+            {!asked && !busy && !open && <p className="hm-sub">Ask Tiffany to do something for your clinic. She uses fixed tools, logs every step, and only reads what your role can read.</p>}
+            {asked && <div className="tw-msg"><div className="tw-bub me">{asked}</div></div>}
+            {(busy || open) && (
+              <div className="tw-msg">
+                <span className="tw-who"><img src="/characters/tiffany.webp" alt="" /></span>
+                <div className="tw-bub">
+                  {busy && <div><span className="tw-dots" aria-hidden="true"><span /><span /><span /></span> Tiffany is working on it</div>}
+                  {!busy && open && (
+                    <>
+                      <div className="tw-answer">{open.run.answer ?? ""}</div>
+                      {mine.map((a) => (
+                        <div key={a.id} className="hm-card tw-draft">
+                          <div className="hm-row">
+                            <div><b>Draft call list</b> <span className="hm-pill">Waiting for you</span><div className="hm-sub">{a.payload.patient_ids.length} patient{a.payload.patient_ids.length === 1 ? "" : "s"}: {a.payload.patient_ids.map((p) => "#" + p).join(", ")}</div></div>
+                            <div className="hm-actions"><button className="hm-btn pri" onClick={() => decide(a.id, "approved")}>Approve</button><button className="hm-btn" onClick={() => decide(a.id, "rejected")}>Not now</button></div>
+                          </div>
+                        </div>
+                      ))}
+                      <details className="tw-how">
+                        <summary>How Tiffany worked this out</summary>
+                        <ol className="agent-trace">
+                          {open.steps.map((st) => (
+                            <li key={st.seq} className={"agent-step " + st.kind}>
+                              <span className="agent-kind">{KIND_LABEL[st.kind]}</span>
+                              <code>{summary(st)}</code>
+                            </li>
+                          ))}
+                        </ol>
+                        <p className="hm-sub">
+                          Status {open.run.status}. {open.run.prompt_tokens + open.run.completion_tokens} tokens, {open.run.latency_ms ?? 0} ms
+                          {open.run.est_cost_usd > 0 ? `, about $${open.run.est_cost_usd.toFixed(4)}` : ""}.
+                        </p>
+                      </details>
+                    </>
+                  )}
                 </div>
-              </li>
-            ))}
-          </ul>
-        )}
-        <p className="agent-meta">Approving records your decision in the log. This demo sends nothing outside the app.</p>
+              </div>
+            )}
+            {err && <p className="agent-err" role="alert">{err}</p>}
+            <form onSubmit={ask} className="hm-ask">
+              <label htmlFor="agent-q" className="sr-only">Question</label>
+              <input id="agent-q" value={q} onChange={(e) => setQ(e.target.value)} maxLength={500} placeholder="Ask Tiffany to do something for your clinic" />
+              <button className="hm-btn pri" type="submit" disabled={busy || !q.trim()}>{busy ? "Working..." : "Ask"}</button>
+            </form>
+          </div>
+
+          <div>
+            <div className="hm-label">What she can do</div>
+            <div className="hm-grid">
+              {flows.map((f) => (
+                <div key={f.title} className="hm-card tw-flow">
+                  <div><h2>{f.title}</h2><p className="hm-sub">{f.text}</p>{f.note && <p className="hm-sub" style={{ marginTop: 6 }}>{f.note}</p>}</div>
+                  {f.run && <div><button className="hm-btn" disabled={busy} onClick={f.run}>{f.button}</button></div>}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="hm-card">
+            <h2>Follow-ups</h2>
+            <p className="hm-sub">Call lists you approved. Nothing is sent outside the app.</p>
+            {approved.length === 0 ? <p className="hm-sub" style={{ marginTop: 6 }}>Approve a draft and it appears here.</p> : (
+              <ul className="hm-list">
+                {approved.map((a) => (
+                  <li key={a.id}><div className="hm-grow">Call patients {a.payload.patient_ids.map((p) => "#" + p).join(", ")}<div className="hm-sub">{a.payload.reason}</div></div></li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="hm-card">
+            <h2>Recent runs</h2>
+            {runs.length === 0 ? <p className="hm-sub">No runs yet.</p> : (
+              <ul className="agent-runs">
+                {runs.map((r) => (
+                  <li key={r.id}>
+                    <button type="button" className="agent-run" onClick={() => { setAsked(r.question); show(r.id); }}>
+                      <span>{r.question}</span><small>{r.status}</small>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
       </div>
 
-      <div className="card">
-        <h3>Follow-ups</h3>
-        <p className="agent-note">Call lists you approved. Nothing is sent outside the app.</p>
-        {approved.length === 0 ? <p className="agent-note">Approve a proposed action and it appears here.</p> : (
-          <ul className="agent-inbox">
-            {approved.map((a) => (
-              <li key={a.id}>
-                <div>Call patients {a.payload.patient_ids.map((p) => "#" + p).join(", ")}<br /><small>{a.payload.reason}</small></div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      <div className="card">
-        <h3>Recent runs</h3>
-        {runs.length === 0 ? <p className="agent-note">No runs yet.</p> : (
-          <ul className="agent-runs">
-            {runs.map((r) => (
-              <li key={r.id}>
-                <button type="button" className="agent-run" onClick={() => show(r.id)}>
-                  <span>{r.question}</span><small>{r.status}</small>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      {preview && role === "admin" && <div className="hm-card"><h2>Weekly summary preview</h2><pre className="agent-preview">{preview}</pre></div>}
+      {dgMsg && <p className="hm-sub" role="status">{dgMsg}</p>}
 
       {role === "admin" && ledger && (
         <div className="card">

@@ -5,6 +5,15 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#12352b" />
+    <script>
+      // Apply the saved look before the page paints, so there is no flash of the wrong theme.
+      try {
+        var a = JSON.parse(localStorage.getItem("careboard.appearance") || "{}");
+        var t = a.theme === "dark" || (a.theme !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+        document.documentElement.dataset.theme = t;
+        if (a.font) document.documentElement.dataset.font = a.font;
+      } catch (e) {}
+    </script>
     <title>CareBoard: role-aware health analytics</title>
     <meta name="description" content="A health-analytics portfolio app where the database, not the web page, decides who sees what. Public Medicaid data, synthetic patients, three roles." />
     <meta property="og:title" content="CareBoard: role-aware health analytics" />

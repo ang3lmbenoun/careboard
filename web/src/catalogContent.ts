@@ -94,7 +94,7 @@ export const TABLES: Record<string, TableInfo> = {
   },
   "app.audit_log": {
     title: "Audit log",
-    summary: "A record of every sign-in and every data view or question asked of Carry.",
+    summary: "A record of every sign-in and every data view or question asked of Carey.",
     source: "synthetic",
     grain: "One row per action",
     usedOn: "Audit log (administrator only)",

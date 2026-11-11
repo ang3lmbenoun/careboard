@@ -64,8 +64,8 @@ function Trend({ data, keyName, unit, goal, title }: { data: Reading[]; keyName:
           <XAxis dataKey="date" tickFormatter={(d) => month(String(d))} minTickGap={32} />
           <YAxis domain={[lo, hi]} width={44} tickFormatter={(v) => `${v}`} />
           <Tooltip formatter={(v) => `${v}${unit}`} labelFormatter={(d) => month(String(d))} />
-          {goal && <ReferenceLine y={goal} stroke="#a8782a" strokeDasharray="5 4" label={{ value: `${goal}${unit} common target`, fill: "#7a5a1a", fontSize: 12, position: "insideTopRight" }} />}
-          <Line type="monotone" dataKey="v" name={title} stroke="#1f5c4a" strokeWidth={2.5} dot={{ r: 3 }} isAnimationActive={false} />
+          {goal && <ReferenceLine y={goal} stroke="var(--chart-2)" strokeDasharray="5 4" label={{ value: `${goal}${unit} common target`, fill: "var(--gold-ink)", fontSize: 12, position: "insideTopRight" }} />}
+          <Line type="monotone" dataKey="v" name={title} stroke="var(--chart-1)" strokeWidth={2.5} dot={{ r: 3 }} isAnimationActive={false} />
         </LineChart>
       </ResponsiveContainer>
     </div>

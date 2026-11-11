@@ -41,11 +41,6 @@ const CLASS_COLOR: Record<string, string> = {
 };
 const colorOf = (label: string) => CLASS_COLOR[label.toLowerCase()] ?? "#7a8a83";
 
-function greeting(): string {
-  const h = new Date().getHours();
-  return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
-}
-
 /* ------------------------------------------------------------------ pieces */
 
 type Tone = "neutral" | "ok" | "warn" | "bad";
@@ -396,9 +391,9 @@ function Story() {
                 <XAxis dataKey="period" tickFormatter={(p) => String(p).slice(0, 7)} minTickGap={36} />
                 <YAxis tickFormatter={(v) => pct(v, 1)} domain={[lo, hi]} width={44} allowDataOverflow />
                 <Tooltip formatter={(v) => pct(Number(v))} labelFormatter={(p) => String(p).slice(0, 7)} />
-                <ReferenceLine y={TARGET} stroke="#9b2c2c" strokeDasharray="4 4" label={{ value: `${pct(TARGET, 0)} target (assumption)`, fill: "#9b2c2c", fontSize: 11, position: "insideBottomRight" }} />
-                <Area type="monotone" dataKey="no_show_rate" name="No-show rate" stroke="#a8782a" strokeWidth={2.5} fill="url(#ovg)" isAnimationActive={false} />
-                {last && <ReferenceDot x={last.period} y={last.no_show_rate} r={5} fill="#a8782a" stroke="#fff" strokeWidth={2} />}
+                <ReferenceLine y={TARGET} stroke="var(--danger)" strokeDasharray="4 4" label={{ value: `${pct(TARGET, 0)} target (assumption)`, fill: "var(--danger)", fontSize: 11, position: "insideBottomRight" }} />
+                <Area type="monotone" dataKey="no_show_rate" name="No-show rate" stroke="var(--chart-2)" strokeWidth={2.5} fill="url(#ovg)" isAnimationActive={false} />
+                {last && <ReferenceDot x={last.period} y={last.no_show_rate} r={5} fill="var(--chart-2)" stroke="var(--card)" strokeWidth={2} />}
               </AreaChart>
             </ResponsiveContainer>
           )}
@@ -425,7 +420,7 @@ const EXPLORE: Record<Role, { q: string; a: string; to: Dest }[]> = {
   ],
   nurse: [],
   admin: [
-    { q: "What happened recently?", a: "Sign-ins, failed sign-ins, denied requests and Carry questions.", to: "audit" },
+    { q: "What happened recently?", a: "Sign-ins, failed sign-ins, denied requests and Carey questions.", to: "audit" },
     { q: "Are the controls still working?", a: "Eight live tests that query the database itself.", to: "riskcomp" },
     { q: "What is each role denied?", a: "The data catalog marks every column your role cannot read.", to: "catalog" },
   ],
@@ -447,17 +442,14 @@ const LEDE: Record<Role, string> = {
 
 /* -------------------------------------------------------------------- page */
 
-export default function Overview({ role, name, onOpen }: { role: Role; name: string; onOpen: (tab: Dest) => void }) {
+export default function Overview({ role, onOpen }: { role: Role; onOpen: (tab: Dest) => void }) {
   const lens = LENS[role];
   const [info, setInfo] = useState<SignalId | null>(null);
   const canTrace = role !== "clinician";
-  const today = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
 
   return (
     <div className="ov">
       <header className="ov-head">
-        <p className="ov-eyebrow">{today}</p>
-        <h1>{greeting()}, {name}.</h1>
         <p className="ov-lede">{LEDE[role]}</p>
         <div className="lens" aria-label={`What the ${lens.label} role can and cannot open`}>
           <span className="lens-who">Your lens: {lens.label}</span>
@@ -503,7 +495,7 @@ export default function Overview({ role, name, onOpen }: { role: Role; name: str
           <span className="tag tag-synthetic">Synthetic</span> every patient, appointment and risk score.{" "}
           <span className="tag tag-live">Live check</span> queried from the database as you load the page.
         </p>
-        <p>Not sure what a number means? Select <strong>Ask Carry</strong> in the corner, or open the Data catalog.</p>
+        <p>Not sure what a number means? Select <strong>Ask Carey</strong> in the corner, or open the Data catalog.</p>
       </footer>
       {info && canTrace && <SignalInfo id={info} onClose={() => setInfo(null)} onOpen={(to) => onOpen(to)} />}
     </div>
