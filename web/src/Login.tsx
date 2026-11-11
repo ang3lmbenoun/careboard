@@ -34,6 +34,14 @@ const ROLES: { id: RoleId; email: string; label: string; blurb: string; icon: Re
     says: "You see totals and the risk register. Any group of fewer than 5 patients is hidden from you.",
   },
   {
+    id: "nurse",
+    email: "nurse@careboard.dev",
+    label: "Nurse",
+    blurb: "Enters patients, medicines and readings",
+    icon: <Icon><path d="M4 20c0-4 3.6-6 8-6s8 2 8 6" /><circle cx="12" cy="8" r="4" /></Icon>,
+    says: "You can add patients, medicines and measurements for one clinic. You cannot read a name back, edit an entry or open any analysis.",
+  },
+  {
     id: "admin",
     email: "admin@careboard.dev",
     label: "Administrator",
@@ -44,12 +52,13 @@ const ROLES: { id: RoleId; email: string; label: string; blurb: string; icon: Re
 ];
 
 const ROWS: { what: string; sees: Record<RoleId, boolean>; lock?: boolean }[] = [
-  { what: "Medicaid spend and clinic trends", sees: { admin: true, clinician: true, executive: true } },
-  { what: "Patients in their own clinic", sees: { admin: false, clinician: true, executive: false } },
-  { what: "Patient counts across clinics, small groups hidden", sees: { admin: true, clinician: false, executive: true } },
-  { what: "Risk register and control map", sees: { admin: true, clinician: false, executive: true } },
-  { what: "Audit log of every access", sees: { admin: true, clinician: false, executive: false } },
-  { what: "Patient names and birth dates", sees: { admin: false, clinician: false, executive: false }, lock: true },
+  { what: "Medicaid spend and clinic trends", sees: { admin: true, clinician: true, executive: true, nurse: false } },
+  { what: "Patients in their own clinic", sees: { admin: false, clinician: true, executive: false, nurse: false } },
+  { what: "Patient counts across clinics, small groups hidden", sees: { admin: true, clinician: false, executive: true, nurse: false } },
+  { what: "Risk register and control map", sees: { admin: true, clinician: false, executive: true, nurse: false } },
+  { what: "Audit log of every access", sees: { admin: true, clinician: false, executive: false, nurse: false } },
+  { what: "Type in new patients, medicines and readings", sees: { admin: false, clinician: false, executive: false, nurse: true } },
+  { what: "Patient names and birth dates", sees: { admin: false, clinician: false, executive: false, nurse: false }, lock: true },
 ];
 
 function Mark() {

@@ -18,10 +18,11 @@ import OpsRisk from "./OpsRisk";
 import SpendRisk from "./SpendRisk";
 import RiskCompliance from "./RiskCompliance";
 import Agent from "./Agent";
+import DataEntry from "./DataEntry";
 
 type TabId =
   | "overview" | "medicaid" | "payers" | "operations" | "drugs" | "riskcare" | "riskops" | "riskspend" | "riskcomp"
-  | "catalog" | "patients" | "audit" | "settings" | "signals" | "agent";
+  | "catalog" | "patients" | "audit" | "settings" | "signals" | "agent" | "entry";
 
 type Item = { id: TabId; label: string; roles: User["role"][] };
 const ALL: User["role"][] = ["admin", "clinician", "executive"];
@@ -61,6 +62,11 @@ const GROUPS: { id: string; label: string; items: Item[] }[] = [
     ],
   },
   {
+    id: "entry",
+    label: "Data entry",
+    items: [{ id: "entry", label: "Add patient records", roles: ["nurse"] }],
+  },
+  {
     id: "restricted",
     label: "Restricted",
     items: [
@@ -87,6 +93,10 @@ function save(key: string, value: string | null) {
 }
 
 const HEADINGS: Record<TabId, { title: string; lede: string }> = {
+  entry: {
+    title: "Add patient records",
+    lede: "Enter a new patient, a medicine or a measurement for your clinic. The database accepts additions only: no names back, no edits, no deletes.",
+  },
   overview: {
     title: "Overview",
     lede: "Headline numbers from the Medicaid and clinic data. Select a card to open the full view.",
@@ -152,6 +162,7 @@ const HEADINGS: Record<TabId, { title: string; lede: string }> = {
 const ROLE_NOTE: Record<User["role"], string> = {
   admin: "Administrator access: aggregate data, the audit log, and risk and compliance. The database denies patient records to this role.",
   clinician: "Clinician access: patients of your own clinic, without names or birth dates, plus aggregate data.",
+  nurse: "Nurse access: add patients, medicines and measurements for your own clinic. You cannot read names back, change entries or see analysis.",
   executive: "Executive access: aggregate Medicaid and operations data, patient counts with small groups hidden, and the risk register.",
 };
 
@@ -167,10 +178,10 @@ function Chevron({ open }: { open: boolean }) {
 }
 
 export default function Dashboard({ user, email, onSignOut }: { user: User; email: string; onSignOut: () => void }) {
-  const [tab, setTab] = useState<TabId>("overview");
+  const [tab, setTab] = useState<TabId>(user.role === "nurse" ? "entry" : "overview");
   const [open, setOpen] = useState<boolean>(() => (mobile() ? false : load("careboard.nav") !== "closed"));
   const [shut, setShut] = useState<Record<string, boolean>>({});
-  const [tour, setTour] = useState<boolean>(() => load(`careboard.tour.${email}`) !== "done");
+  const [tour, setTour] = useState<boolean>(() => user.role !== "nurse" && load(`careboard.tour.${email}`) !== "done");
   const [custom, setCustom] = useState<string>(() => load(NAME_KEY(email)) ?? "");
 
   useEffect(() => {
@@ -232,7 +243,7 @@ export default function Dashboard({ user, email, onSignOut }: { user: User; emai
           CareBoard
         </div>
         <nav className="side-nav" data-tour="nav">
-          {link(HOME)}
+          {user.role !== "nurse" && link(HOME)}
           {groups.map((g) => {
             const isShut = !!shut[g.id];
             return (
@@ -286,6 +297,7 @@ export default function Dashboard({ user, email, onSignOut }: { user: User; emai
             {tab === "medicaid" && <Medicaid />}
             {tab === "payers" && <Payers />}
             {tab === "agent" && <Agent role={user.role} />}
+            {tab === "entry" && user.role === "nurse" && <DataEntry />}
             {tab === "operations" && <Operations />}
             {tab === "catalog" && <Catalog role={user.role} />}
             {tab === "signals" && <Signals role={user.role} onOpen={go} />}
@@ -297,13 +309,13 @@ export default function Dashboard({ user, email, onSignOut }: { user: User; emai
             {tab === "riskcomp" && <RiskCompliance role={user.role} />}
             {tab === "audit" && <Audit />}
             {tab === "settings" && (
-              <Settings onReplayTour={() => setTour(true)} email={email} role={user.role} defaultName={user.name} custom={custom} onSave={saveName} access={ROLE_NOTE[user.role]} />
+              <Settings onReplayTour={user.role === "nurse" ? undefined : () => setTour(true)} email={email} role={user.role} defaultName={user.name} custom={custom} onSave={saveName} access={ROLE_NOTE[user.role]} />
             )}
             </ErrorBoundary>
           </main>
         </div>
       </div>
-      <Assistant />
+      {user.role !== "nurse" && <Assistant />}
       {tour && <Tour role={user.role} onClose={closeTour} onGo={(t) => setTab(t)} onNav={(o) => mobile() && setOpen(o)} />}
     </div>
   );

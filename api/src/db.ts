@@ -16,6 +16,7 @@
      admin: "role_admin",
      clinician: "role_clinician",
      executive: "role_executive",
+     nurse: "role_nurse",
    } as const;
    export type Role = keyof typeof ROLE;
 

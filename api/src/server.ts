@@ -10,6 +10,7 @@ import { registerAssistant } from "./assistant.js";
 import { generatePatient } from "./patientGen.js";
 import { registerRisk } from "./risk.js";
 import { registerAgent } from "./agent.js";
+import { registerEntry } from "./entry.js";
 
    const SECRET = process.env.JWT_SECRET;
    if (!SECRET) throw new Error("JWT_SECRET missing in api/.env");
@@ -26,6 +27,20 @@ import { registerAgent } from "./agent.js";
        if (req.url.startsWith("/api/")) req.url = req.url.slice(4);
        next();
      });
+
+   // The nurse role may only sign in, read its own identity and use data entry. Everything else is refused before any
+   // handler runs (the database would refuse it too: this is a second layer).
+   app.use((req: any, res, next) => {
+     const token = (req.headers.authorization ?? "").replace(/^Bearer /, "");
+     let role: string | null = null;
+     try { role = (jwt.verify(token, SECRET!) as any).role; } catch { /* unauthenticated: the route's own check answers */ }
+     const open = req.path === "/me" || req.path === "/health" || req.path.startsWith("/auth/") || req.path.startsWith("/entry/");
+     if (role === "nurse" && !open) {
+       try { const c = jwt.decode(token) as any; audit(c, "access_denied", { route: req.path.replace(/^\//, "") }).catch(() => {}); } catch { /* ignore */ }
+       return res.status(403).json({ error: "forbidden" });
+     }
+     next();
+   });
 
    async function audit(u: Claims, action: string, detail: object = {}) {
      await withRole(u, (c) =>
@@ -354,6 +369,7 @@ app.get("/ops/breakdown", auth, (req, res) => {
         registerAssistant(app, { auth, audit });
         registerRisk(app, { auth, audit });
         registerAgent(app, { auth, audit });
+registerEntry(app, { auth, audit });
         app.get("/health", (_req, res) => res.json({ ok: true }));
      app.use(express.static(fileURLToPath(new URL("../../web/dist", import.meta.url))));
 

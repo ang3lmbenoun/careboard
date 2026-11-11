@@ -1,4 +1,4 @@
-export type User = { name: string; role: "admin" | "clinician" | "executive" };
+export type User = { name: string; role: "admin" | "clinician" | "executive" | "nurse" };
 
 let token: string | null = null;
 export const setToken = (t: string | null) => {
@@ -7,9 +7,12 @@ export const setToken = (t: string | null) => {
 
 export class ApiError extends Error {
   status: number;
-  constructor(status: number) {
+  /** Parsed JSON error body when the server sent one (validation messages, for example). */
+  body?: { error?: string; issues?: { field: string; message: string }[] };
+  constructor(status: number, body?: ApiError["body"]) {
     super(`HTTP ${status}`);
     this.status = status;
+    this.body = body;
   }
 }
 
@@ -27,7 +30,7 @@ export async function post<T>(path: string, body: unknown): Promise<T> {
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify(body),
   });
-  if (!res.ok) throw new ApiError(res.status);
+  if (!res.ok) throw new ApiError(res.status, await res.json().catch(() => undefined));
   return res.json();
 }
 

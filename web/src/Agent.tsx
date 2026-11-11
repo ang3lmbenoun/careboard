@@ -26,13 +26,17 @@ const SUGGEST: Record<User["role"], string[]> = {
   clinician: ["Which of my patients need follow up this week?", "Compare Medicaid and Medicare drug spend.", "Give me the names of the patients."],
   executive: ["Compare Medicaid and Medicare drug spend.", "Which clinic has the higher no-show rate?", "Which patients need follow up this week?"],
   admin: ["Compare Medicaid and Medicare drug spend.", "Which clinic has the higher no-show rate?"],
+  nurse: [],
 };
 const KIND_LABEL: Record<Step["kind"], string> = { model: "Model", tool: "Tool call", result: "Database result", blocked: "Blocked", answer: "Answer" };
 
 function summary(s: Step) {
   const c = s.content as any;
   if (s.kind === "tool") return `${c.name}(${JSON.stringify(c.args)})`;
-  if (s.kind === "result") return `${c.name}: ${Array.isArray(c.rows) ? c.rows.length + " rows" : "ok"}${c.status ? " " + c.status : ""}`;
+  if (s.kind === "result") {
+    if (Array.isArray(c.passages)) return `${c.name}: ${c.passages.length} passages (${[...new Set(c.passages.map((p: any) => p.title))].join("; ")})`;
+    return `${c.name}: ${Array.isArray(c.rows) ? c.rows.length + " rows" : "ok"}${c.status ? " " + c.status : ""}`;
+  }
   if (s.kind === "blocked") return `${c.name}: ${c.error}`;
   return String(c.text ?? "");
 }

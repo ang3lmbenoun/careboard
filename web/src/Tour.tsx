@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
-type Role = "admin" | "clinician" | "executive";
+type Role = "admin" | "clinician" | "executive" | "nurse";
 export type TourTab = "overview" | "signals" | "riskcomp" | "riskcare" | "patients" | "audit" | "medicaid" | "payers" | "catalog";
 
 type Step = {
@@ -15,7 +15,7 @@ type Step = {
   roles?: Role[];
 };
 
-const ROLE_LABEL: Record<Role, string> = { admin: "Administrator", clinician: "Clinician", executive: "Executive" };
+const ROLE_LABEL: Record<Role, string> = { admin: "Administrator", clinician: "Clinician", executive: "Executive", nurse: "Nurse" };
 
 function steps(role: Role): Step[] {
   const all: Step[] = [

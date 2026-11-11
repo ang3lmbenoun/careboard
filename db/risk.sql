@@ -372,14 +372,14 @@ DECLARE r text; bad text[]; n int;
 BEGIN
   -- No role can read direct identifiers.
   bad := '{}';
-  FOR r IN SELECT rolname FROM pg_roles WHERE rolname = ANY (ARRAY['role_admin','role_clinician','role_executive','role_assistant','careboard_api']) LOOP
+  FOR r IN SELECT rolname FROM pg_roles WHERE rolname = ANY (ARRAY['role_admin','role_clinician','role_executive','role_nurse','role_assistant','careboard_api']) LOOP
     IF (
         has_column_privilege(r, 'clinical.patients', 'full_name', 'SELECT')
      OR has_column_privilege(r, 'clinical.patients', 'birth_date', 'SELECT')) THEN bad := bad || r; END IF;
   END LOOP;
   name := 'No role can read names or birth dates';
   status := CASE WHEN cardinality(bad) = 0 THEN 'pass' ELSE 'fail' END;
-  detail := CASE WHEN cardinality(bad) = 0 THEN 'Checked admin, clinician, executive, assistant and API login' ELSE 'Readable by: ' || array_to_string(bad, ', ') END; RETURN NEXT;
+  detail := CASE WHEN cardinality(bad) = 0 THEN 'Checked admin, clinician, executive, nurse, assistant and API login' ELSE 'Readable by: ' || array_to_string(bad, ', ') END; RETURN NEXT;
 
   -- Row-level security on.
   SELECT count(*) INTO n FROM pg_class c JOIN pg_namespace s ON s.oid = c.relnamespace
@@ -395,7 +395,7 @@ BEGIN
 
   -- Audit log cannot be edited.
   bad := '{}';
-  FOR r IN SELECT rolname FROM pg_roles WHERE rolname = ANY (ARRAY['role_admin','role_clinician','role_executive','role_assistant','careboard_api']) LOOP
+  FOR r IN SELECT rolname FROM pg_roles WHERE rolname = ANY (ARRAY['role_admin','role_clinician','role_executive','role_nurse','role_assistant','careboard_api']) LOOP
     IF (
         has_table_privilege(r, 'app.audit_log', 'UPDATE') OR has_table_privilege(r, 'app.audit_log', 'DELETE')
         OR has_table_privilege(r, 'app.audit_log', 'TRUNCATE')) THEN bad := bad || r; END IF;
@@ -406,16 +406,16 @@ BEGIN
 
   -- Audit log readable only by admin.
   bad := '{}';
-  FOR r IN SELECT rolname FROM pg_roles WHERE rolname = ANY (ARRAY['role_clinician','role_executive','role_assistant','careboard_api']) LOOP
+  FOR r IN SELECT rolname FROM pg_roles WHERE rolname = ANY (ARRAY['role_clinician','role_executive','role_nurse','role_assistant','careboard_api']) LOOP
     IF has_table_privilege(r, 'app.audit_log', 'SELECT') THEN bad := bad || r; END IF;
   END LOOP;
   name := 'Only admin can read the audit log';
   status := CASE WHEN cardinality(bad) = 0 THEN 'pass' ELSE 'fail' END;
-  detail := CASE WHEN cardinality(bad) = 0 THEN 'Clinician, executive, assistant and API login are denied' ELSE 'Can read: ' || array_to_string(bad, ', ') END; RETURN NEXT;
+  detail := CASE WHEN cardinality(bad) = 0 THEN 'Clinician, executive, nurse, assistant and API login are denied' ELSE 'Can read: ' || array_to_string(bad, ', ') END; RETURN NEXT;
 
   -- Password hashes unreadable by app roles.
   bad := '{}';
-  FOR r IN SELECT rolname FROM pg_roles WHERE rolname = ANY (ARRAY['role_admin','role_clinician','role_executive','role_assistant']) LOOP
+  FOR r IN SELECT rolname FROM pg_roles WHERE rolname = ANY (ARRAY['role_admin','role_clinician','role_executive','role_nurse','role_assistant']) LOOP
     IF has_column_privilege(r, 'app.users', 'password_hash', 'SELECT') THEN bad := bad || r; END IF;
   END LOOP;
   name := 'Password hashes are not readable by app roles';

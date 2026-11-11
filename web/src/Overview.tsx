@@ -6,7 +6,7 @@ import SignalInfo from "./SignalInfo";
 import type { SignalId } from "./signalContent";
 import { money, num, pct } from "./riskUi";
 
-type Role = "admin" | "clinician" | "executive";
+type Role = "admin" | "clinician" | "executive" | "nurse";
 export type Dest =
   | "medicaid" | "operations" | "drugs" | "catalog" | "patients" | "audit"
   | "riskcare" | "riskops" | "riskspend" | "riskcomp" | "signals" | "payers";
@@ -423,6 +423,7 @@ const EXPLORE: Record<Role, { q: string; a: string; to: Dest }[]> = {
     { q: "Which patients are on Medicare or Medicaid?", a: "Filter patients by coverage and read each one's medicine history.", to: "patients" },
     { q: "Where are visits being missed?", a: "No-show rate by clinic, department and weekday.", to: "operations" },
   ],
+  nurse: [],
   admin: [
     { q: "What happened recently?", a: "Sign-ins, failed sign-ins, denied requests and Carry questions.", to: "audit" },
     { q: "Are the controls still working?", a: "Eight live tests that query the database itself.", to: "riskcomp" },
@@ -433,12 +434,14 @@ const EXPLORE: Record<Role, { q: string; a: string; to: Dest }[]> = {
 const LENS: Record<Role, { label: string; can: string[]; cannot: string[] }> = {
   executive: { label: "Executive", can: ["Spend and trends", "Risk register", "Patient counts, small groups hidden"], cannot: ["Patient rows", "Audit log"] },
   clinician: { label: "Clinician", can: ["Your clinic's patients", "Spend and trends"], cannot: ["Other clinics", "Names and birth dates", "Risk register"] },
+  nurse: { label: "Nurse", can: ["Add patients, medicines and readings"], cannot: ["Names back", "Edits", "Analytics"] },
   admin: { label: "Administrator", can: ["Audit log", "Control tests", "Risk register"], cannot: ["Patient rows", "Password hashes"] },
 };
 
 const LEDE: Record<Role, string> = {
   executive: "Where Medicaid and Medicare drug spend sit, what missed appointments cost, and whether the controls hold. All of it is aggregate.",
   clinician: "Which of your patients need attention first, and how the clinic is doing on missed visits.",
+  nurse: "Add records for your clinic.",
   admin: "Whether the controls still work and what has been refused lately. You can read the audit log but never a patient record.",
 };
 

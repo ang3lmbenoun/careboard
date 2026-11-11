@@ -7,7 +7,7 @@ type Props = {
   custom: string;
   access: string;
   onSave: (name: string) => void;
-  onReplayTour: () => void;
+  onReplayTour?: () => void;
 };
 
 export default function Settings({ email, role, defaultName, custom, access, onSave, onReplayTour }: Props) {
@@ -63,9 +63,13 @@ export default function Settings({ email, role, defaultName, custom, access, onS
           are set by the database and cannot be changed here.
         </p>
       </form>
-      <h2 className="sec">Welcome tour</h2>
-      <p className="note">A three-step introduction to what CareBoard shows and what your role can see.</p>
-      <button type="button" onClick={onReplayTour}>Replay the welcome tour</button>
+      {onReplayTour && (
+        <>
+          <h2 className="sec">Welcome tour</h2>
+          <p className="note">A three-step introduction to what CareBoard shows and what your role can see.</p>
+          <button type="button" onClick={onReplayTour}>Replay the welcome tour</button>
+        </>
+      )}
     </div>
   );
 }

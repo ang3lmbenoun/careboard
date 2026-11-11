@@ -96,8 +96,9 @@ React 19, Vite, TypeScript, Recharts · Node, Express 5, `pg`, `helmet`, `expres
 | Admin | `admin@careboard.dev` |
 | Clinician (clinic 1) | `clinician@careboard.dev` |
 | Executive | `executive@careboard.dev` |
+| Nurse, data entry (clinic 1) | `nurse@careboard.dev` |
 
-Password for all three: `REPLACE_WITH_DEMO_PASSWORD` (demo only, protects synthetic data).
+Password for all four: `REPLACE_WITH_DEMO_PASSWORD` (demo only, protects synthetic data).
 
 Things to try: sign in as the clinician and open **Care risk**; as the executive, open **Care risk** and notice the hidden cells; as the admin, open **Risk & compliance** and scroll to the control tests; ask Carry for patient names and watch it refuse, then find the question in the admin's **Audit log**.
 
@@ -111,9 +112,10 @@ Prerequisites: Node 22 or newer, Docker Desktop. I have not run this from a clea
 4. In `api`, run `npm install`, then in this order:
    ```
    npx tsx scripts/load_serving.ts       # Medicaid and clinic data from /data, plus column comments
-   npx tsx src/seed.ts                   # the three demo accounts
    npx tsx scripts/apply_assistant.ts    # the read-only role for Carry
    npx tsx scripts/seed_patients.ts      # synthetic patients, medications, readings
+   npx tsx scripts/apply_nurse.ts        # the nurse data-entry role
+   npx tsx src/seed.ts                   # the four demo accounts
    npx tsx scripts/apply_risk.ts         # risk register, control map, care risk view, checks
    npm start                             # API on port 4100
    ```
@@ -126,7 +128,7 @@ Prerequisites: Node 22 or newer, Docker Desktop. I have not run this from a clea
 | `DATABASE_URL` | Connection for the API login (`careboard_api`) |
 | `ADMIN_DATABASE_URL` | Admin connection used only by setup scripts |
 | `JWT_SECRET` | Signs sign-in tokens |
-| `DEMO_PASSWORD` | Password given to the three demo accounts by `src/seed.ts` |
+| `DEMO_PASSWORD` | Password given to the four demo accounts by `src/seed.ts` |
 | `GROQ_API_KEY`, `GROQ_MODEL`, `ASSISTANT_DAILY_LIMIT` | Carry |
 | `NEON_ADMIN_URL`, `NEON_API_PASSWORD` | Only for `--neon` scripts |
 
@@ -134,7 +136,7 @@ Prerequisites: Node 22 or newer, Docker Desktop. I have not run this from a clea
 
 Production runs on a Render web service (free) and a Neon Postgres database (free). The API serves the built web app, so one service does both: build `web` with `npm run build`, then start `api` with `npm start`. Set the same variables in Render's environment settings.
 
-**Order matters.** Apply database scripts to Neon (`--neon`) **before** pushing server code that depends on them, because Render redeploys on every push. Setup scripts for Neon: `bootstrap_neon.ts` once, then `load_serving.ts`, `apply_assistant.ts`, `seed_patients.ts` and `apply_risk.ts`, each with `--neon`.
+**Order matters.** Apply database scripts to Neon (`--neon`) **before** pushing server code that depends on them, because Render redeploys on every push. Setup scripts for Neon: `bootstrap_neon.ts` once, then `load_serving.ts`, `apply_assistant.ts`, `seed_patients.ts`, `apply_nurse.ts` and `apply_risk.ts`, each with `--neon`.
 
 ## Repository map
 
