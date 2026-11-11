@@ -4,13 +4,14 @@ import pg from "pg";
 
 // Usage (from the api folder):  npx tsx src/seed.ts                                  -> all demo accounts, local database
 //                               npx tsx src/seed.ts --neon                           -> all demo accounts, Neon
-//                               npx tsx src/seed.ts --neon --only=nurse@careboard.dev -> one account, others untouched
+//                               npx tsx src/seed.ts --neon --only=clinician2@careboard.dev -> one account, others untouched
 // Runs with the admin login: since risk.sql the admin ROLE can no longer read password hashes, so it cannot upsert them.
 const demo = [
   { email: "admin@careboard.dev", name: "Demo Admin", role: "admin", clinic: null },
   { email: "clinician@careboard.dev", name: "Demo Clinician", role: "clinician", clinic: 1 },
   { email: "executive@careboard.dev", name: "Demo Executive", role: "executive", clinic: null },
   { email: "nurse@careboard.dev", name: "Demo Nurse", role: "nurse", clinic: 1 },
+  { email: "clinician2@careboard.dev", name: "Demo Clinician (clinic 2)", role: "clinician", clinic: 2 },
 ];
 
 const neon = process.argv.includes("--neon");
