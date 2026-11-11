@@ -82,7 +82,7 @@ const WINDOW = /\b\d+[-\s]?(hours?|days?|weeks?|months?|years?)\b/gi;
 const numsIn = (s: string) => (s.replace(WINDOW, " ").match(/\d[\d,]*\.?\d*/g) ?? []).map((x) => x.replace(/,/g, "").replace(/\.$/, ""));
 const variants = (v: number): string[] => {
   const out = new Set<string>();
-  const add = (x: number) => { for (const d of [0, 1, 2]) out.add(String(Number(x.toFixed(d)))); };
+  const add = (x: number) => { out.add(String(x)); for (const d of [0, 1, 2, 3, 4]) out.add(String(Number(x.toFixed(d)))); };
   add(v); add(v * 100); add(v / 1e3); add(v / 1e6); add(v / 1e9);
   return [...out];
 };
