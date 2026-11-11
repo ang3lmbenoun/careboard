@@ -1,0 +1,48 @@
+# Sends the executive digest on weekdays and on demand. It does nothing until the repository secrets below exist, so
+# pushing this file sends no email. Set the secrets under Settings > Secrets and variables > Actions.
+name: Executive digest
+on:
+  schedule:
+    - cron: "17 14 * * 1-5"   # 14:17 UTC, about 8:17 in the morning Central time
+  workflow_dispatch: {}
+permissions:
+  contents: read
+concurrency:
+  group: digest
+  cancel-in-progress: false
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      NEON_ADMIN_URL: ${{ secrets.NEON_ADMIN_URL }}
+      NEON_API_PASSWORD: ${{ secrets.NEON_API_PASSWORD }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      APP_URL: https://careboard-1755.onrender.com
+    steps:
+      - name: Check that the secrets exist
+        id: ready
+        run: |
+          if [ -z "$NEON_ADMIN_URL" ] || [ -z "$NEON_API_PASSWORD" ] || [ -z "$RESEND_API_KEY" ]; then
+            echo "Secrets are not set yet. Nothing was sent."
+            echo "go=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.ready.outputs.go == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.ready.outputs.go == 'true'
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - name: Install
+        if: steps.ready.outputs.go == 'true'
+        working-directory: api
+        run: npm ci
+      - name: Send the digest
+        if: steps.ready.outputs.go == 'true'
+        working-directory: api
+        run: npx tsx scripts/send_digest.ts --neon

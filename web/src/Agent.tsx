@@ -20,6 +20,7 @@ type Ledger = {
   rows: { id: number; run_id: number; status: string; tier: number; payload: { patient_ids: number[]; reason: string }; clinic_id: number | null; created_at: string; decided_at: string | null; user_name: string | null; user_role: string | null }[];
   counts: { status: string; n: number }[];
 };
+type DigestInfo = { log: { id: number; at: string; recipient: string; status: string; reason: string | null; narrative: string | null }[]; recipients: { email: string; enabled: boolean }[] };
 type Settings = { enabled: boolean; maxSteps: number; maxTokens: number; dailyRuns: number };
 
 const SUGGEST: Record<User["role"], string[]> = {
@@ -50,6 +51,10 @@ export default function Agent({ role }: { role: User["role"] }) {
   const [actions, setActions] = useState<Action[]>([]);
   const [cfg, setCfg] = useState<Settings | null>(null);
   const [ledger, setLedger] = useState<Ledger | null>(null);
+  const [dg, setDg] = useState<DigestInfo | null>(null);
+  const [preview, setPreview] = useState("");
+  const [dgMsg, setDgMsg] = useState("");
+  const [dgBusy, setDgBusy] = useState(false);
 
   const refresh = useCallback(async () => {
     try {
@@ -57,7 +62,10 @@ export default function Agent({ role }: { role: User["role"] }) {
       setRuns(r);
       setActions(a);
       setCfg(s);
-      if (role === "admin") setLedger(await api<Ledger>("agent/ledger"));
+      if (role === "admin") {
+        setLedger(await api<Ledger>("agent/ledger"));
+        setDg(await api<DigestInfo>("digest/log"));
+      }
     } catch {
       /* the page still works without the history */
     }
@@ -86,12 +94,27 @@ export default function Agent({ role }: { role: User["role"] }) {
   async function decide(id: number, decision: "approved" | "rejected") {
     try { await post(`agent/actions/${id}/decision`, { decision }); await refresh(); } catch { setErr("Could not record that decision."); }
   }
+  async function previewDigest() {
+    setDgBusy(true); setDgMsg(""); setPreview("");
+    try { setPreview((await post<{ text: string }>("digest/preview", {})).text); } catch { setDgMsg("Could not build the preview."); }
+    finally { setDgBusy(false); }
+  }
+  async function sendDigestNow() {
+    setDgBusy(true); setDgMsg("");
+    try {
+      const r = await post<{ results: { recipient: string; status: string; reason?: string }[]; live: boolean }>("digest/send", {});
+      setDgMsg(r.results.length === 0 ? "No address is on the allow list." : r.results.map((x) => `${x.recipient}: ${x.status}${x.reason ? " (" + x.reason + ")" : ""}`).join(". ") + (r.live ? "" : " No email provider key is set, so nothing was sent."));
+      await refresh();
+    } catch { setDgMsg("Could not send."); }
+    finally { setDgBusy(false); }
+  }
   async function flip() {
     if (!cfg) return;
     try { await post("agent/kill", { enabled: !cfg.enabled }); await refresh(); } catch { setErr("Only an administrator can change this."); }
   }
 
   const pending = actions.filter((a) => a.status === "pending");
+  const approved = actions.filter((a) => a.status === "approved");
   return (
     <div className="agent">
       {cfg && !cfg.enabled && <p className="agent-banner">Agents are switched off. New runs are blocked.</p>}
@@ -148,6 +171,20 @@ export default function Agent({ role }: { role: User["role"] }) {
       </div>
 
       <div className="card">
+        <h3>Follow-ups</h3>
+        <p className="agent-note">Call lists you approved. Nothing is sent outside the app.</p>
+        {approved.length === 0 ? <p className="agent-note">Approve a proposed action and it appears here.</p> : (
+          <ul className="agent-inbox">
+            {approved.map((a) => (
+              <li key={a.id}>
+                <div>Call patients {a.payload.patient_ids.map((p) => "#" + p).join(", ")}<br /><small>{a.payload.reason}</small></div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div className="card">
         <h3>Recent runs</h3>
         {runs.length === 0 ? <p className="agent-note">No runs yet.</p> : (
           <ul className="agent-runs">
@@ -183,6 +220,34 @@ export default function Agent({ role }: { role: User["role"] }) {
                       <td>{r.status}</td>
                       <td>{r.decided_at ? new Date(r.decided_at).toLocaleString() : ""}</td>
                     </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {role === "admin" && dg && (
+        <div className="card">
+          <h3>Email digest</h3>
+          <p className="agent-note">
+            A daily summary with totals only, never patient names or numbers. It goes only to addresses on the allow list
+            ({dg.recipients.filter((r) => r.enabled).length === 0 ? "none yet" : dg.recipients.filter((r) => r.enabled).map((r) => r.email).join(", ")}) and stops when the kill switch is off.
+          </p>
+          <div className="agent-btns">
+            <button type="button" disabled={dgBusy} onClick={previewDigest}>Preview</button>
+            <button type="button" className="primary" disabled={dgBusy || dg.recipients.filter((r) => r.enabled).length === 0} onClick={sendDigestNow}>Send now</button>
+          </div>
+          {dgMsg && <p className="agent-meta" role="status">{dgMsg}</p>}
+          {preview && <pre className="agent-preview">{preview}</pre>}
+          {dg.log.length > 0 && (
+            <div className="agent-table">
+              <table>
+                <thead><tr><th>When</th><th>To</th><th>Status</th><th>Note</th></tr></thead>
+                <tbody>
+                  {dg.log.map((r) => (
+                    <tr key={r.id}><td>{new Date(r.at).toLocaleString()}</td><td>{r.recipient}</td><td>{r.status}</td><td>{r.reason ?? r.narrative ?? ""}</td></tr>
                   ))}
                 </tbody>
               </table>
