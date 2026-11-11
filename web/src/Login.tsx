@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { setToken, type User } from "./api";
 import Icon2 from "./Icon";
-import { TiffanyStage } from "./Characters";
+import { Carey, TiffanyAvatar } from "./Characters";
 import { resolvedTheme, useAppearance, watchSystemTheme } from "./appearance";
 
 type RoleId = User["role"];
@@ -129,11 +129,9 @@ export default function Login({ onSignedIn }: { onSignedIn: (user: User, email: 
     }
   }
 
-  const [show, setShow] = useState(false);
-
   return (
     <div className="lg2">
-      <div className="lg2-bg" aria-hidden="true"><i /><i /><i /><i /><b /><svg className="lg2-wave" viewBox="0 0 1440 160" preserveAspectRatio="none"><path d="M0 90C240 20 420 150 720 96S1200 20 1440 80V160H0z" /></svg></div>
+      <div className="lg2-bg" aria-hidden="true"><i /><i /><i /><i /><b /></div>
       <header className="lg2-top">
         <div className="lg2-brand"><Mark /> CareBoard</div>
         <button className="theme-btn" type="button" onClick={() => setLook({ theme: dark ? "light" : "dark" })} aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}>
@@ -143,26 +141,26 @@ export default function Login({ onSignedIn }: { onSignedIn: (user: User, email: 
       </header>
 
       <div className="lg2-grid">
-        <aside className="lg2-hero" aria-label="Tiffany, the CareBoard AI agent">
-          <div className="lg2-arch"><TiffanyStage pose="calm" /></div>
-          <p className="lg2-cap"><b>Tiffany</b><span>AI agent. Drafts, never acts alone.</span></p>
-        </aside>
-
         <section className="lg2-intro">
-          <span className="lg2-pill"><Icon2 name="shield" size={13} /> Demo with synthetic patients</span>
+          <span className="mono">Demo with synthetic patients</span>
           <h1>Health data that knows <em>who&rsquo;s asking.</em></h1>
           <p className="lg2-lede">
-            CareBoard shows each person only what their role allows. The database enforces it, not the web page, so you get the right access at the right time.
+            CareBoard shows each person only what their role allows. The database enforces it, not the web page. Pick a role to try it.
           </p>
 
-          <ul className="lg2-feats">
-            <li><span className="lg2-fi"><Icon2 name="shield" size={17} /></span><span><b>Secure access</b><small>Your role decides every row you can read. Names and birth dates stay hidden for everyone.</small></span></li>
-            <li><span className="lg2-fi"><Icon2 name="spark" size={17} /></span><span><b>Two AI assistants</b><small>Carey answers questions in plain language. Tiffany drafts follow-up lists. Both read only what your role can.</small></span></li>
-            <li><span className="lg2-fi"><Icon2 name="check" size={17} /></span><span><b>You stay in control</b><small>Nothing Tiffany drafts happens until a person approves it.</small></span></li>
-          </ul>
+          <ol className="lg2-steps">
+            <li><b>1</b><span>Pick a role<small>Clinician, executive, nurse or administrator.</small></span></li>
+            <li><b>2</b><span>See only what it may<small>The table below shows what each role can open.</small></span></li>
+            <li><b>3</b><span>Get help from two AI assistants<small>They only read what your role can read.</small></span></li>
+          </ol>
 
-          <details className="lg2-matrix" open>
-            <summary id="lg-m-title">What each role can open <Icon2 name="chev" size={14} /></summary>
+          <div className="lg2-ai">
+            <div className="lg2-aic"><span className="lg2-float"><Carey size={40} /></span><div><b>Carey</b><span>Answers questions about the numbers in plain language.</span></div></div>
+            <div className="lg2-aic"><span className="lg2-float"><TiffanyAvatar size={40} /></span><div><b>Tiffany <em>AI</em></b><span>Drafts follow-up call lists. Nothing happens until you approve.</span></div></div>
+          </div>
+
+          <section className="lg2-matrix" aria-labelledby="lg-m-title">
+            <h2 id="lg-m-title" className="lg2-h">What each role can open</h2>
             <div className="table-wrap">
               <table className="lg2-table">
                 <thead>
@@ -192,7 +190,7 @@ export default function Login({ onSignedIn }: { onSignedIn: (user: User, email: 
               </table>
             </div>
             <p className="lg2-says" aria-live="polite">{current.says}</p>
-          </details>
+          </section>
           <p className="lg2-src">
             Medicaid figures are public CMS data (2024). Patients and clinic activity are synthetic. <a href={REPO} target="_blank" rel="noreferrer">Read the source on GitHub</a>.
           </p>
@@ -200,9 +198,7 @@ export default function Login({ onSignedIn }: { onSignedIn: (user: User, email: 
 
         <main className="lg2-formwrap">
           <form className="lg2-form" onSubmit={login}>
-            <h2>Welcome back</h2>
-            <p className="lg2-sub">Sign in to your CareBoard account</p>
-            <div className="lg2-lab">Sign in with your role</div>
+            <h2>Try it as&hellip;</h2>
             <div className="lg2-roles" role="radiogroup" aria-label="Demo account">
               {ROLES.map((r) => (
                 <button
@@ -215,22 +211,17 @@ export default function Login({ onSignedIn }: { onSignedIn: (user: User, email: 
                 >
                   <span className="lg2-ico">{r.icon}</span>
                   <span className="lg2-rt"><strong>{r.label}</strong><span>{r.blurb}</span></span>
-                  {r.id === role && <span className="lg2-tick" aria-hidden="true"><Icon2 name="check" size={11} /></span>}
                 </button>
               ))}
             </div>
 
             <label className="lg2-field">
-              Email address
-              <span className="lg2-inp"><Icon2 name="mail" size={15} /><input type="email" autoComplete="username" value={email} onChange={(e) => typed(e.target.value)} /></span>
+              Email
+              <input type="email" autoComplete="username" value={email} onChange={(e) => typed(e.target.value)} />
             </label>
             <label className="lg2-field">
               Password
-              <span className="lg2-inp">
-                <Icon2 name="lock" size={15} />
-                <input type={show ? "text" : "password"} autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Demo password" />
-                <button type="button" className="lg2-eye" onClick={() => setShow((v) => !v)} aria-label={show ? "Hide password" : "Show password"}><Icon2 name={show ? "eyeoff" : "eye"} size={15} /></button>
-              </span>
+              <input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Demo password" />
             </label>
             <p className="lg2-hint">
               {DEMO_PASSWORD
@@ -239,7 +230,7 @@ export default function Login({ onSignedIn }: { onSignedIn: (user: User, email: 
             </p>
 
             <button type="submit" className="lg2-go" disabled={busy}>
-              {busy ? "Signing in…" : <>Sign in as {current.label} <Icon2 name="arrow" size={14} /></>}
+              {busy ? "Signing in…" : `Sign in as ${current.label}`}
             </button>
             {slow && (
               <p className="lg2-wake" role="status">
@@ -248,7 +239,6 @@ export default function Login({ onSignedIn }: { onSignedIn: (user: User, email: 
             )}
             {error && <p className="error" role="alert">{error}</p>}
           </form>
-          <p className="lg2-tag">Role-based &middot; Audited &middot; Synthetic data</p>
         </main>
       </div>
     </div>

@@ -1689,52 +1689,17 @@ html[data-theme="dark"] .lg2 { --lg-g: 99, 181, 126; --lg-gold: 217, 181, 82; }
 .lg2-go { box-shadow: 0 6px 18px -8px rgba(var(--lg-g), 0.9); }
 @media (prefers-reduced-motion: reduce) { .lg2-bg::before, .lg2-bg i, .lg2-bg b, .lg2-intro > *, .lg2-formwrap { animation: none; } .lg2-bg b { display: none; } }
 
-/* ---- Sign-in v3: hero portrait, feature rows, role cards (follows the approved mock's mood) ---- */
-.lg2-top, .lg2-grid { max-width: 1240px; }
-.lg2-grid { grid-template-columns: 220px minmax(0, 1fr) 390px; gap: 30px; padding-top: 26px; }
-@media (max-width: 1080px) { .lg2-grid { grid-template-columns: minmax(0, 1fr) 380px; } .lg2-hero { display: none; } }
-@media (max-width: 900px) { .lg2-grid { grid-template-columns: 1fr; } }
-.lg2-hero { position: sticky; top: 16px; align-self: start; }
-.lg2-arch { border-radius: 110px 110px 16px 16px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 22px 50px -24px rgba(var(--lg-g), 0.7), var(--shadow); background: color-mix(in srgb, var(--green-700) 10%, var(--card)); }
-.lg2-arch .cr-portrait { aspect-ratio: 9 / 15; border: 0; border-radius: 0; box-shadow: none; background: transparent; }
-.lg2-arch .cr-badge { display: none; }
-.lg2-cap { display: flex; flex-direction: column; gap: 1px; margin: 10px 2px 0; font-size: 12px; color: var(--muted); }
-.lg2-cap b { color: var(--ink); font-size: 13px; font-weight: 600; }
-.lg2-pill { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 500; color: var(--green-700); background: color-mix(in srgb, var(--green-700) 13%, var(--card)); border: 1px solid color-mix(in srgb, var(--green-700) 28%, transparent); border-radius: 999px; padding: 4px 11px; }
-.lg2-intro h1 { font-size: 34px; line-height: 1.1; max-width: 14ch; }
-.lg2-intro h1 em { font-style: italic; font-weight: 500; }
-.lg2-lede { font-size: 13.5px; max-width: 50ch; }
-.lg2-feats { list-style: none; margin: 2px 0 0; padding: 0; display: grid; gap: 12px; }
-.lg2-feats li { display: flex; gap: 12px; align-items: center; }
-.lg2-fi { flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: var(--green-700); background: color-mix(in srgb, var(--green-700) 14%, var(--card)); box-shadow: 0 0 0 4px color-mix(in srgb, var(--green-700) 7%, transparent); }
-.lg2-feats b { display: block; font-size: 13px; font-weight: 600; }
-.lg2-feats small { display: block; font-size: 12px; color: var(--muted); max-width: 52ch; }
-.lg2-matrix { padding: 0; overflow: hidden; background: color-mix(in srgb, var(--card) 90%, transparent); }
-.lg2-matrix summary { cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; font-size: 13px; font-weight: 600; }
-.lg2-matrix summary::-webkit-details-marker { display: none; }
-.lg2-matrix summary .ico { transition: transform 0.2s; }
-.lg2-matrix:not([open]) summary .ico { transform: rotate(-90deg); }
-.lg2-matrix .table-wrap, .lg2-matrix .lg2-says { margin-left: 14px; margin-right: 14px; }
-.lg2-matrix .lg2-says { margin-bottom: 12px; }
-.lg2-form { border-radius: 18px; padding: 22px 22px 18px; }
-.lg2-form h2 { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; margin: 0; color: var(--head); }
-.lg2-sub { margin: 2px 0 14px; color: var(--muted); font-size: 12.5px; }
-.lg2-lab { font-size: 12px; font-weight: 600; margin-bottom: 7px; }
-.lg2-roles { grid-template-columns: 1fr 1fr; gap: 8px; }
-.lg2-role { position: relative; flex-direction: column; align-items: flex-start; gap: 8px; padding: 10px 10px 9px; border-radius: 12px; }
-.lg2-ico { width: 30px; height: 30px; border-radius: 50%; background: color-mix(in srgb, var(--green-700) 13%, var(--card)); color: var(--green-700); }
-.lg2-role.on .lg2-ico { background: var(--green-700); color: var(--on-accent); }
-.lg2-rt span { font-size: 11px; }
-.lg2-tick { position: absolute; top: 8px; right: 8px; width: 17px; height: 17px; border-radius: 50%; display: grid; place-items: center; background: var(--green-700); color: var(--on-accent); }
-.lg2-field { font-size: 12px; font-weight: 600; color: var(--ink); }
-.lg2-inp { display: flex; align-items: center; gap: 8px; border: 1px solid var(--border); background: var(--card); border-radius: 10px; padding: 0 10px; color: var(--muted); font-weight: 400; }
-.lg2-inp:focus-within { border-color: var(--green-700); box-shadow: 0 0 0 3px color-mix(in srgb, var(--green-700) 20%, transparent); }
-.lg2-inp input { border: 0; background: transparent; box-shadow: none; padding: 9px 0; outline: none; flex: 1; min-width: 0; color: var(--ink); }
-.lg2-eye { background: transparent; border: 0; padding: 4px; min-height: 0; color: var(--muted); display: grid; place-items: center; }
-.lg2-eye:hover:not(:disabled) { background: transparent; color: var(--ink); border: 0; }
-.lg2-go { display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 10px; padding: 10px 14px; font-size: 13.5px; }
-.lg2-tag { text-align: center; margin: 12px 0 0; font: 500 10.5px var(--mono, ui-monospace, monospace); letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
-.lg2-wave { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 140px; fill: rgba(var(--lg-g), 0.16); animation: lg-wave 14s ease-in-out infinite alternate; }
-@keyframes lg-wave { to { transform: translateX(-3%) scaleY(1.12); transform-origin: bottom; } }
-@media (prefers-reduced-motion: reduce) { .lg2-wave { animation: none; } }
-@media (max-width: 640px) { .lg2-intro h1 { font-size: 27px; } .lg2-roles { grid-template-columns: 1fr 1fr; } }
+/* ---- Sign-in: floating Carey and Tiffany (orbit ring, breathing glow, gentle bob) ---- */
+.lg2-aic { position: relative; overflow: hidden; }
+.lg2-aic::after { content: ""; position: absolute; left: -30px; top: -30px; width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle, rgba(var(--lg-g), 0.22), transparent 70%); animation: lg-breathe 7s ease-in-out infinite; pointer-events: none; }
+.lg2-aic:nth-child(2)::after { left: auto; right: -34px; top: auto; bottom: -40px; background: radial-gradient(circle, rgba(var(--lg-gold), 0.22), transparent 70%); animation-delay: -3.5s; }
+.lg2-float { position: relative; flex: none; width: 52px; height: 52px; display: grid; place-items: center; animation: lg-bob 6s ease-in-out infinite; z-index: 1; }
+.lg2-aic:nth-child(2) .lg2-float { animation-duration: 7.5s; animation-delay: -2.4s; }
+.lg2-float::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, rgba(var(--lg-g), 0.9), transparent 28%, rgba(var(--lg-gold), 0.9) 52%, transparent 78%, rgba(var(--lg-g), 0.9)); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px)); mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px)); animation: lg-orbit 14s linear infinite; }
+.lg2-aic:nth-child(2) .lg2-float::before { animation-direction: reverse; animation-duration: 18s; }
+.lg2-float::after { content: ""; position: absolute; width: 7px; height: 7px; border-radius: 50%; background: rgb(var(--lg-gold)); box-shadow: 0 0 10px 2px rgba(var(--lg-gold), 0.7); top: 2px; left: 50%; margin-left: -3.5px; transform-origin: 3.5px 24px; animation: lg-orbit 9s linear infinite; }
+.lg2-aic:nth-child(2) .lg2-float::after { background: rgb(var(--lg-g)); box-shadow: 0 0 10px 2px rgba(var(--lg-g), 0.7); animation-duration: 11s; animation-direction: reverse; }
+@keyframes lg-bob { 0%, 100% { transform: translateY(0) rotate(0deg); } 30% { transform: translateY(-5px) rotate(-2deg); } 65% { transform: translateY(-2px) rotate(2deg); } }
+@keyframes lg-orbit { to { transform: rotate(360deg); } }
+@keyframes lg-breathe { 0%, 100% { transform: scale(0.85); opacity: 0.6; } 50% { transform: scale(1.25); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .lg2-float, .lg2-float::before, .lg2-float::after, .lg2-aic::after { animation: none; } }
