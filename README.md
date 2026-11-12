@@ -106,6 +106,7 @@ Carey turns a question into one SQL `SELECT`, runs it, and explains the result. 
 
 - It is **not HIPAA compliance**. All patient data is invented. The risk register and the HIPAA references are my own work as a learning exercise, and the references should be checked against the regulation text before anyone relies on them.
 - Risk scores are my judgment on a 5×5 scale. Care-risk rules are illustrative and not clinical guidance.
+- **Why not `FORCE ROW LEVEL SECURITY`?** The aggregate functions (for example the care-risk summary for executives) are `SECURITY DEFINER` and read across clinics as the table owner. I tested `FORCE` on a scratch database with a non-superuser owner: that summary returned no rows instead of the real counts. Protection comes from the API login instead: it is not a superuser, cannot bypass row-level security, inherits nothing and is not a member of any owner role. `api/scripts/test_rls_posture.ts` checks all of that (and that every `SECURITY DEFINER` function pins its `search_path`) on every push.
 - Known gaps, listed in the app on purpose: no multi-factor sign-in, no per-account lockout, tokens can't be revoked early, no idle timeout, and the database owner can still edit the audit log. Demo accounts share a published password by design.
 
 ## Tech stack

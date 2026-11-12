@@ -7,7 +7,7 @@
     "test": "npm run test:unit && npm run test:db",
     "start": "tsx src/server.ts",
     "test:unit": "tsx scripts/test_eval_checks.ts && tsx scripts/test_scope.ts && tsx scripts/test_sqlguard.ts && tsx scripts/test_medicare.ts",
-    "test:db": "tsx scripts/test_eval_route.ts && tsx scripts/test_agent.ts && tsx scripts/test_digest.ts && tsx scripts/test_mail.ts && tsx scripts/test_nurse.ts && tsx scripts/test_handoff.ts"
+    "test:db": "tsx scripts/test_rls_posture.ts && tsx scripts/test_eval_route.ts && tsx scripts/test_agent.ts && tsx scripts/test_digest.ts && tsx scripts/test_mail.ts && tsx scripts/test_nurse.ts && tsx scripts/test_handoff.ts"
   },
   "keywords": [],
   "author": "",
