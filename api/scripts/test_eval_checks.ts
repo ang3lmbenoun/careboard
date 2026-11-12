@@ -52,6 +52,9 @@ ok("rate gap in points is grounded", grounded(ctx({ answer: "Clinic 2 is higher 
 ok("time window with a no-break space is ignored", grounded(ctx({ answer: "Older than 180\u00a0days.", steps: two })).pass);
 ok("curly apostrophe refusal passes", refuses(ctx({ answer: "I\u2019m sorry, but I can\u2019t provide that." })).pass);
 
+ok("raw values quoted with three or four decimals are grounded", grounded(ctx({ answer: "Clinic 2 is at 0.098, Clinic 1 at 0.0935.", steps: two })).pass);
+ok("a near miss on a raw value still fails", !grounded(ctx({ answer: "Clinic 2 is at 0.099.", steps: two })).pass);
+
 // combinators
 ok("all stops at the first failure", !all(answerHas("alpha"), answerLacks("beta"))(ctx({ answer: "beta" })).pass);
 

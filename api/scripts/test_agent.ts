@@ -108,6 +108,19 @@ const boom: Chat = { invoke: async () => { throw new Error("upstream failure"); 
 r = await runAgent(clin, "Anything", boom);
 ok("model failure is recorded as an error run", r.status === "error");
 
+
+// Grounding gate: a figure the tools never returned is corrected once, then refused
+const scriptSeen = (...replies: AIMessage[]) => { const seen: number[] = []; let i = 0; return { chat: { invoke: async (m: any) => { seen.push(m.length); return replies[Math.min(i++, replies.length - 1)]; } } as Chat, seen }; };
+let g = scriptSeen(call("query_insights", { report: "no_show_summary" }), say("Clinic 2 has a no show rate of 77.7%."), say("Clinic 2 has a higher no show rate."));
+r = await runAgent(exec, "Which clinic has the higher no-show rate?", g.chat);
+s = await stepsOf(exec, r.runId);
+ok("an invented figure is sent back once and the corrected answer stands", r.status === "finished" && !/77\.7/.test(r.answer) && s.some((x: any) => x.kind === "blocked" && x.content.name === "grounding"));
+g = scriptSeen(call("query_insights", { report: "no_show_summary" }), say("It is 77.7%."), say("Really 88.8%."));
+r = await runAgent(exec, "Which clinic has the higher no-show rate?", g.chat);
+ok("a figure that stays ungrounded is refused", /could not verify/.test(r.answer) && !/88\.8|77\.7/.test(r.answer));
+r = await runAgent(exec, "Compare spend", script(call("query_insights", { report: "spend_compare" }), say("Medicare spent more than Medicaid.")));
+ok("an answer with no figures passes the gate untouched", r.answer === "Medicare spent more than Medicaid.");
+
 console.log(`\n${pass} passed, ${fail} failed`);
 await pool.end();
 await admin_db.end();

@@ -8,6 +8,7 @@ import { tool } from "@langchain/core/tools";
 import { withRole, type Role } from "./db.js";
 import { embed, toVector } from "./embed.js";
 import { emailAction } from "./followupMail.js";
+import { ungrounded, type Step } from "./evalChecks.js";
 import { contacts, handoffSummary, messageSchema, notifyMessage, sendMessage } from "./handoff.js";
 
 /*
@@ -66,7 +67,8 @@ const SQL: Record<(typeof REPORTS)[number], string> = {
     ORDER BY program, drug_class`,
   no_show_summary: `
     SELECT clinic_id, SUM(scheduled)::int AS scheduled, SUM(no_shows)::int AS no_shows,
-           ROUND(SUM(no_shows)::numeric / NULLIF(SUM(scheduled), 0), 4)::float8 AS no_show_rate
+           ROUND(SUM(no_shows)::numeric / NULLIF(SUM(scheduled), 0), 4)::float8 AS no_show_rate,
+           ROUND(100.0 * SUM(no_shows) / NULLIF(SUM(scheduled), 0), 2)::float8 AS no_show_percent
       FROM serving.clinic_daily GROUP BY clinic_id ORDER BY clinic_id`,
   // clinical.care_risk is a security_invoker view: the clinician sees only their own clinic, by patient number.
   risk_worklist: `
@@ -235,7 +237,7 @@ Rules:
 - If the user asks you to email or send the list, call propose_action with type email_followup_list. The email is built by the system from database values, not from your text, and is sent only after the user approves. Never claim an email was sent; say it is waiting for their approval.
 - If a request is outside what your tools can do, say so briefly and offer what you can do.
 - Quote figures exactly as the tool returned them (rounding is fine). Do not calculate new totals, differences or ratios yourself; compare in words such as higher or lower.
-- Answer in 2 to 5 plain sentences. No markdown. Money in dollars, rates as percentages.`;
+- Answer in 2 to 5 plain sentences. No markdown. Money in dollars. State rates as percentages using the tool's percent field (for example no_show_percent), never as a decimal like 0.098.`;
 
 export function makeModel(role: Role = "clinician"): Chat {
   const key = process.env.GROQ_API_KEY;
@@ -284,6 +286,8 @@ export async function runAgent(user: User, question: string, model?: Chat) {
   );
 
   let seq = 0, tokensIn = 0, tokensOut = 0, status = "finished", answer = "", error: string | null = null;
+  const seen: Step[] = [];   // successful tool results, used to check every number in the final answer
+  let retried = false;
   const msgs: BaseMessage[] = [new SystemMessage(SYSTEM(user)), new HumanMessage(question)];
   try {
     await logStep(user, runId, ++seq, "model", { text: "question received", role: user.role });
@@ -299,6 +303,18 @@ export async function runAgent(user: User, question: string, model?: Chat) {
       const calls = ai.tool_calls ?? [];
       if (!calls.length) {
         answer = typeof ai.content === "string" ? ai.content : JSON.stringify(ai.content);
+        // Grounding gate: a number the tools never returned must not reach the user. One corrective retry, then a plain refusal.
+        const bad = user.role === "nurse" ? [] : ungrounded(answer, seen);
+        if (bad.length && !retried) {
+          retried = true;
+          await logStep(user, runId, ++seq, "blocked", { name: "grounding", numbers: bad.slice(0, 6) });
+          msgs.push(new HumanMessage(`Your answer contains figures the tools did not return: ${bad.slice(0, 6).join(", ")}. Answer again using only figures from the tool results, quoted as returned. If the figure you need was not retrieved, say so.`));
+          continue;
+        }
+        if (bad.length) {
+          answer = "I could not verify the figures in my answer against the data I retrieved, so I am not stating them. Please ask again, or open the report directly.";
+          await logStep(user, runId, ++seq, "blocked", { name: "grounding", numbers: bad.slice(0, 6), refused: true });
+        }
         await logStep(user, runId, ++seq, "answer", { text: answer });
         done = true;
         break;
@@ -307,6 +323,7 @@ export async function runAgent(user: User, question: string, model?: Chat) {
         await logStep(user, runId, ++seq, "tool", { name: call.name, args: call.args });
         const r = await runTool(user, runId, call.name, call.args);
         await logStep(user, runId, ++seq, r.ok ? "result" : "blocked", { name: call.name, ...(r.out as object) });
+        if (r.ok) seen.push({ kind: "result", content: { name: call.name, ...(r.out as object) } });
         // Tool output goes back to the model as quoted data.
         msgs.push(new ToolMessage({ tool_call_id: call.id ?? call.name, content: JSON.stringify({ data: r.out }) }));
       }
