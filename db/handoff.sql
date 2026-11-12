@@ -162,3 +162,10 @@ CREATE POLICY actions_own ON app.agent_actions FOR ALL TO role_clinician, role_e
 -- Notification emails about messages are logged in the same send log.
 ALTER TABLE app.digest_log DROP CONSTRAINT IF EXISTS digest_log_kind_check;
 ALTER TABLE app.digest_log ADD CONSTRAINT digest_log_kind_check CHECK (kind IN ('executive', 'followup', 'message'));
+
+-- An administrator reads the agent ledger, but never what a nurse and a clinician wrote to each other. The administrator's
+-- read policies on runs and actions skip the nurse's runs and the hand-off message drafts; steps follow runs through steps_via_run.
+DROP POLICY IF EXISTS runs_admin_read ON app.agent_runs;
+CREATE POLICY runs_admin_read ON app.agent_runs FOR SELECT TO role_admin USING (role <> 'nurse');
+DROP POLICY IF EXISTS actions_admin_read ON app.agent_actions;
+CREATE POLICY actions_admin_read ON app.agent_actions FOR SELECT TO role_admin USING (type <> 'handoff_message');

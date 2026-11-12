@@ -34,5 +34,7 @@ try {
   report(p.n_msg && !p.n_del, "a nurse can send but never delete messages");
   report(p.n_cnt && !p.c_cnt, "only a nurse can enter a stock count");
   report(!p.x_msg && !p.a_msg, "executives and administrators cannot read messages");
+  const pol = (await db.query("SELECT policyname, qual FROM pg_policies WHERE schemaname='app' AND policyname IN ('runs_admin_read','actions_admin_read')")).rows;
+  report(pol.length === 2 && pol.every((r: any) => /nurse|handoff_message/.test(r.qual)), "administrators cannot read nurse runs or message drafts");
 } finally { await db.end(); }
 process.exit(failed ? 1 : 0);

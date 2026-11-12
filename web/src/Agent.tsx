@@ -324,7 +324,7 @@ export default function Agent({ role }: { role: User["role"] }) {
                       <td>{new Date(r.created_at).toLocaleString()}</td>
                       <td>{r.user_name ?? "unknown"} ({r.user_role ?? "?"})</td>
                       <td>{r.clinic_id ?? ""}</td>
-                      <td>Call list: {r.payload.patient_ids.map((p) => "#" + p).join(", ")}</td>
+                      <td>Call list: {(r.payload.patient_ids ?? []).map((p) => "#" + p).join(", ")}</td>
                       <td>{r.status}</td>
                       <td>{r.decided_at ? new Date(r.decided_at).toLocaleString() : ""}</td>
                     </tr>

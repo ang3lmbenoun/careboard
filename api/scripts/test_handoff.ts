@@ -49,6 +49,15 @@ const inbox = await withRole(clin, async (c) => (await c.query("SELECT id, body,
 ok("the clinician sees the message", inbox.some((r: any) => r.id === m1));
 ok("another clinic's clinician sees none of it", (await withRole(clin2, async (c) => (await c.query("SELECT count(*)::int n FROM app.messages")).rows[0].n)) === 0);
 ok("an executive and an admin see no messages", (await denied(exec, "SELECT * FROM app.messages")) && (await denied(adm, "SELECT * FROM app.messages")));
+// An administrator reads the agent ledger, but not the nurse's drafts or runs
+const nr = await runAgent(nurse, "Draft a message to the clinician about records that need correction.", ((): Chat => { let k = 0; const rs = [new AIMessage({ content: "", tool_calls: [{ name: "draft_handoff", args: { to_user: clin.sub, subject: "Records check", body: "Please look at patient 5 secret-draft-text." }, id: "d1", type: "tool_call" }], usage_metadata: { input_tokens: 10, output_tokens: 5, total_tokens: 15 } }), new AIMessage({ content: "Drafted.", usage_metadata: { input_tokens: 10, output_tokens: 5, total_tokens: 15 } })]; return { invoke: async () => rs[Math.min(k++, 1)] }; })());
+const admActions = await withRole(adm, async (c) => (await c.query("SELECT id FROM app.agent_actions WHERE type = 'handoff_message'")).rows);
+const admRuns = await withRole(adm, async (c) => (await c.query("SELECT id FROM app.agent_runs WHERE id = $1", [nr.runId])).rows);
+const admSteps = await withRole(adm, async (c) => (await c.query("SELECT 1 FROM app.agent_steps WHERE run_id = $1", [nr.runId])).rows);
+ok("an administrator cannot read nurse message drafts in the ledger", admActions.length === 0);
+ok("an administrator cannot read a nurse's agent runs or their steps", admRuns.length === 0 && admSteps.length === 0);
+const clinRuns = await withRole(clin, async (c) => (await c.query("SELECT 1 FROM app.agent_runs WHERE role = 'clinician' LIMIT 1")).rows.length).catch(() => 0);
+ok("an administrator still reads clinician runs", (await withRole(adm, async (c) => (await c.query("SELECT count(*)::int AS n FROM app.agent_runs WHERE role <> 'nurse'")).rows[0].n)) >= clinRuns);
 const reply = await sendMessage(clin, { to_user: nurse.sub, parent_id: m1, subject: "Re: Patient follow-up", body: "Thanks, will call." });
 ok("the clinician can reply", reply > 0);
 ok("the sender cannot mark the recipient's copy as read", (await withRole(nurse, async (c) => (await c.query("UPDATE app.messages SET read_at = now() WHERE id = $1", [m1])).rowCount)) === 0);
