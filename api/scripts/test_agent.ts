@@ -121,6 +121,15 @@ ok("a figure that stays ungrounded is refused", /could not verify/.test(r.answer
 r = await runAgent(exec, "Compare spend", script(call("query_insights", { report: "spend_compare" }), say("Medicare spent more than Medicaid.")));
 ok("an answer with no figures passes the gate untouched", r.answer === "Medicare spent more than Medicaid.");
 
+// Clinical scope: refused in code before the model is called
+let called = 0;
+const spy: Chat = { invoke: async () => { called++; return say("Switch them to semaglutide 1 mg."); } };
+r = await runAgent(clin, "Which drug should we switch our patients to for better outcomes?", spy);
+s = await stepsOf(clin, r.runId);
+ok("a treatment question is refused without calling the model", called === 0 && r.status === "finished" && /can't/.test(r.answer) && s.some((x: any) => x.kind === "blocked" && x.content.name === "clinical_scope"));
+r = await runAgent(clin, "Here are the patient numbers 3, 5, 9. Which drug should they switch to?", spy);
+ok("supplying patient numbers does not reopen the refusal", called === 0 && !/semaglutide/.test(r.answer));
+
 console.log(`\n${pass} passed, ${fail} failed`);
 await pool.end();
 await admin_db.end();

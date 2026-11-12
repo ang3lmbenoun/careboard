@@ -9,6 +9,7 @@ import { withRole, type Role } from "./db.js";
 import { embed, toVector } from "./embed.js";
 import { emailAction } from "./followupMail.js";
 import { ungrounded, type Step } from "./evalChecks.js";
+import { OUT_OF_SCOPE, outOfScope } from "./scope.js";
 import { contacts, handoffSummary, messageSchema, notifyMessage, sendMessage } from "./handoff.js";
 
 /*
@@ -292,6 +293,13 @@ export async function runAgent(user: User, question: string, model?: Chat) {
   try {
     await logStep(user, runId, ++seq, "model", { text: "question received", role: user.role });
     let done = false;
+    // Clinical scope: refuse diagnosis, dosing and treatment advice in code, before the model or any tool is involved.
+    if (outOfScope(question)) {
+      answer = OUT_OF_SCOPE;
+      await logStep(user, runId, ++seq, "blocked", { name: "clinical_scope", refused: true });
+      await logStep(user, runId, ++seq, "answer", { text: answer });
+      done = true;
+    }
     for (let step = 0; step < cfg.maxSteps && !done; step++) {
       // Re-check the kill switch before every step, so an admin can stop a run that is already going.
       if (step > 0 && !(await settings(user)).enabled) { status = "stopped"; answer = "Stopped by an administrator."; break; }

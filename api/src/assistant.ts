@@ -1,4 +1,5 @@
 import type { Express } from "express";
+import { OUT_OF_SCOPE, outOfScope } from "./scope.js";
 import rateLimit from "express-rate-limit";
 import pg from "pg";
 import { withAssistant } from "./db.js";
@@ -259,6 +260,12 @@ export function registerAssistant(app: Express, { auth, audit }: Deps) {
     if (!question || question.length > 400) return res.status(400).json({ error: "message must be 1 to 400 characters" });
     if (!takeBudget()) return res.status(429).json({ error: "daily limit reached" });
     const history = cleanHistory(req.body?.history);
+
+    // Clinical scope: diagnosis, dosing and treatment advice are refused in code before any model call.
+    if (outOfScope(question)) {
+      try { await audit(req.user, "assistant_query", { question: question.slice(0, 200), mode: "refused_clinical_scope" }); } catch (e) { console.error("audit failed", (e as Error).message); }
+      return res.json({ mode: "explain", answer: OUT_OF_SCOPE });
+    }
 
     if (req.user.role === "nurse") {
       // Carey for the nurse: explains what to do and reads only her own to-do summary. No analytics tables, no SQL.
