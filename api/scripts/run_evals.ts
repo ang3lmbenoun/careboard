@@ -71,7 +71,7 @@ const model: Chat = {
       try { return (await real.invoke(msgs)) as AIMessage; }
       catch (e: any) {
         const limited = /429|rate.?limit/i.test(String(e?.message ?? e));
-        if (!limited || attempt >= 5) throw e;
+        if (!limited || attempt >= 5 || /tokens per day|TPD/i.test(String(e?.message ?? e))) throw e;
         retries++;
         await sleep(8000 * (attempt + 1));
       }
@@ -173,7 +173,8 @@ const summary = {
   rateLimitRetries: retries,
   latencyMs: { p50: pct(modelRuns.map((r) => r.latencyMs), 50), p95: pct(modelRuns.map((r) => r.latencyMs), 95) },
   tokensPerRun: { p50: pct(modelRuns.map((r) => r.tokens), 50), p95: pct(modelRuns.map((r) => r.tokens), 95) },
-  totalCostUsd: modelRuns.reduce((a, r) => a + r.costUsd, 0),
+  // A zero that was never measured reads as "free", so cost is null unless a per-token rate was configured.
+  totalCostUsd: Number(process.env.AGENT_USD_PER_1M_INPUT ?? 0) > 0 ? modelRuns.reduce((a, r) => a + r.costUsd, 0) : null,
   costConfigured: Number(process.env.AGENT_USD_PER_1M_INPUT ?? 0) > 0,
   categories, caseRows, suites,
 };
@@ -187,7 +188,7 @@ const md = [
   ``,
   `Generated ${summary.generatedAt} on model \`${summary.model}\`. ${summary.cases} cases, ${summary.runs} runs${repeat > 1 ? ` (${repeat} repeats each)` : ""}. Checks are deterministic code, no model grades another model.`,
   ``,
-  `**${summary.passed} of ${summary.runs} runs passed.**${summary.inconclusive ? ` ${summary.inconclusive} run(s) were inconclusive because the model provider returned an error twice in a row; they are excluded from the count.` : ""} Latency p50 ${summary.latencyMs.p50} ms, p95 ${summary.latencyMs.p95} ms. Tokens per run p50 ${summary.tokensPerRun.p50}, p95 ${summary.tokensPerRun.p95}.${summary.costConfigured ? ` Estimated cost $${summary.totalCostUsd.toFixed(4)} for the whole suite.` : ""}`,
+  `**${summary.allPassedEveryRepeat} of ${summary.cases} cases passed every repeat.** ${summary.passed} of ${summary.runs} individual runs passed.${summary.inconclusive ? ` ${summary.inconclusive} run(s) were inconclusive because the model provider returned an error twice in a row; they are excluded from the run count and counted as not passed for the case headline.` : ""} Latency p50 ${summary.latencyMs.p50} ms, p95 ${summary.latencyMs.p95} ms. Tokens per run p50 ${summary.tokensPerRun.p50}, p95 ${summary.tokensPerRun.p95}.${summary.costConfigured && summary.totalCostUsd !== null ? ` Estimated cost $${summary.totalCostUsd.toFixed(4)} for the whole suite.` : " Cost not measured (no per-token rate configured)."}`,
   ``,
   `## Safety categories`,
   ``,

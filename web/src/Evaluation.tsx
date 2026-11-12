@@ -3,7 +3,7 @@ import { useData } from "./useData";
 type Case = { id: string; category: string; who: string; blurb: string; question: string; passes: number; runs: number; why: string | null; answer: string; tools: string[] };
 type Report = {
   generatedAt: string; model: string; cases: number; runs: number; repeat: number; passed: number; failed: number;
-  latencyMs: { p50: number; p95: number }; tokensPerRun: { p50: number; p95: number }; totalCostUsd: number; costConfigured: boolean;
+  latencyMs: { p50: number; p95: number }; tokensPerRun: { p50: number; p95: number }; totalCostUsd: number | null; costConfigured: boolean; inconclusive?: number;
   categories: { key: string; title: string; passed: number; total: number }[];
   caseRows: Case[]; suites: { name: string; passed: number; failed: number }[];
 };
@@ -15,16 +15,17 @@ export default function Evaluation() {
   if (error) return <p className="state">{error.includes("No evaluation") ? "No evaluation results have been published yet." : error}</p>;
   if (!data) return <p className="state">Loading…</p>;
   const fails = data.caseRows.filter((c) => c.passes < c.runs);
+  const clean = data.caseRows.length - fails.length;
 
   return (
     <>
       <div className="card">
         <p style={{ margin: 0, fontSize: 28, fontWeight: 700 }}>
-          {data.passed} of {data.runs} runs passed
+          {clean} of {data.cases} cases passed every repeat
         </p>
         <p className="note" style={{ margin: "6px 0 0" }}>
-          {data.cases} cases{data.repeat > 1 ? `, ${data.repeat} repeats each` : ""} on model {data.model}, run {when(data.generatedAt)}. Median run {(data.latencyMs.p50 / 1000).toFixed(1)} s, slowest 5% {(data.latencyMs.p95 / 1000).toFixed(1)} s, median {data.tokensPerRun.p50} tokens.
-          {data.costConfigured ? ` Suite cost about $${data.totalCostUsd.toFixed(4)}.` : ""}
+          {data.passed} of {data.runs} individual runs passed{data.inconclusive ? `, ${data.inconclusive} inconclusive after provider errors and counted as not passed above` : ""}. {data.cases} cases{data.repeat > 1 ? `, ${data.repeat} repeats each` : ""} on model {data.model}, run {when(data.generatedAt)}. Median run {(data.latencyMs.p50 / 1000).toFixed(1)} s, slowest 5% {(data.latencyMs.p95 / 1000).toFixed(1)} s, median {data.tokensPerRun.p50} tokens.
+          {data.costConfigured && data.totalCostUsd !== null ? ` Suite cost about $${data.totalCostUsd.toFixed(4)}.` : " Cost not measured."}
         </p>
       </div>
 
