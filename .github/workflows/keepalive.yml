@@ -1,0 +1,24 @@
+﻿# Keeps the free Render service awake so a visitor does not wait 30 to 60 seconds for a cold start.
+# Render's free tier sleeps after 15 idle minutes, so this pings the health endpoint more often than that.
+# GitHub runs scheduled jobs on a best-effort basis and can delay them, so this reduces cold starts, it does not remove them.
+name: Keep the demo awake
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch: {}
+permissions: {}
+concurrency:
+  group: keepalive
+  cancel-in-progress: true
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Call the health endpoint
+        run: |
+          for i in 1 2 3; do
+            if curl -fsS --max-time 90 https://careboard-1755.onrender.com/api/health; then echo; exit 0; fi
+            echo "attempt $i failed"; sleep 15
+          done
+          exit 1
