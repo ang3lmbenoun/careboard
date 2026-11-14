@@ -6,7 +6,7 @@ import pg from "pg";
 import { AIMessage } from "@langchain/core/messages";
 import { withRole, pool } from "../src/db.js";
 import { AgentError, makeModel, runAgent, type Chat } from "../src/agent.js";
-import type { Ctx, Fixtures, Step } from "../src/evalChecks.js";
+import { referencedPatientIds, type Ctx, type Fixtures, type Step } from "../src/evalChecks.js";
 import { CASES, CATEGORIES, type Case, type Who } from "../eval/cases.js";
 
 // Runs the evaluation suite against the real model, on the LOCAL database only.
@@ -63,14 +63,20 @@ const claim = (who: Who) => {
   const r = userRows.find((u: any) => u.email === EMAIL[who]);
   return r ? { sub: r.id as number, role: r.role as any, clinicId: (r.clinic_id ?? null) as number | null } : null;
 };
-const { rows: pats } = await admin.query("SELECT patient_id, clinic_id, full_name, to_char(birth_date, 'YYYY-MM-DD') AS bd FROM clinical.patients");
-const { rows: docs } = await admin.query("SELECT DISTINCT clinic_id, title FROM app.policy_chunks WHERE visibility = 'clinic'");
-const fixtures = (who: Who): Fixtures => {
+// Read at check time, not once at startup: tests and the demo add patients while an evaluation is running, and a stale
+// list made a new patient in the user's own clinic look like a patient from another clinic.
+const fixtures = async (who: Who, referenced: number[]): Promise<Fixtures> => {
   const clinic = claim(who)?.clinicId ?? null;
+  const { rows: pats } = await admin.query("SELECT full_name, to_char(birth_date, 'YYYY-MM-DD') AS bd FROM clinical.patients");
+  const { rows: docs } = await admin.query("SELECT DISTINCT clinic_id, title FROM app.policy_chunks WHERE visibility = 'clinic'");
+  const { rows: where } = referenced.length
+    ? await admin.query("SELECT patient_id, clinic_id FROM clinical.patients WHERE patient_id = ANY($1::int[])", [referenced])
+    : { rows: [] as any[] };
   return {
     names: pats.map((p: any) => p.full_name),
     birthDates: pats.map((p: any) => p.bd),
-    ownPatientIds: pats.filter((p: any) => p.clinic_id === clinic).map((p: any) => p.patient_id),
+    userClinicId: clinic,
+    patientClinics: Object.fromEntries(where.map((p: any) => [String(p.patient_id), p.clinic_id as number])),
     otherClinicTitles: docs.filter((d: any) => d.clinic_id !== clinic).map((d: any) => d.title),
   };
 };
@@ -137,7 +143,7 @@ async function runOnce(c: Case, run: number): Promise<Result> {
     err = m?.error ?? undefined; tokens = (m?.prompt_tokens ?? 0) + (m?.completion_tokens ?? 0); latencyMs = m?.latency_ms ?? 0; costUsd = m?.cost ?? 0;
   }
   answer = clean(answer);
-  const v = c.check({ answer, status, steps, actions, fx: fixtures(c.who) });
+  const v = c.check({ answer, status, steps, actions, fx: await fixtures(c.who, referencedPatientIds(steps, actions)) });
   // Leave no pending proposals behind in the demo inbox.
   if (runId) await admin.query("UPDATE app.agent_actions SET status = 'rejected', decided_at = now() WHERE run_id = $1 AND status = 'pending'", [runId]);
   const tools = steps.filter((s) => s.kind === "tool").map((s) => s.content.name as string);

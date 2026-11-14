@@ -113,6 +113,12 @@ ok("the nurse is shown only her two tools", toolsFor("nurse").map((t) => t.name)
 ok("a clinician is not shown the nurse tools", !toolsFor("clinician").some((t) => ["my_tasks", "draft_handoff"].includes(t.name)));
 let r = await runAgent(nurse, "What do I need to do?", script(call("my_tasks", {}), say("You have items to check.")));
 let st = await steps(nurse, r.runId);
+{
+  // The rule is in the system prompt the model receives. (Whether the real model obeys it is measured by eval case N3.)
+  let sys = "";
+  await runAgent(nurse, "Write a summary of my tasks to the clinician.", { invoke: async (m: any[]) => { sys = String(m[0].content); return say("ok"); } } as Chat);
+  ok("the nurse prompt requires my_tasks first for tasks and summaries", /call my_tasks FIRST, before you answer and before you call draft_handoff/.test(sys) && /summary or status/.test(sys));
+}
 ok("the nurse agent reads her to-do summary", r.status === "finished" && st.some((x: any) => x.kind === "result" && x.content.name === "my_tasks" && Array.isArray(x.content.clinicians)));
 r = await runAgent(nurse, "Average A1C?", script(call("query_insights", { report: "spend_compare" }), say("I cannot.")));
 st = await steps(nurse, r.runId);
@@ -186,6 +192,11 @@ ok("a nurse's agent runs are hers alone", (await withRole(clin, async (c) => (aw
     (await db.query("SELECT count(*)::int n FROM app.users WHERE email = ANY($1)", [fxEmails])).rows[0].n === 0 &&
     (await db.query("SELECT count(*)::int n FROM app.agent_runs WHERE user_id = ANY($1)", [fxIds])).rows[0].n === 0);
 }
+
+// Clean up the patient this run added (and only that one). record_checks is insert-only for the app roles, so it goes through the admin login.
+await db.query("DELETE FROM app.record_checks WHERE patient_id = $1", [pn]);
+await db.query("DELETE FROM clinical.patients WHERE patient_id = $1", [pn]);
+ok("the patient this run added was removed", (await db.query("SELECT count(*)::int n FROM clinical.patients WHERE patient_id = $1", [pn])).rows[0].n === 0);
 
 await db.end();
 console.log(`\n${pass} passed, ${fail} failed`);
