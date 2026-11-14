@@ -143,6 +143,7 @@ ok("a nurse's agent runs are hers alone", (await withRole(clin, async (c) => (aw
   // End to end with a fixture nurse whose clinic has no records, messages or stock counts. Everything happens in one
   // transaction on one connection and is rolled back at the end, so no demo data is touched or left behind.
   // withRole() opens its own BEGIN/COMMIT, so for this block each BEGIN becomes a SAVEPOINT on the fixture connection.
+  let fxIds: number[] = [];
   const fx = await db.connect();
   await fx.query("BEGIN");
   const realConnect = (pool as any).connect;
@@ -161,6 +162,7 @@ ok("a nurse's agent runs are hers alone", (await withRole(clin, async (c) => (aw
     const ins = async (email: string, role: string) => (await fx.query("INSERT INTO app.users (email, display_name, role, clinic_id) VALUES ($1, $2, $3, $4) RETURNING id", [email, "Fixture " + role, role, FX_CLINIC])).rows[0].id as number;
     const fxNurse = { sub: await ins("fixture-nurse@careboard.invalid", "nurse"), role: "nurse" as const, clinicId: FX_CLINIC };
     const fxClin = { sub: await ins("fixture-clinician@careboard.invalid", "clinician"), role: "clinician" as const, clinicId: FX_CLINIC };
+    fxIds = [fxNurse.sub, fxClin.sub];
     (pool as any).connect = async () => proxy; // from here, agent and summary queries see the uncommitted fixture
     const sm = await handoffSummary(fxNurse);
     ok("the fixture nurse has an empty summary", nothingToReport(sm), JSON.stringify(sm));
@@ -179,7 +181,10 @@ ok("a nurse's agent runs are hers alone", (await withRole(clin, async (c) => (aw
     await fx.query("ROLLBACK");
     fx.release();
   }
-  ok("the fixture was rolled back and left nothing behind", (await db.query("SELECT count(*)::int n FROM app.users WHERE clinic_id = 9001")).rows[0].n === 0 && (await db.query("SELECT count(*)::int n FROM app.agent_runs WHERE clinic_id = 9001")).rows[0].n === 0);
+  const fxEmails = ["fixture-nurse@careboard.invalid", "fixture-clinician@careboard.invalid"];
+  ok("the fixture was rolled back and left nothing behind",
+    (await db.query("SELECT count(*)::int n FROM app.users WHERE email = ANY($1)", [fxEmails])).rows[0].n === 0 &&
+    (await db.query("SELECT count(*)::int n FROM app.agent_runs WHERE user_id = ANY($1)", [fxIds])).rows[0].n === 0);
 }
 
 await db.end();

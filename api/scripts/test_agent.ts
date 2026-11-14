@@ -165,8 +165,10 @@ ok("a normal run within the limit is unaffected", r.status === "finished" && r.a
   // When the time is already spent between steps, the next model call is not even started.
   let invokes = 0;
   const many = new AIMessage({ content: "", tool_calls: Array.from({ length: 30 }, (_, k) => ({ name: "query_insights", args: { report: "no_show_summary" }, id: "m" + k, type: "tool_call" as const })), usage_metadata: { input_tokens: 100, output_tokens: 20, total_tokens: 120 } });
-  const spent: Chat = { invoke: async () => { invokes++; return many; } }; // the reply is instant; running 30 tools uses up the time
-  r = await runAgent(exec, "Compare no-shows", spent, { maxMs: 150 });
+  // Fake clock: the model reply is instant, but the clock is moved past the limit, as if running the 30 tools took too long.
+  let fakeNow = 1_000_000;
+  const spent: Chat = { invoke: async () => { invokes++; fakeNow += 200; return many; } };
+  r = await runAgent(exec, "Compare no-shows", spent, { maxMs: 150, now: () => fakeNow });
   ok("a model call is not started once the time is spent", r.status === "stopped" && invokes === 1, `invokes=${invokes}`);
 }
 

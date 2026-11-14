@@ -273,7 +273,7 @@ const RATE_OUT = Number(process.env.AGENT_USD_PER_1M_OUTPUT ?? 0);
 
 /* ---------- the loop ---------- */
 
-export async function runAgent(user: User, question: string, model?: Chat, opts: { maxMs?: number } = {}) {
+export async function runAgent(user: User, question: string, model?: Chat, opts: { maxMs?: number; now?: () => number } = {}) {
   const cfg = await settings(user);
   if (!cfg.enabled) throw new AgentError(503, "Agents are switched off by an administrator.");
   const today = await withRole(user, async (c) =>
@@ -282,9 +282,10 @@ export async function runAgent(user: User, question: string, model?: Chat, opts:
   if (today >= cfg.dailyRuns) throw new AgentError(429, "Daily agent run limit reached.");
 
   const chat = model ?? makeModel(user.role);
-  const t0 = Date.now();
+  const now = opts.now ?? Date.now; // injectable so tests do not depend on wall-clock speed
+  const t0 = now();
   const maxMs = opts.maxMs ?? AGENT_MAX_MS;
-  const left = () => maxMs - (Date.now() - t0);
+  const left = () => maxMs - (now() - t0);
   const runId: number = await withRole(user, async (c) =>
     (
       await c.query(
@@ -363,7 +364,7 @@ export async function runAgent(user: User, question: string, model?: Chat, opts:
     c.query(
       `UPDATE app.agent_runs SET status = $2, answer = $3, prompt_tokens = $4, completion_tokens = $5,
               est_cost_usd = $6, latency_ms = $7, error = $8 WHERE id = $1`,
-      [runId, status, answer, tokensIn, tokensOut, cost, Date.now() - t0, error]
+      [runId, status, answer, tokensIn, tokensOut, cost, now() - t0, error]
     )
   );
   return { runId, status, answer };

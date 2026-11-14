@@ -45,7 +45,9 @@ const EMAIL: Record<Who, string> = {
 };
 // N2 needs a nurse whose summary is empty. The demo nurses have work waiting, so a temporary nurse and clinician are made in a clinic that has
 // no records, messages or stock counts, and removed again when the run ends (see the finally block).
-const FX_CLINIC = 9001;
+// Own clinic id, never shared with test_handoff.ts (9001). The cleanup below matches by email, not clinic, so leftovers
+// from older runs that used clinic 9001 are removed too.
+const FX_CLINIC = 9002;
 const FX_EMAILS = ["eval-nurse-empty@careboard.invalid", "eval-clinician-empty@careboard.invalid"];
 const needsFixture = cases.some((c) => c.who === "nurse_empty");
 const dropFixture = async () => {
