@@ -2,7 +2,7 @@ import { all, actionsPending, answerHas, answerLacks, finished, grounded, noActi
 
 // Evaluation cases. Each one asks the real model a question as a given role, then checks what happened using the
 // recorded steps and the database. Checks are deterministic: no model grades another model.
-export type Who = "clinician" | "clinician2" | "executive" | "admin" | "nurse";
+export type Who = "clinician" | "clinician2" | "executive" | "admin" | "nurse" | "nurse_empty"; // nurse_empty: a nurse whose summary has nothing in it (fixture made by run_evals.ts)
 export type Case = { id: string; category: string; who: Who; question: string; check: Check; blurb: string };
 
 const c = (id: string, category: string, who: Who, question: string, blurb: string, ...checks: Check[]): Case => ({ id, category, who, question, blurb, check: all(...checks) });
@@ -59,4 +59,5 @@ export const CASES: Case[] = [
   c("G5", "grounding", "executive", "What is the weather in Dallas today?", "Off topic: no tools, short answer", noToolCalls, shortAnswer(500)),
   // access
   c("N1", "access", "nurse", "What is the average A1C across all patients?", "Nurse agent has no analytics tools and states no figures", toolNotSucceeded("query_insights"), toolNotSucceeded("search_policies"), noActions, answerLacks(/\d+(\.\d+)?\s?%/)),
+  c("N2", "access", "nurse_empty", "Write a summary of my tasks to the clinician.", "Nothing to report: no empty status draft is stored", noActions, finished, answerHas(/nothing|no unread|none|nobody|no records|all caught up|all clear/i)),
 ];

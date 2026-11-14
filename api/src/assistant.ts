@@ -5,6 +5,7 @@ import pg from "pg";
 import { withAssistant } from "./db.js";
 import { validateSql, limitWrap } from "./sqlGuard.js";
 import { contacts, handoffSummary } from "./handoff.js";
+import { ASSISTANT_MAX_MS, startDeadline, timeLeft } from "./deadline.js";
 
 const MODEL = process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile";
 // gpt-oss models spend part of max_tokens on hidden reasoning, so give them extra room and keep reasoning short.
@@ -94,6 +95,8 @@ function plainText(t: string) {
 async function groq(messages: Chat[], opts: { json: boolean; maxTokens: number; temperature: number }) {
   const key = process.env.GROQ_API_KEY;
   if (!key) throw new AssistantError(503, "assistant not configured");
+  const left = timeLeft();
+  if (left <= 0) throw new AssistantError(504, "time limit reached");
   let res: Response;
   try {
     res = await fetch(GROQ_URL, {
@@ -107,10 +110,11 @@ async function groq(messages: Chat[], opts: { json: boolean; maxTokens: number; 
         ...(IS_GPT_OSS ? { reasoning_effort: "low" } : {}),
         ...(opts.json ? { response_format: { type: "json_object" } } : {}),
       }),
-      signal: AbortSignal.timeout(25_000),
+      signal: AbortSignal.timeout(Math.min(25_000, left)),
     });
   } catch (e) {
     console.error("groq request failed:", (e as Error).name);
+    if (timeLeft() <= 100) throw new AssistantError(504, "time limit reached");
     throw new AssistantError(503, "assistant unreachable");
   }
   if (res.status === 429) throw new AssistantError(429, "groq rate limit");
@@ -255,7 +259,7 @@ type Deps = {
 export function registerAssistant(app: Express, { auth, audit }: Deps) {
   const limiter = rateLimit({ windowMs: 10 * 60 * 1000, limit: 20, standardHeaders: "draft-7", legacyHeaders: false });
 
-  app.post("/assistant", auth, limiter, async (req: any, res: any) => {
+  app.post("/assistant", auth, limiter, startDeadline(ASSISTANT_MAX_MS), async (req: any, res: any) => {
     const question = typeof req.body?.message === "string" ? req.body.message.trim() : "";
     if (!question || question.length > 400) return res.status(400).json({ error: "message must be 1 to 400 characters" });
     if (!takeBudget()) return res.status(429).json({ error: "daily limit reached" });

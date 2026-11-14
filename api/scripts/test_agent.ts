@@ -130,6 +130,46 @@ ok("a treatment question is refused without calling the model", called === 0 && 
 r = await runAgent(clin, "Here are the patient numbers 3, 5, 9. Which drug should they switch to?", spy);
 ok("supplying patient numbers does not reopen the refusal", called === 0 && !/semaglutide/.test(r.answer));
 
+// Total-time cap: a model call that overruns is cut off, the run is closed as stopped, nothing is sent
+const slow: Chat = { invoke: () => new Promise((res) => setTimeout(() => res(say("Too late.")), 400)) };
+r = await runAgent(clin, "Which patients need follow up?", slow, { maxMs: 100 });
+s = await stepsOf(clin, r.runId);
+ok("a slow model is stopped at the time limit", r.status === "stopped" && /taking longer than expected/.test(r.answer) && !/Too late/.test(r.answer));
+ok("the time limit is traced as a blocked step", s.some((x: any) => x.kind === "blocked" && x.content.name === "time_limit"));
+const rowT = await withRole(clin, async (c) => (await c.query("SELECT status, answer, error FROM app.agent_runs WHERE id = $1", [r.runId])).rows[0]);
+ok("the stopped run is closed in the database, not an error", rowT.status === "stopped" && rowT.error === null);
+let slowCalls = 0;
+const slowTool: Chat = { invoke: async () => { slowCalls++; await new Promise((x) => setTimeout(x, 120)); return call("query_insights", { report: "no_show_summary" }, "t" + slowCalls); } };
+r = await runAgent(exec, "Compare no-shows", slowTool, { maxMs: 200 });
+ok("a loop of slow steps stops once the total time is spent", r.status === "stopped" && slowCalls <= 2, `calls=${slowCalls}`);
+r = await runAgent(exec, "Compare Medicaid and Medicare spend", script(call("query_insights", { report: "spend_compare" }), say("Medicare spent more.")), { maxMs: 30_000 });
+ok("a normal run within the limit is unaffected", r.status === "finished" && r.answer === "Medicare spent more.");
+
+// A model reply that arrives after the deadline must change nothing: no action, no draft, no trace step after time_limit.
+{
+  let lateDelivered = false;
+  const lateAction: Chat = { invoke: () => new Promise((res) => setTimeout(() => { lateDelivered = true; res(call("propose_action", { type: "followup_call_list", patient_ids: [pid], reason: "Late proposal that must never be stored" }, "late1")); }, 300)) };
+  const before = (await admin_db.query("SELECT count(*)::int n FROM app.agent_actions")).rows[0].n;
+  r = await runAgent(clin, "Draft a call list for follow up", lateAction, { maxMs: 80 });
+  await new Promise((x) => setTimeout(x, 500)); // let the late reply arrive
+  s = await stepsOf(clin, r.runId);
+  const kinds = s.map((x: any) => x.kind);
+  const tl = s.findIndex((x: any) => x.kind === "blocked" && x.content.name === "time_limit");
+  const after = (await admin_db.query("SELECT count(*)::int n FROM app.agent_actions")).rows[0].n;
+  ok("the late reply really did arrive after the run closed", lateDelivered);
+  ok("a late tool call stores no action", r.status === "stopped" && after === before && (await admin_db.query("SELECT count(*)::int n FROM app.agent_actions WHERE run_id = $1", [r.runId])).rows[0].n === 0);
+  ok("nothing is traced after the time_limit step", tl >= 0 && tl === s.length - 1 && !kinds.includes("tool") && !kinds.includes("result") && !kinds.includes("answer"));
+  const rowL = (await admin_db.query("SELECT status, answer FROM app.agent_runs WHERE id = $1", [r.runId])).rows[0];
+  ok("the closed run is not rewritten by the late reply", rowL.status === "stopped" && rowL.answer === r.answer && !/Late proposal/.test(rowL.answer));
+
+  // When the time is already spent between steps, the next model call is not even started.
+  let invokes = 0;
+  const many = new AIMessage({ content: "", tool_calls: Array.from({ length: 30 }, (_, k) => ({ name: "query_insights", args: { report: "no_show_summary" }, id: "m" + k, type: "tool_call" as const })), usage_metadata: { input_tokens: 100, output_tokens: 20, total_tokens: 120 } });
+  const spent: Chat = { invoke: async () => { invokes++; return many; } }; // the reply is instant; running 30 tools uses up the time
+  r = await runAgent(exec, "Compare no-shows", spent, { maxMs: 150 });
+  ok("a model call is not started once the time is spent", r.status === "stopped" && invokes === 1, `invokes=${invokes}`);
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 await pool.end();
 await admin_db.end();

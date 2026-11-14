@@ -122,6 +122,13 @@ export async function handoffSummary(user: User) {
   });
 }
 
+type Summary = { unread: number; unverified: number; needs_correction: number; low_stock: unknown[] };
+/** True when the to-do summary holds nothing: no unread messages, no records to verify or fix, no low stock. */
+export const nothingToReport = (s: Summary) => s.unread === 0 && s.unverified === 0 && s.needs_correction === 0 && s.low_stock.length === 0;
+/** True when the nurse asked Tiffany to write up her tasks or status, so the summary is the only content the message could have. */
+export const asksForReport = (q: string) => /\b(summary|summari[sz]e|update|status|report|tasks?|to-?do|what'?s (waiting|pending|outstanding)|what (is|are) (waiting|pending|outstanding))\b/i.test(q);
+export const NOTHING_TO_REPORT = "Your summary has nothing to report right now: no unread messages, no records to verify or correct, and no low stock. I did not draft a message. If you want to write to a clinician about something specific, tell me what it is.";
+
 export function registerHandoff(app: Express, { auth, audit }: Deps) {
   const safeAudit = async (u: any, action: string, detail: object = {}) => { try { await audit(u, action, detail); } catch (e) { console.error("audit failed", (e as Error).message); } };
   const staff = async (req: any, res: any, next: any) => {

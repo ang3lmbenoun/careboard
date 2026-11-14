@@ -164,3 +164,6 @@ api/outbox/
 
 # original character videos (web-ready copies live in web/public/characters)
 web/characters/
+
+# partial evaluation runs
+api/eval/results/partial.json

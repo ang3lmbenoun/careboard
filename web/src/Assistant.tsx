@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ApiError, post } from "./api";
 import { Carey } from "./Characters";
+import { STILL_WORKING, useStillWorking } from "./useStillWorking";
 
 type Reply = {
   mode: "sql" | "explain" | "refuse";
@@ -49,6 +50,7 @@ function failureText(e: unknown) {
   if (e instanceof ApiError) {
     if (e.status === 429) return "I need a short break. Please wait a minute and ask again.";
     if (e.status === 503) return "The assistant is not available right now. The rest of CareBoard still works.";
+    if (e.status === 504) return "That took too long, so I stopped. Please try a narrower question.";
     if (e.status === 401) return "Your session has expired. Please sign in again.";
   }
   return "Something went wrong on my side. Please try again in a moment.";
@@ -66,6 +68,7 @@ export default function Assistant({ role }: { role?: string } = {}) {
   const [msgs, setMsgs] = useState<Msg[]>([nurse ? NURSE_GREETING : GREETING]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const slow = useStillWorking(busy);
   const bottom = useRef<HTMLDivElement>(null);
   const field = useRef<HTMLInputElement>(null);
   const askRef = useRef<(q: string) => void>(() => {});
@@ -169,7 +172,7 @@ export default function Assistant({ role }: { role?: string } = {}) {
               </div>
               </div>
             ))}
-            {busy && <div className="bubble bot typing">Carey is thinking…</div>}
+            {busy && <div className="bubble bot typing">{slow ? `Carey: ${STILL_WORKING}` : "Carey is thinking…"}</div>}
             {msgs.length === 1 && !busy && (
               <div className="chips">
                 {(nurse ? NURSE_SUGGESTIONS : SUGGESTIONS).map((s) => (

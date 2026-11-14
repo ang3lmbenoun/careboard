@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Edit", "Write",
+      "Bash(npm test:*)", "Bash(npm run test:*)", "Bash(npm run build:*)", "Bash(npm install:*)",
+      "Bash(npx tsc:*)", "Bash(npx tsx scripts/test_*)", "Bash(npx tsx scripts/apply_*)",
+      "Bash(npx tsx scripts/run_evals.ts --only=*)",
+      "Bash(git status:*)", "Bash(git diff:*)", "Bash(git log:*)", "Bash(git add:*)"
+    ],
+    "ask": [
+      "Bash(git commit:*)", "Bash(npx tsx scripts/run_evals.ts)", "Bash(npx tsx scripts/run_evals.ts --repeat*)"
+    ],
+    "deny": [
+      "Bash(git push:*)", "Bash(* --neon*)", "Bash(rm:*)", "Bash(Remove-Item:*)",
+      "Read(./api/.env*)", "Edit(./api/.env*)", "Read(./.env*)"
+    ]
+  }
+}

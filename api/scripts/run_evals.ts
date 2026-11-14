@@ -28,6 +28,8 @@ if (!process.env.GROQ_API_KEY) { console.error("GROQ_API_KEY is not set in api/.
 const repeat = Math.max(1, Number(arg("repeat") ?? 1));
 const only = arg("only")?.split(",").map((s) => s.trim().toUpperCase());
 const gap = Number(arg("gap") ?? 2500);
+// The production time cap (60 s) would turn this runner's own rate-limit waits into "stopped" runs, so evaluation runs use a longer cap.
+const EVAL_MAX_MS = 10 * 60 * 1000;
 const cases = CASES.filter((c) => !only || only.includes(c.id));
 
 const admin = new pg.Pool({ connectionString: process.env.ADMIN_DATABASE_URL });
@@ -39,7 +41,21 @@ const EMAIL: Record<Who, string> = {
   executive: "executive@careboard.dev",
   admin: "admin@careboard.dev",
   nurse: "nurse@careboard.dev",
+  nurse_empty: "eval-nurse-empty@careboard.invalid",
 };
+// N2 needs a nurse whose summary is empty. The demo nurses have work waiting, so a temporary nurse and clinician are made in a clinic that has
+// no records, messages or stock counts, and removed again when the run ends (see the finally block).
+const FX_CLINIC = 9001;
+const FX_EMAILS = ["eval-nurse-empty@careboard.invalid", "eval-clinician-empty@careboard.invalid"];
+const needsFixture = cases.some((c) => c.who === "nurse_empty");
+const dropFixture = async () => {
+  await admin.query("DELETE FROM app.agent_runs WHERE user_id IN (SELECT id FROM app.users WHERE email = ANY($1))", [FX_EMAILS]);
+  await admin.query("DELETE FROM app.users WHERE email = ANY($1)", [FX_EMAILS]);
+};
+if (needsFixture) {
+  await dropFixture();
+  await admin.query("INSERT INTO app.users (email, display_name, role, clinic_id) VALUES ($1, 'Eval Nurse', 'nurse', $3), ($2, 'Eval Clinician', 'clinician', $3)", [FX_EMAILS[0], FX_EMAILS[1], FX_CLINIC]);
+}
 const { rows: userRows } = await admin.query("SELECT id, email, role, clinic_id FROM app.users");
 const claim = (who: Who) => {
   const r = userRows.find((u: any) => u.email === EMAIL[who]);
@@ -105,7 +121,7 @@ async function runOnce(c: Case, run: number): Promise<Result> {
   if (!user) return { id: c.id, category: c.category, who: c.who, question: c.question, blurb: c.blurb, run, pass: false, why: `no demo account for ${c.who}`, status: "skipped", answer: "", tools: [], tokens: 0, latencyMs: 0, costUsd: 0 };
   let runId = 0, status = "error", answer = "";
   try {
-    const r = await runAgent(user, c.question, model);
+    const r = await runAgent(user, c.question, model, { maxMs: EVAL_MAX_MS });
     runId = r.runId; runIds.push(runId); status = r.status; answer = r.answer;
   } catch (e: any) {
     status = e instanceof AgentError ? `refused_${e.status}` : "error";
@@ -139,6 +155,7 @@ try {
   // Evaluation runs must not use up the demo users' daily run allowance, so they are removed once scored (answers are kept in the results file).
   if (runIds.length) await admin.query("DELETE FROM app.agent_runs WHERE id = ANY($1::bigint[])", [runIds]);
   await admin.query("UPDATE app.agent_settings SET value = $1 WHERE key = 'daily_runs_per_user'", [original]);
+  if (needsFixture) await dropFixture();
 }
 
 if (dailyCap) { await admin.end(); await pool.end(); process.exit(2); }
@@ -180,7 +197,9 @@ const summary = {
 };
 const dir = path.resolve(import.meta.dirname ?? ".", "../eval/results");
 fs.mkdirSync(dir, { recursive: true });
-fs.writeFileSync(path.join(dir, "latest.json"), JSON.stringify(summary, null, 2));
+// A partial run (--only) or one where no case got an answer must never replace the published results.
+const partial = Boolean(arg("only")) || summary.runs === 0;
+fs.writeFileSync(path.join(dir, partial ? "partial.json" : "latest.json"), JSON.stringify(summary, null, 2));
 
 const leak = categories.filter((c) => ["privacy", "cross_clinic", "injection"].includes(c.key));
 const md = [
@@ -214,10 +233,10 @@ const md = [
 ].join("\n");
 const docs_dir = path.resolve(import.meta.dirname ?? ".", "../../docs");
 fs.mkdirSync(docs_dir, { recursive: true });
-fs.writeFileSync(path.join(docs_dir, "eval-report.md"), md);
+if (!partial) fs.writeFileSync(path.join(docs_dir, "eval-report.md"), md);
 
 console.log(`\n${summary.passed} passed, ${summary.failed} failed (${summary.cases} cases, ${summary.runs} runs${summary.inconclusive ? ", " + summary.inconclusive + " inconclusive" : ""})`);
-console.log(`Wrote api/eval/results/latest.json and docs/eval-report.md`);
+console.log(partial ? `Partial run: wrote api/eval/results/partial.json only. latest.json and docs/eval-report.md are unchanged.` : `Wrote api/eval/results/latest.json and docs/eval-report.md`);
 await admin.end();
 await pool.end();
 process.exit(summary.failed ? 1 : 0);

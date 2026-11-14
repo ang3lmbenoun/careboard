@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type FormEvent } from "react"
 import { ApiError, api, post } from "./api";
 import type { User } from "./api";
 import { TiffanyStage, type Pose } from "./Characters";
+import { STILL_WORKING, useStillWorking } from "./useStillWorking";
 
 type Run = {
   id: number;
@@ -53,6 +54,7 @@ function summary(s: Step) {
 export default function Agent({ role }: { role: User["role"] }) {
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState(false);
+  const slow = useStillWorking(busy);
   const [err, setErr] = useState("");
   const [runs, setRuns] = useState<Run[]>([]);
   const [open, setOpen] = useState<{ run: Run; steps: Step[] } | null>(null);
@@ -207,6 +209,7 @@ export default function Agent({ role }: { role: User["role"] }) {
                 <span className="tw-who"><img src="/characters/tiffany.webp" alt="" /></span>
                 <div className="tw-bub">
                   {busy && <div><span className="tw-dots" aria-hidden="true"><span /><span /><span /></span> Tiffany is working on it</div>}
+                  {busy && slow && <div className="hm-sub" role="status">{STILL_WORKING}</div>}
                   {!busy && open && (
                     <>
                       <div className="tw-answer">{open.run.answer ?? ""}</div>

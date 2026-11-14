@@ -1,9 +1,9 @@
 import "dotenv/config";
 import pg from "pg";
-import { withRole } from "../src/db.js";
+import { pool, withRole } from "../src/db.js";
 import { AIMessage } from "@langchain/core/messages";
 import { runAgent, toolsFor, type Chat } from "../src/agent.js";
-import { contacts, handoffSummary, notifyMessage, sendMessage } from "../src/handoff.js";
+import { asksForReport, contacts, handoffSummary, nothingToReport, notifyMessage, sendMessage } from "../src/handoff.js";
 
 // Tests the nurse and clinician hand-off at the database level: who can message whom, isolation between clinics,
 // no edits or deletes, record checks, stock counts, and that the notice email holds no message text.
@@ -129,6 +129,58 @@ ok("a draft to another clinic's clinician is refused", (await steps(nurse, r.run
 r = await runAgent(nurse, "Write about a patient in clinic 2", script(call("draft_handoff", { to_user: clin.sub, patient_id: other, subject: "x", body: "y" }), say("no")));
 ok("a draft about another clinic's patient is refused", (await steps(nurse, r.runId)).some((x: any) => x.kind === "blocked"));
 ok("a nurse's agent runs are hers alone", (await withRole(clin, async (c) => (await c.query("SELECT count(*)::int n FROM app.agent_runs WHERE role='nurse'")).rows[0].n)) === 0);
+
+// Nothing to report: no empty status draft
+{
+  const empty = { unread: 0, unverified: 0, needs_correction: 0, low_stock: [] };
+  ok("an all-zero summary is nothing to report", nothingToReport(empty));
+  ok("any unread, unverified, correction or low stock item is something to report",
+    !nothingToReport({ ...empty, unread: 1 }) && !nothingToReport({ ...empty, unverified: 2 }) && !nothingToReport({ ...empty, needs_correction: 1 }) && !nothingToReport({ ...empty, low_stock: [{}] }));
+  ok("a status or summary request is recognised", ["Write a summary to the doctor", "Send my clinician an update", "Tell Dr Lee my tasks", "what's pending? write it up"].every(asksForReport));
+  ok("a message about a specific subject is not a status request", !asksForReport("Tell the doctor the new reading for patient 5 was entered"));
+  const countDrafts = async (u: any) => (await withRole(u, async (c) => (await c.query("SELECT count(*)::int n FROM app.agent_actions WHERE type = 'handoff_message' AND user_id = $1", [u.sub])).rows[0].n)) as number;
+
+  // End to end with a fixture nurse whose clinic has no records, messages or stock counts. Everything happens in one
+  // transaction on one connection and is rolled back at the end, so no demo data is touched or left behind.
+  // withRole() opens its own BEGIN/COMMIT, so for this block each BEGIN becomes a SAVEPOINT on the fixture connection.
+  const fx = await db.connect();
+  await fx.query("BEGIN");
+  const realConnect = (pool as any).connect;
+  const proxy = {
+    query: async (text: any, params?: any) => {
+      const t = typeof text === "string" ? text.trim() : "";
+      if (t === "BEGIN") return fx.query("SAVEPOINT w");
+      if (t === "COMMIT") { const r = await fx.query("RELEASE SAVEPOINT w"); await fx.query("RESET ROLE"); return r; }
+      if (t === "ROLLBACK") { const r = await fx.query("ROLLBACK TO SAVEPOINT w"); await fx.query("RESET ROLE"); return r; }
+      return fx.query(text, params);
+    },
+    release: () => {},
+  };
+  try {
+    const FX_CLINIC = 9001;
+    const ins = async (email: string, role: string) => (await fx.query("INSERT INTO app.users (email, display_name, role, clinic_id) VALUES ($1, $2, $3, $4) RETURNING id", [email, "Fixture " + role, role, FX_CLINIC])).rows[0].id as number;
+    const fxNurse = { sub: await ins("fixture-nurse@careboard.invalid", "nurse"), role: "nurse" as const, clinicId: FX_CLINIC };
+    const fxClin = { sub: await ins("fixture-clinician@careboard.invalid", "clinician"), role: "clinician" as const, clinicId: FX_CLINIC };
+    (pool as any).connect = async () => proxy; // from here, agent and summary queries see the uncommitted fixture
+    const sm = await handoffSummary(fxNurse);
+    ok("the fixture nurse has an empty summary", nothingToReport(sm), JSON.stringify(sm));
+    const before = await countDrafts(fxNurse);
+    const rr = await runAgent(fxNurse, "Write a summary of my tasks to the clinician", script(call("draft_handoff", { to_user: fxClin.sub, subject: "Status", body: "Nothing to report today." }), say("There is nothing to report, so I did not draft a message.")));
+    const st = await steps(fxNurse, rr.runId);
+    ok("a status request with an empty summary stores no draft", (await countDrafts(fxNurse)) === before && rr.status === "finished");
+    ok("the refusal is traced and says why", st.some((x: any) => x.kind === "blocked" && /nothing to report/i.test(x.content.error ?? "")));
+    const rr2 = await runAgent(fxNurse, "Tell the clinician the printer in room 2 is broken", script(call("draft_handoff", { to_user: fxClin.sub, subject: "Printer", body: "The printer in room 2 is broken." }), say("Drafted, waiting for your approval.")));
+    ok("a specific message is still drafted when the summary is empty", (await countDrafts(fxNurse)) === before + 1 && rr2.status === "finished");
+    const rr3 = await runAgent(fxNurse, "Write a summary of my tasks to the clinician", script(say("Nothing to report.")));
+    ok("an empty-summary run that never calls the tool also stores no draft", rr3.status === "finished" && (await countDrafts(fxNurse)) === before + 1);
+  } finally {
+    delete (pool as any).connect; // back to the real pool method
+    if ((pool as any).connect !== realConnect) (pool as any).connect = realConnect;
+    await fx.query("ROLLBACK");
+    fx.release();
+  }
+  ok("the fixture was rolled back and left nothing behind", (await db.query("SELECT count(*)::int n FROM app.users WHERE clinic_id = 9001")).rows[0].n === 0 && (await db.query("SELECT count(*)::int n FROM app.agent_runs WHERE clinic_id = 9001")).rows[0].n === 0);
+}
 
 await db.end();
 console.log(`\n${pass} passed, ${fail} failed`);
