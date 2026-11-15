@@ -8,6 +8,7 @@ import { withRole, pool } from "../src/db.js";
 import { AgentError, makeModel, runAgent, type Chat } from "../src/agent.js";
 import { referencedPatientIds, type Ctx, type Fixtures, type Step } from "../src/evalChecks.js";
 import { CASES, CATEGORIES, type Case, type Who } from "../eval/cases.js";
+import { MODEL_TIMEOUT_MS, authAbortMessage, authFailureStatus, finishedCases, resumeProblem, retriesAllowed, withModelTimeout } from "../src/evalProgress.js";
 
 // Runs the evaluation suite against the real model, on the LOCAL database only.
 // Usage (from the api folder):
@@ -16,6 +17,8 @@ import { CASES, CATEGORIES, type Case, type Who } from "../eval/cases.js";
 //   npx tsx scripts/run_evals.ts --only=P1,X5    run chosen cases
 //   npx tsx scripts/run_evals.ts --suites        also run the five test suites and record their counts
 //   npx tsx scripts/run_evals.ts --gap=3000      milliseconds between model calls (default 2500)
+//   npx tsx scripts/run_evals.ts --resume        continue an interrupted full run from api/eval/results/progress.json (same model and --repeat)
+// Progress is saved after every case. A finished full run deletes progress.json; a --only run neither reads nor writes it.
 const arg = (k: string) => process.argv.find((a) => a.startsWith(`--${k}=`))?.split("=")[1];
 const flag = (k: string) => process.argv.includes(`--${k}`);
 
@@ -23,7 +26,17 @@ if (flag("neon") || /neon\.tech/.test(process.env.DATABASE_URL ?? "") || /neon\.
   console.error("Refusing to run: evaluations write runs and proposals and must only run on the local database.");
   process.exit(1);
 }
-if (!process.env.GROQ_API_KEY) { console.error("GROQ_API_KEY is not set in api/.env"); process.exit(1); }
+// The evaluation may use its own provider (EVAL_API_KEY, EVAL_BASE_URL, EVAL_MODEL). Each one falls back to its GROQ_* value, so with nothing set
+// nothing changes. Only this script reads EVAL_*: the live app keeps using GROQ_*.
+const EVAL_CFG = {
+  apiKey: process.env.EVAL_API_KEY || process.env.GROQ_API_KEY,
+  baseURL: process.env.EVAL_BASE_URL || process.env.GROQ_BASE_URL || "https://api.groq.com/openai/v1",
+  model: process.env.EVAL_MODEL || process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
+};
+if (!EVAL_CFG.apiKey) { console.error("No model key: set EVAL_API_KEY or GROQ_API_KEY in api/.env"); process.exit(1); }
+// Shown without any user info or query string, and never with the key.
+const shownURL = (() => { try { const u = new URL(EVAL_CFG.baseURL); return u.origin + u.pathname; } catch { return "(invalid base URL)"; } })();
+console.log(`Evaluation model: ${EVAL_CFG.model} via ${shownURL}`);
 
 const repeat = Math.max(1, Number(arg("repeat") ?? 1));
 const only = arg("only")?.split(",").map((s) => s.trim().toUpperCase());
@@ -31,6 +44,28 @@ const gap = Number(arg("gap") ?? 2500);
 // The production time cap (60 s) would turn this runner's own rate-limit waits into "stopped" runs, so evaluation runs use a longer cap.
 const EVAL_MAX_MS = 10 * 60 * 1000;
 const cases = CASES.filter((c) => !only || only.includes(c.id));
+
+/* ---------- progress file: saved after every case so an interrupted run can continue ---------- */
+const PROGRESS = path.resolve(import.meta.dirname ?? ".", "../eval/results/progress.json");
+const resume = flag("resume");
+const trackProgress = !only; // a --only run is partial and must not overwrite an interrupted full run's progress
+if (resume && !trackProgress) { console.error("--resume cannot be combined with --only: a --only run does not use progress.json."); process.exit(1); }
+const doneIds = new Set<string>();
+const resumedResults: any[] = [];
+let resumedRetries = 0;
+if (resume) {
+  let saved: any = null;
+  try { saved = JSON.parse(fs.readFileSync(PROGRESS, "utf8")); } catch { /* reported below */ }
+  const problem = saved ? resumeProblem(saved, { model: EVAL_CFG.model, baseURL: shownURL, repeat }) : "api/eval/results/progress.json is missing or unreadable";
+  if (problem) { console.error(`--resume: ${problem}. Run without --resume to start over.`); process.exit(1); }
+  const f = finishedCases(saved.results, cases, repeat);
+  f.done.forEach((id) => doneIds.add(id));
+  resumedResults.push(...f.results);
+  resumedRetries = Number(saved.retries ?? 0);
+  console.log(`Resuming: ${doneIds.size} of ${cases.length} cases already finished (${[...doneIds].join(", ") || "none"}); the rest will run.`);
+} else if (trackProgress && fs.existsSync(PROGRESS)) {
+  console.log("Note: an earlier progress.json exists and will be replaced by this run. Use --resume to continue it instead.");
+}
 
 const admin = new pg.Pool({ connectionString: process.env.ADMIN_DATABASE_URL });
 
@@ -84,16 +119,27 @@ const fixtures = async (who: Who, referenced: number[]): Promise<Fixtures> => {
 /* ---------- model wrapper: spacing between calls and retry on rate limits ---------- */
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 let last = 0;
-let retries = 0;
-const real = makeModel();
-const model: Chat = {
+let retries = resumedRetries;
+// One model per role and tool mode, built on first use. Every one goes through the same pacing and retry wrapper.
+const wrapped = new Map<string, Chat>();
+const modelFor = (role: string, tools: "role" | "all"): Chat => {
+  const key = `${role}:${tools}`;
+  let m = wrapped.get(key);
+  if (!m) { m = pace(makeModel(role as any, tools, EVAL_CFG)); wrapped.set(key, m); }
+  return m;
+};
+const pace = (real: Chat): Chat => ({
   invoke: async (msgs) => {
     for (let attempt = 0; ; attempt++) {
       const wait = last + gap - Date.now();
       if (wait > 0) await sleep(wait);
       last = Date.now();
-      try { return (await real.invoke(msgs)) as AIMessage; }
+      // Every model request gets MODEL_TIMEOUT_MS (90 s). A timeout is not a rate limit, so it is thrown at once and runOne decides what to do.
+      try { return (await withModelTimeout(real.invoke(msgs), MODEL_TIMEOUT_MS)) as AIMessage; }
       catch (e: any) {
+        // 401 or 403 means the key or model is not accepted: every later request would fail the same way. Remember it and stop the run.
+        const denied = authFailureStatus(e);
+        if (denied) { authFailure ??= denied; throw e; }
         const limited = /429|rate.?limit/i.test(String(e?.message ?? e));
         if (!limited || attempt >= 5 || /tokens per day|TPD/i.test(String(e?.message ?? e))) throw e;
         retries++;
@@ -101,13 +147,16 @@ const model: Chat = {
       }
     }
   },
-};
+});
 
 /* ---------- run ---------- */
 type Result = { id: string; category: string; who: Who; question: string; blurb: string; run: number; pass: boolean; why?: string; status: string; answer: string; error?: string; inconclusive?: boolean; tools: string[]; tokens: number; latencyMs: number; costUsd: number };
 const results: Result[] = [];
 const runIds: number[] = [];
 let dailyCap = false;
+let authFailure: 401 | 403 | null = null; // set by the model wrapper on a 401 or 403
+class EvalAuthAbort extends Error { constructor(public status: 401 | 403) { super(`model provider answered ${status}`); } }
+let authAbort: EvalAuthAbort | null = null;
 console.log(`Estimated model use: about ${Math.round((cases.length * repeat * 1800) / 1000)}k tokens (a free Groq plan allows a fixed number of tokens per day for each model).`);
 const original = (await admin.query("SELECT value FROM app.agent_settings WHERE key = 'daily_runs_per_user'")).rows[0]?.value ?? "40";
 await admin.query("UPDATE app.agent_settings SET value = '100000' WHERE key = 'daily_runs_per_user'");
@@ -117,8 +166,9 @@ const clean = (t: string) => t.replace(/[\u00a0\u2007\u202f]/g, " ").replace(/[\
 
 async function runOne(c: Case, run: number): Promise<Result> {
   // A provider error (rate limit, malformed tool call) says nothing about agent behavior: retry twice, then mark inconclusive.
+  // A model request that timed out (90 s) is retried once, then marked inconclusive the same way.
   let r = await runOnce(c, run);
-  for (let i = 0; i < 2 && r.status === "error"; i++) r = await runOnce(c, run);
+  for (let tries = 0; r.status === "error" && tries < retriesAllowed(r.error ?? r.answer); tries++) r = await runOnce(c, run);
   if (r.status === "error" && /tokens per day|TPD/i.test(r.error ?? "")) dailyCap = true;
   if (r.status === "error") { r.pass = false; r.inconclusive = true; r.why = `provider error: ${r.error ?? "unknown"}`; }
   return r;
@@ -129,12 +179,14 @@ async function runOnce(c: Case, run: number): Promise<Result> {
   if (!user) return { id: c.id, category: c.category, who: c.who, question: c.question, blurb: c.blurb, run, pass: false, why: `no demo account for ${c.who}`, status: "skipped", answer: "", tools: [], tokens: 0, latencyMs: 0, costUsd: 0 };
   let runId = 0, status = "error", answer = "";
   try {
-    const r = await runAgent(user, c.question, model, { maxMs: EVAL_MAX_MS });
+    const r = await runAgent(user, c.question, modelFor(user.role, c.tools ?? "role"), { maxMs: EVAL_MAX_MS });
     runId = r.runId; runIds.push(runId); status = r.status; answer = r.answer;
   } catch (e: any) {
     status = e instanceof AgentError ? `refused_${e.status}` : "error";
     answer = String(e?.message ?? e);
   }
+  // Stop before scoring or retrying anything: a 401 or 403 says nothing about the agent.
+  if (authFailure) throw new EvalAuthAbort(authFailure);
   let err: string | undefined; let steps: Step[] = [], actions: Ctx["actions"] = [], tokens = 0, latencyMs = 0, costUsd = 0;
   if (runId) {
     steps = await withRole(user, async (cl) => (await cl.query("SELECT kind, content FROM app.agent_steps WHERE run_id = $1 ORDER BY seq", [runId])).rows);
@@ -150,14 +202,33 @@ async function runOnce(c: Case, run: number): Promise<Result> {
   return { id: c.id, category: c.category, who: c.who, question: c.question, blurb: c.blurb, run, pass: v.pass, why: v.why, status, answer, error: err, tools, tokens, latencyMs, costUsd };
 }
 
+// Saved after every finished case (all its repeats). Written to a temp file first, so an interruption cannot leave a half-written file.
+const saveProgress = () => {
+  if (!trackProgress) return;
+  const body = { savedAt: new Date().toISOString(), model: EVAL_CFG.model, baseURL: shownURL, repeat, retries, results: results.filter((r) => doneIds.has(r.id)) };
+  fs.mkdirSync(path.dirname(PROGRESS), { recursive: true });
+  fs.writeFileSync(PROGRESS + ".tmp", JSON.stringify(body));
+  fs.renameSync(PROGRESS + ".tmp", PROGRESS);
+};
+results.push(...resumedResults);
 try {
   outer: for (const c of cases) {
+    if (doneIds.has(c.id)) { console.log(`SKIP ${c.id} already finished in progress.json`); continue; }
     for (let run = 1; run <= repeat; run++) {
-      const r = await runOne(c, run);
-      if (dailyCap) { process.exitCode = 2; console.error(`\nStopped: Groq's daily token limit for this model was reached at case ${c.id}. Nothing was written. Wait for the limit to reset (it frees gradually over 24 hours), run fewer cases (--only= or --repeat=1), or set GROQ_MODEL to another model.`); break outer; }
+      let r: Result;
+      try { r = await runOne(c, run); }
+      catch (e) { if (e instanceof EvalAuthAbort) { authAbort = e; break outer; } throw e; }
+      if (dailyCap) {
+        process.exitCode = 2;
+        console.error(`\nStopped: Groq's daily token limit for this model was reached at case ${c.id}. latest.json and the report were not written.${trackProgress ? " Progress up to the last finished case is saved: after the limit resets, continue with --resume." : ""} The limit frees gradually over 24 hours; you can also run fewer cases (--only= or --repeat=1), or set GROQ_MODEL to another model.`);
+        break outer;
+      }
       results.push(r);
       console.log(`${r.pass ? "PASS" : "FAIL"} ${c.id}${repeat > 1 ? `#${run}` : ""} ${c.blurb}${r.pass ? "" : "  -> " + r.why}`);
+      if (!r.pass) console.log(`     answer: ${r.answer.replace(/\s+/g, " ").trim().slice(0, 300) || "(empty)"}`);
     }
+    doneIds.add(c.id);
+    saveProgress();
   }
 } finally {
   // Evaluation runs must not use up the demo users' daily run allowance, so they are removed once scored (answers are kept in the results file).
@@ -166,6 +237,12 @@ try {
   if (needsFixture) await dropFixture();
 }
 
+// A 401 or 403 stops everything here, before any results file is written (latest.json, partial.json, progress.json) and before the report.
+if (authAbort) {
+  console.error(`\n${authAbortMessage(authAbort.status, EVAL_CFG.model, shownURL)}`);
+  await admin.end(); await pool.end();
+  process.exit(3);
+}
 if (dailyCap) { await admin.end(); await pool.end(); process.exit(2); }
 
 /* ---------- optional: run the five test suites and record their counts ---------- */
@@ -182,8 +259,13 @@ if (flag("suites")) {
 /* ---------- summary ---------- */
 const pct = (a: number[], p: number) => { if (!a.length) return 0; const s = [...a].sort((x, y) => x - y); return s[Math.min(s.length - 1, Math.floor((p / 100) * s.length))]; };
 const byCase = new Map<string, Result[]>();
+// Resumed results come first in the array; put everything back in case-list order so the report reads the same as an uninterrupted run.
+const order = new Map(CASES.map((c, i) => [c.id, i]));
+results.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0) || a.run - b.run);
 for (const r of results) byCase.set(r.id, [...(byCase.get(r.id) ?? []), r]);
-const caseRows = [...byCase.entries()].map(([id, rs]) => ({ id, category: rs[0].category, who: rs[0].who, blurb: rs[0].blurb, question: rs[0].question, passes: rs.filter((x) => x.pass).length, inconclusive: rs.filter((x) => x.inconclusive).length, runs: rs.length, why: rs.find((x) => !x.pass)?.why ?? null, answer: rs[rs.length - 1].answer, tools: rs[rs.length - 1].tools }));
+const caseRows = [...byCase.entries()].map(([id, rs]) => ({ id, category: rs[0].category, who: rs[0].who, blurb: rs[0].blurb, question: rs[0].question, passes: rs.filter((x) => x.pass).length, inconclusive: rs.filter((x) => x.inconclusive).length, runs: rs.length, why: rs.find((x) => !x.pass)?.why ?? null, answer: rs[rs.length - 1].answer, tools: rs[rs.length - 1].tools,
+  // every run, not only the last: a flaky case can be judged from the saved file
+  runResults: rs.map((x) => ({ run: x.run, pass: x.pass, inconclusive: !!x.inconclusive, why: x.why ?? null, status: x.status, answer: x.answer, tools: x.tools })) }));
 const categories = Object.keys(CATEGORIES).map((k) => {
   const rs = results.filter((r) => r.category === k && !r.inconclusive);
   return { key: k, title: CATEGORIES[k], passed: rs.filter((r) => r.pass).length, total: rs.length };
@@ -191,7 +273,8 @@ const categories = Object.keys(CATEGORIES).map((k) => {
 const modelRuns = results.filter((r) => r.tokens > 0);
 const summary = {
   generatedAt: new Date().toISOString(),
-  model: process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile",
+  model: EVAL_CFG.model,
+  baseURL: shownURL,
   cases: caseRows.length, runs: results.length - results.filter((r) => r.inconclusive).length, repeat,
   passed: results.filter((r) => r.pass).length, failed: results.filter((r) => !r.pass && !r.inconclusive).length, inconclusive: results.filter((r) => r.inconclusive).length,
   allPassedEveryRepeat: caseRows.filter((c) => c.passes === c.runs).length,
@@ -208,14 +291,16 @@ fs.mkdirSync(dir, { recursive: true });
 // A partial run (--only) or one where no case got an answer must never replace the published results.
 const partial = Boolean(arg("only")) || summary.runs === 0;
 fs.writeFileSync(path.join(dir, partial ? "partial.json" : "latest.json"), JSON.stringify(summary, null, 2));
+// A completed full run (pass or fail) has nothing left to resume. A partial run leaves any earlier progress.json alone.
+if (!partial) fs.rmSync(PROGRESS, { force: true });
 
 const leak = categories.filter((c) => ["privacy", "cross_clinic", "injection"].includes(c.key));
 const md = [
   `# CareBoard agent evaluation`,
   ``,
-  `Generated ${summary.generatedAt} on model \`${summary.model}\`. ${summary.cases} cases, ${summary.runs} runs${repeat > 1 ? ` (${repeat} repeats each)` : ""}. Checks are deterministic code, no model grades another model.`,
+  `Generated ${summary.generatedAt} on model \`${summary.model}\` via \`${summary.baseURL}\`. ${summary.cases} cases, ${summary.runs} runs${repeat > 1 ? ` (${repeat} repeats each)` : ""}. Checks are deterministic code, no model grades another model.`,
   ``,
-  `**${summary.allPassedEveryRepeat} of ${summary.cases} cases passed every repeat.** ${summary.passed} of ${summary.runs} individual runs passed.${summary.inconclusive ? ` ${summary.inconclusive} run(s) were inconclusive because the model provider returned an error twice in a row; they are excluded from the run count and counted as not passed for the case headline.` : ""} Latency p50 ${summary.latencyMs.p50} ms, p95 ${summary.latencyMs.p95} ms. Tokens per run p50 ${summary.tokensPerRun.p50}, p95 ${summary.tokensPerRun.p95}.${summary.costConfigured && summary.totalCostUsd !== null ? ` Estimated cost $${summary.totalCostUsd.toFixed(4)} for the whole suite.` : " Cost not measured (no per-token rate configured)."}`,
+  `**${summary.allPassedEveryRepeat} of ${summary.cases} cases passed every repeat.** ${summary.passed} of ${summary.runs} individual runs passed.${summary.inconclusive ? ` ${summary.inconclusive} run(s) were inconclusive because the model provider returned an error twice in a row (or, for a request that took longer than ${MODEL_TIMEOUT_MS / 1000} s, timed out twice); they are excluded from the run count and counted as not passed for the case headline.` : ""} Latency p50 ${summary.latencyMs.p50} ms, p95 ${summary.latencyMs.p95} ms. Tokens per run p50 ${summary.tokensPerRun.p50}, p95 ${summary.tokensPerRun.p95}.${summary.costConfigured && summary.totalCostUsd !== null ? ` Estimated cost $${summary.totalCostUsd.toFixed(4)} for the whole suite.` : " Cost not measured (no per-token rate configured)."}`,
   ``,
   `## Safety categories`,
   ``,
@@ -238,6 +323,7 @@ const md = [
   `- Cases cover the failure modes I thought of. A pass means these cases passed, not that no case exists that fails.`,
   `- Refusal detection is a phrase check. It can miss an unusual refusal wording; privacy and cross clinic checks do not depend on it, they inspect the data returned.`,
   `- Evaluated on synthetic data in a local database.`,
+  `- Results before Nov 14 2026 were produced with the clinician tool set bound to the model for every role; the server-side gates (the per-role allow list and the database) applied throughout. Since then each case binds the tools of its own role, except A1 to A6 and N1, which bind every tool so that the server-side refusal is what is tested.`,
 ].join("\n");
 const docs_dir = path.resolve(import.meta.dirname ?? ".", "../../docs");
 fs.mkdirSync(docs_dir, { recursive: true });

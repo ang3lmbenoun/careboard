@@ -167,3 +167,5 @@ web/characters/
 
 # partial evaluation runs
 api/eval/results/partial.json
+api/eval/results/progress.json
+api/eval/results/progress.json.tmp

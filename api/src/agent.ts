@@ -245,17 +245,20 @@ Rules:
 - Quote figures exactly as the tool returned them (rounding is fine). Do not calculate new totals, differences or ratios yourself; compare in words such as higher or lower.
 - Answer in 2 to 5 plain sentences. No markdown. Money in dollars. State rates as percentages using the tool's percent field (for example no_show_percent), never as a decimal like 0.098.`;
 
-export function makeModel(role: Role = "clinician"): Chat {
-  const key = process.env.GROQ_API_KEY;
+/** tools "role": bind only the tools the role is allowed (normal). "all": bind every tool, so a refusal comes from runTool's server-side gate (worst case, used by the evaluation). */
+export type ModelConfig = { apiKey?: string; baseURL?: string; model?: string };
+/** `cfg` lets the evaluation runner use a different provider. The live app never passes it and keeps reading GROQ_*. */
+export function makeModel(role: Role = "clinician", tools: "role" | "all" = "role", cfg: ModelConfig = {}): Chat {
+  const key = cfg.apiKey ?? process.env.GROQ_API_KEY;
   if (!key) throw new AgentError(503, "The assistant is not configured.");
   const llm = new ChatOpenAI({
-    model: process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile",
+    model: cfg.model ?? process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile",
     apiKey: key,
     temperature: 0,
     maxTokens: 600,
-    configuration: { baseURL: process.env.GROQ_BASE_URL ?? "https://api.groq.com/openai/v1" },
+    configuration: { baseURL: cfg.baseURL ?? process.env.GROQ_BASE_URL ?? "https://api.groq.com/openai/v1" },
   });
-  const shown = toolsFor(role);
+  const shown = tools === "all" ? TOOL_SPECS : toolsFor(role);
   return { invoke: (m) => llm.bindTools!(shown).invoke(m) as Promise<AIMessage> };
 }
 

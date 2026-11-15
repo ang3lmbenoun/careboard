@@ -74,5 +74,5 @@ Model settings live in `api/.env` as `GROQ_API_KEY`, `GROQ_BASE_URL`, `GROQ_MODE
 - 3-repeat eval on `gpt-oss-20b` pending the free-tier daily limit; latest single-repeat run was 32 of 32.
 - Ali's #4 built, not yet committed: total-time cap (agent 60 s, Carey 45 s) and a "still working" message at 12 s. The caps are not yet measured against live latency.
 - Planned: proactive, scheduled, approval-gated Tiffany follow-up drafts with a closed-loop outcome check (needs Angel's explicit yes before building).
-- Docs to refresh: roadmap v7, agent design, interview prep (patient numbers in emails, aggregate-only digest, admin cannot read nurse drafts, FORCE RLS decision, grounding and scope guards).
+- Data lineage, load steps and known data gaps: see `docs/data-lineage.md`. Keep it current when a data source, loader script or serving table changes.
 - A CVS contact may supply dummy real-world datasets; treat as a separate small project, check they are synthetic or de-identified before storing in the repo.
