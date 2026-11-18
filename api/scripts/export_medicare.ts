@@ -10,7 +10,8 @@ import { parse } from "csv-parse/sync";
 const SOURCE =
   "https://data.cms.gov/sites/default/files/2026-06/98218f98-166c-4723-8438-c344a4ef96a6/DSD_PTD_RY26_P04_V10_DY24_BGM.csv";
 
-// The Medicaid classes come from a fixed list of brand names, so Medicare uses the same list.
+// Copy of the Medicaid brand lists (seed in the diabetes-glp1-pipeline project), compared on 2026-11-17.
+// GLP-1, DPP-4 and named insulin brands match. Insulin "other" and metformin are matched differently; see docs/data-lineage.md.
 const GLP1 = ["ozempic", "wegovy", "rybelsus", "mounjaro", "zepbound", "trulicity", "victoza"];
 const DPP4 = ["januvia", "janumet", "onglyza", "tradjenta"];
 const NAMED_INSULIN = ["humalog", "lantus", "levemir", "novolog", "tresiba"];

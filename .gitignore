@@ -169,3 +169,6 @@ web/characters/
 api/eval/results/partial.json
 api/eval/results/progress.json
 api/eval/results/progress.json.tmp
+
+# throwaway probe scripts (not committed)
+api/scripts/_probe_*.ts
