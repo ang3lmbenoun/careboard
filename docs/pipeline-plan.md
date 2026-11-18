@@ -1,6 +1,6 @@
 # Plan: a repeatable, checkable Medicare data pipeline (step E)
 
-Status: **plan only**. Nothing in this file has been built. Written 2026-11-15 from the repository files. I did not run any script, connect to a database or download anything; where I cite a number from the committed CSV files I counted it from the file.
+Status: **plan only**. Nothing in section 1 to 5 has been built. Updated 2026-11-18 with the results of a one-off download probe (2026-11-15), the class-rule comparison (2026-11-17) and the clinic-data extension (done 2026-11-18, section 6). Changes since the first version are marked **Updated**. Written 2026-11-15 from the repository files. I did not run any script, connect to a database or download anything; where I cite a number from the committed CSV files I counted it from the file.
 
 How to read this plan:
 - File and line references point at the code that backs a claim, like `api/scripts/export_medicare.ts:45`.
@@ -20,11 +20,11 @@ How to read this plan:
 
 | # | Decision | My recommendation |
 |---|---|---|
-| D1 | Where the raw download is kept (section 1) | A gitignored folder plus a workflow artifact now; commit it only if the first download is small. |
-| D2 | Tolerance for "totals vs previous load" (section 3) | 2 percent per year and class, as a placeholder until I can compare two real downloads. |
-| D3 | How to deal with clinic data going stale (section 6) | Option B: regenerate through the last open day, and rerun when needed. |
-| D4 | What the GitHub job may do on Neon (section 5) | Check-only with a limited database login. Applying stays a manual command from your laptop. |
-| D5 | Schedule (section 5) | Monthly check, plus run-on-demand. |
+| D1 | Where the raw download is kept (section 1) | **Decided: commit each release.** The file is 5.3 MB (2.1 MB compressed), measured by the probe. |
+| D2 | Tolerance for "totals vs previous load" (section 3) | **Decided: 0.01 percent** for years in both loads. The same file reproduced the committed data to 0.000000 percent. Loosen it after the first real second release if CMS restates routinely. |
+| D3 | How to deal with clinic data going stale (section 6) | **Decided and done 2026-11-18: option B.** Data now ends 2026-11-17; the warning moves to 2027-01-17. Rerun before then. |
+| D4 | What the GitHub job may do on Neon (section 5) | Open. Decide after the download is shown to work from a GitHub runner. Recommendation unchanged: check-only with a limited login. |
+| D5 | Schedule (section 5) | Open, same condition. If the runner cannot download from data.cms.gov, drop the schedule and keep the manual command. A monthly job re-downloads the same URL, so it detects a silent change to that file, not a new release. Name it a "monthly integrity check", not a "scheduled refresh". |
 
 Neon rule from `CLAUDE.md`: I will not touch Neon until you say yes. The first Neon step is in task 9.
 
@@ -34,20 +34,20 @@ Neon rule from `CLAUDE.md`: I will not touch Neon until you say yes. The first N
 
 **What the run does first**
 1. Fetch the URL (default: the one in `export_medicare.ts:10-11`; a `--url=` option or a workflow input replaces it).
-2. Stop with an error if the HTTP status is not 200, the body is empty, or the first line is not a CSV header that contains the columns the transform needs. Those columns are `Mftr_Name`, `Brnd_Name`, `Gnrc_Name` and at least one `Tot_Spndng_YYYY` and `Tot_Clms_YYYY` (`export_medicare.ts:45-67`). A web error page therefore cannot be loaded as data.
-3. Compute SHA-256 over the exact bytes received, and note the UTC time the download finished.
+2. Stop with an error if the HTTP status is not 200, the body is empty, or the first line is not a CSV header that contains the columns the transform needs. Those columns are `Mftr_Name`, `Brnd_Name`, `Gnrc_Name` and at least one `Tot_Spndng_YYYY` and `Tot_Clms_YYYY` (`export_medicare.ts:45-67`). **Updated:** do not require `Chg_Avg_Spnd_Per_Dsg_Unt_23_24` or `CAGR_Avg_Spnd_Per_Dsg_Unt_20_24`: their names contain the year range and change with each release. A web error page therefore cannot be loaded as data.
+3. Compute SHA-256 over the **decompressed** bytes (the server sends the file gzip-compressed; the hash must say which bytes it covers), and note the UTC time the download finished.
 4. Save the bytes unchanged, plus a small manifest next to them.
 
 **Where, and in what format**
 
 | What | Where | Format |
 |---|---|---|
-| The download | `data/raw/medicare_part_d/<UTC date>_<source file name>_<first 12 hex of the hash>.csv` | The original bytes, untouched. The current parser accepts a byte-order mark (`export_medicare.ts:42`), so I do not rewrite the file. |
+| The download | `data/raw/medicare_part_d/<UTC date>_<source file name>_<first 12 hex of the hash>.csv` (committed) | The decompressed bytes, untouched. The current parser accepts a byte-order mark (`export_medicare.ts:42`), so I do not rewrite the file. |
 | The manifest | Same name, ending `.json` | `source_url`, `downloaded_at_utc`, `sha256`, `bytes`, `http_status`, any `ETag` and `Last-Modified` headers CMS sends (not verified that it sends them), the git commit of the script, and the trigger (manual or scheduled). |
 | The record that survives | One row in `app.pipeline_runs` (section 2) | Same facts as the manifest, plus the check results. This is the permanent record. |
 | In GitHub Actions | A workflow artifact with an explicit retention (I suggest 90 days) | The same two files. |
 
-**D1.** `data/raw/` would be listed in `.gitignore`, so the repo does not grow. The file size is **not verified**: the repo holds only the summed output. Task 1 downloads it once to measure. If it is small, a few megabytes, committing each release is reasonable and gives a permanent copy. If it is large, keep only the hash in the database and the artifact for a limited time.
+**D1 (updated, decided).** Commit each release under `data/raw/`. The probe on 2026-11-15 measured 5,326,806 bytes decompressed (2,108,048 compressed), 14,536 data rows (3,625 "Overall", 10,911 manufacturer rows), 46 columns, UTF-8, CRLF line endings, no `ETag`, `Last-Modified` 2026-06-09, `Cache-Control: no-store`. That is small enough to keep every release in git, and it gives a permanent copy. Check the repository size after a few releases.
 
 **Same hash as the last successful load.** The run records "no change", does not touch the serving table, and still counts as a successful check for freshness (section 4).
 
@@ -115,13 +115,14 @@ All checks run every time (not stopping at the first), every result is saved in 
 
 | # | Check | Rule | Basis |
 |---|---|---|---|
-| 1 | Source row count | All rows and "Overall" rows each within **10 percent** of the previous successful load; above zero. | The source count is not recorded anywhere today. The first run only records a baseline and cannot fail this check. I will not invent a range before I have the number. |
+| 1 | Source row count | **Updated.** All rows within -5 percent to +20 percent, and "Overall" rows within -5 percent to +15 percent, of the previous successful load; above zero. | Probe baseline: 14,536 rows and 3,625 "Overall" rows. Rows with spend in each year grew 8.3 to 9.7 percent a year (all rows) and 5.5 to 6.5 percent (Overall); this is a proxy, since only one release exists. The first recorded run stores the baseline and cannot fail this check. |
 | 2 | Output row count | Between 0.9 and 1.25 times the previous load. With today's 81 rows that is 73 to 101. | Rows per year are 15 to 18 now. A rolling window or one new brand stays inside that. |
 | 3 | Five years present | Exactly 5 distinct years, consecutive. | Same rule as `db/risk.sql:344-347` and `test_medicare.ts:36`. |
 | 4 | Four classes present | Exactly GLP-1, Insulin, DPP-4, Metformin, and each class has spend above zero in every year. | `db/risk.sql:346`, `test_medicare.ts:35`. Metformin is the smallest class (0.41 to 0.63 billion dollars a year in the committed file), still well above zero. |
 | 5 | No negative or missing values | Spend and claims not null and not negative in every output row. Output rows must be above zero, because the transform drops all-zero rows. | `db/risk.sql:340`, `test_medicare.ts:37`, `export_medicare.ts:73`. |
 | 6 | Unique keys | No repeated (year, drug_class, drug). | Primary key; `test_medicare.ts:33-34`. |
-| 7 | Totals vs the previous load | For every (year, class) that is in both the previous accepted load and this one, the spend total differs by at most the tolerance (**D2**, proposed **2 percent**). Years in the previous load but missing now may only be the oldest ones (a rolling window). | Past years should barely change. Whether CMS restates earlier years is **not verified**. 2 percent is a placeholder to be set from a real comparison (task 1). |
+| 7 | Totals vs the previous load | For every (year, class) that is in both the previous accepted load and this one, the spend total differs by at most the tolerance (**D2, decided: 0.01 percent**). Years in the previous load but missing now may only be the oldest ones (a rolling window). | Past years should barely change. Whether CMS restates earlier years is **not verified**: the probe had one release, and it reproduced the committed data to 0.000000 percent on all 81 rows. Start strict; a restatement costs one `--accept-drift` with a reason. |
+| 8 | Share of Part D spend (**added**) | The four classes' share of all Part D spend is within 3 points of the previous load. | The probe shows 14.90, 15.03, 14.99, 16.23 and 14.19 percent for 2020 to 2024, a largest move of 2.04 points. Catches a classification rule that silently stops matching. |
 
 **Recorded, not failing: the newest year against the year before.** The committed file shows why this cannot be a hard rule: Insulin fell from 15.60 to 7.31 billion dollars from 2023 to 2024 (minus 53.1 percent), and GLP-1 rose from 21.91 to 27.23 (plus 24.3 percent). A "within 50 percent" rule would reject the data already in the app. These changes are stored in `summary` and shown beside the freshness check so a person can judge them.
 
@@ -203,6 +204,10 @@ Any end date after today puts **future days** in the data, with completed and no
 
 ### Options (**D3**)
 
+**Updated 2026-11-18: option B was chosen and carried out.** `generate_clinic_ops.ts` now takes `--through=YYYY-MM-DD` (default yesterday, future dates refused). The file was regenerated through 2026-11-17: 4,470 rows, 84 more than before (14 open days times 6). The first 4,386 rows are identical, proved by `api/scripts/test_clinic_ops.ts`. The check now warns from 2027-01-17. The care-risk "today" (2026-10-28) was left alone, so the two datasets disagree about "now"; decide that separately. Not yet done: reload locally and on Neon, rerun `export_bi.ts`, rerun eval case G2, refresh the figures quoted in the interview prep.
+
+The original options, for the record:
+
 | | What | Good | Bad |
 |---|---|---|---|
 | **A** | Fixed later end date, for example 2027-03-31. | One edit. | Future rows. The "as of" date is in the future until that day. Warns again 61 days after the end date. |
@@ -241,6 +246,10 @@ Brand names are trimmed and lower-cased, and a brand matches when it **starts wi
 | 3 | Metformin | Generic name is exactly `metformin hcl` |
 | 4 | Insulin | Generic name contains `insulin` and does not match `lixisenatide|liraglutide|supplies|pump|needle`. The drug is labelled with the brand if it starts with humalog, lantus, levemir, novolog or tresiba, otherwise `Insulin (other)`. |
 | – | Not included | Everything else. SGLT2 inhibitors are excluded on purpose; `test_medicare.ts:17-23` lists Jardiance, Synjardy, Soliqua, syringes, insulin pumps and Byetta as left out. |
+
+### Result of the comparison (updated, 2026-11-17)
+
+The seed in the other project (`diabetes_dbt/seeds/diabetes_drug_classes.csv`, 19 rows when read) matches the product name anywhere (`LIKE '%keyword%'`). The GLP-1 (7), DPP-4 (4) and named insulin (5) brand lists match. Metformin differs in method but by about 0.04 percent of its spend. The Medicaid insulin rule matched only the word "INSULIN" in the product name and missed brand-named insulins (about $546M, about 5 percent of the Medicaid total); 11 brand keywords were added on 2026-11-17, Medicaid 2024 became $11.46B, and the data was reloaded locally and on Neon on 2026-11-18. Full detail: `docs/data-lineage.md`, section 3. Items 1 to 4 below are answered; items 5 to 7 are not done.
 
 ### What the committed data shows
 
