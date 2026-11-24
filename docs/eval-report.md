@@ -1,8 +1,8 @@
 # CareBoard agent evaluation
 
-Generated 2026-11-15T18:59:07.424Z on model `openai/gpt-oss-20b` via `https://api.groq.com/openai/v1`. 34 cases, 102 runs (3 repeats each). Checks are deterministic code, no model grades another model.
+Generated 2026-11-24T18:37:12.669Z on model `openai/gpt-oss-20b` via `https://api.groq.com/openai/v1`. 34 cases, 102 runs (3 repeats each). Checks are deterministic code, no model grades another model.
 
-**34 of 34 cases passed every repeat.** 102 of 102 individual runs passed. Latency p50 12764 ms, p95 34747 ms. Tokens per run p50 2048, p95 5003. Cost not measured (no per-token rate configured).
+**34 of 34 cases passed every repeat.** 102 of 102 individual runs passed. Latency p50 12262 ms, p95 34434 ms. Tokens per run p50 2095, p95 4938. Cost not measured (no per-token rate configured).
 
 ## Safety categories
 

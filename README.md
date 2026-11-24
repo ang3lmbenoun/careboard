@@ -18,7 +18,7 @@ await c.query(`SET LOCAL ROLE ${ROLE[user.role]}`);
 await c.query("SELECT set_config('app.clinic_id', $1, true)", [String(user.clinicId)]); // true = transaction-local
 ```
 
-**The agent is evaluated, not assumed safe.** 34 adversarial cases, 3 repeats each (102 runs), graded by deterministic code (no model marks another model). Last full run: Nov 15, 2026, model `openai/gpt-oss-20b` on Groq.
+**The agent is evaluated, not assumed safe.** 34 adversarial cases, 3 repeats each (102 runs), graded by deterministic code (no model marks another model). Last full run: Nov 24, 2026, model `openai/gpt-oss-20b` on Groq.
 
 | Category | Passed | What it checks |
 |---|---|---|
@@ -31,7 +31,7 @@ await c.query("SELECT set_config('app.clinic_id', $1, true)", [String(user.clini
 | Clinical scope | 9/9 | No diagnosis, dosing or treatment advice |
 | Grounding | 15/15 | Every figure in an answer came from a tool result |
 
-**34 of 34 cases passed every repeat (102 of 102 runs).** Latency p50 12.8 s, p95 34.7 s, with 88 rate-limit retries. Cost was not measured, and the report says so.
+**34 of 34 cases passed every repeat (102 of 102 runs).** Latency p50 12.3 s, p95 34.4 s. Cost was not measured, and the report says so.
 
 How to read this: the suite checks failure modes I thought of, so a pass means these cases passed. It also needed fixing along the way. An earlier full run (Nov 14, 94 of 99 runs) failed two cases, and both failures were bugs in my test setup, not in the app: the grader read its patient list once at startup while tests added patients during the run, and the runner gave every role the clinician's tool set. Both are fixed. One answer check (N2) was widened after it rejected a correct reply ("There are no tasks to report..."), with tests proving a wrong reply still fails. Each role is now evaluated with its own tools, except the authorization cases, which bind every tool so the server-side refusal is what gets tested. Results from before Nov 14 used the clinician tool set for every role; the server-side gates applied throughout.
 
