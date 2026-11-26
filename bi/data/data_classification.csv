@@ -27,3 +27,4 @@ clinical,patients,full_name,Direct identifier
 clinical,patients,patient_id,Indirect identifier
 serving,clinic_daily,*,Synthetic aggregate
 serving,medicaid_drug_quarterly,*,Public data
+serving,medicare_part_d_annual,*,Public data

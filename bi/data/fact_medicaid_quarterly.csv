@@ -9,7 +9,7 @@ AK,2024,1,GLP-1,Rybelsus,372,332902.85
 AK,2024,1,GLP-1,Trulicity,529,489045.19
 AK,2024,1,GLP-1,Victoza,213,153256.21
 AK,2024,1,Insulin,Humalog,308,137653.15
-AK,2024,1,Insulin,Insulin (other),1336,178928.2
+AK,2024,1,Insulin,Insulin (other),1714,369473.35
 AK,2024,1,Insulin,Lantus,1020,115548.41
 AK,2024,1,Insulin,Levemir,88,22919.82
 AK,2024,1,Insulin,Novolog,409,78954.32
@@ -25,7 +25,7 @@ AL,2024,1,GLP-1,Rybelsus,531,509170.38
 AL,2024,1,GLP-1,Trulicity,7897,7655976.56
 AL,2024,1,GLP-1,Victoza,1016,768579.98
 AL,2024,1,Insulin,Humalog,687,165939.8
-AL,2024,1,Insulin,Insulin (other),3740,901454
+AL,2024,1,Insulin,Insulin (other),6011,1735487.79
 AL,2024,1,Insulin,Lantus,5892,1220870.37
 AL,2024,1,Insulin,Levemir,1196,386413.31
 AL,2024,1,Insulin,Novolog,3491,1139396.3
@@ -40,7 +40,7 @@ AR,2024,1,GLP-1,Rybelsus,,
 AR,2024,1,GLP-1,Trulicity,126,120293.48
 AR,2024,1,GLP-1,Victoza,3504,2554766.38
 AR,2024,1,Insulin,Humalog,2431,570898.01
-AR,2024,1,Insulin,Insulin (other),1357,245906.9
+AR,2024,1,Insulin,Insulin (other),2433,573264.11
 AR,2024,1,Insulin,Lantus,6302,961503.03
 AR,2024,1,Insulin,Levemir,1665,440203.59
 AR,2024,1,Insulin,Novolog,2952,688627.97
@@ -58,7 +58,7 @@ AZ,2024,1,GLP-1,Victoza,2252,1711459.48
 AZ,2024,1,GLP-1,Wegovy,122,161263.48
 AZ,2024,1,GLP-1,Zepbound,,
 AZ,2024,1,Insulin,Humalog,686,225859.27
-AZ,2024,1,Insulin,Insulin (other),19161,2739749.6
+AZ,2024,1,Insulin,Insulin (other),21844,3656565.08
 AZ,2024,1,Insulin,Lantus,23478,2423828.18
 AZ,2024,1,Insulin,Levemir,3478,685387.77
 AZ,2024,1,Insulin,Novolog,411,65597.53
@@ -76,7 +76,7 @@ CA,2024,1,GLP-1,Victoza,7423,6356595.78
 CA,2024,1,GLP-1,Wegovy,55353,72373955.77
 CA,2024,1,GLP-1,Zepbound,9771,10549681.46
 CA,2024,1,Insulin,Humalog,39842,13788158.77
-CA,2024,1,Insulin,Insulin (other),55248,8339107.91
+CA,2024,1,Insulin,Insulin (other),177936,52264495.59
 CA,2024,1,Insulin,Lantus,48676,8646735.52
 CA,2024,1,Insulin,Levemir,4108,1097945.59
 CA,2024,1,Insulin,Novolog,10570,3078073.53
@@ -93,7 +93,7 @@ CO,2024,1,GLP-1,Victoza,1648,1531125.05
 CO,2024,1,GLP-1,Wegovy,,
 CO,2024,1,GLP-1,Zepbound,,
 CO,2024,1,Insulin,Humalog,3476,1247710.38
-CO,2024,1,Insulin,Insulin (other),3368,762558.2
+CO,2024,1,Insulin,Insulin (other),4878,1637239.65
 CO,2024,1,Insulin,Lantus,8043,1518000.3
 CO,2024,1,Insulin,Levemir,2286,806552.47
 CO,2024,1,Insulin,Novolog,3501,1127211.26
@@ -109,7 +109,7 @@ CT,2024,1,GLP-1,Rybelsus,993,1426267.06
 CT,2024,1,GLP-1,Trulicity,5515,6954065.5
 CT,2024,1,GLP-1,Victoza,774,732290.56
 CT,2024,1,Insulin,Humalog,4338,1671628.4
-CT,2024,1,Insulin,Insulin (other),6982,1346516.32
+CT,2024,1,Insulin,Insulin (other),8808,2585288.58
 CT,2024,1,Insulin,Lantus,7459,1371175.7
 CT,2024,1,Insulin,Levemir,809,237531
 CT,2024,1,Insulin,Novolog,1823,690872.02
@@ -125,7 +125,7 @@ DC,2024,1,GLP-1,Trulicity,2127,2148958.78
 DC,2024,1,GLP-1,Victoza,30,23045.51
 DC,2024,1,GLP-1,Wegovy,,
 DC,2024,1,Insulin,Humalog,313,57135.3
-DC,2024,1,Insulin,Insulin (other),2373,257567.32
+DC,2024,1,Insulin,Insulin (other),4048,678291.69
 DC,2024,1,Insulin,Lantus,1327,145504.49
 DC,2024,1,Insulin,Levemir,253,42591.41
 DC,2024,1,Insulin,Novolog,529,83711.43
@@ -143,7 +143,7 @@ DE,2024,1,GLP-1,Victoza,117,76950.15
 DE,2024,1,GLP-1,Wegovy,837,73343.68
 DE,2024,1,GLP-1,Zepbound,632,23642.18
 DE,2024,1,Insulin,Humalog,197,67653.33
-DE,2024,1,Insulin,Insulin (other),3353,553079.21
+DE,2024,1,Insulin,Insulin (other),3743,769215.58
 DE,2024,1,Insulin,Lantus,2780,268402.58
 DE,2024,1,Insulin,Levemir,438,70765.71
 DE,2024,1,Insulin,Novolog,123,27617.78
@@ -161,7 +161,7 @@ FL,2024,1,GLP-1,Victoza,453,294351.48
 FL,2024,1,GLP-1,Wegovy,13,16206.09
 FL,2024,1,GLP-1,Zepbound,,
 FL,2024,1,Insulin,Humalog,14875,2341754.42
-FL,2024,1,Insulin,Insulin (other),1487,183701.74
+FL,2024,1,Insulin,Insulin (other),7019,1498361.67
 FL,2024,1,Insulin,Lantus,25756,2484711.47
 FL,2024,1,Insulin,Levemir,6419,1141339.9
 FL,2024,1,Insulin,Novolog,18586,2876197.14
@@ -178,7 +178,7 @@ GA,2024,1,GLP-1,Trulicity,2445,2311672.71
 GA,2024,1,GLP-1,Victoza,3813,2587459.41
 GA,2024,1,GLP-1,Wegovy,,
 GA,2024,1,Insulin,Humalog,3481,699088.68
-GA,2024,1,Insulin,Insulin (other),11481,1412382.84
+GA,2024,1,Insulin,Insulin (other),19896,3406796.6
 GA,2024,1,Insulin,Lantus,8680,1193681.25
 GA,2024,1,Insulin,Levemir,2896,567982.38
 GA,2024,1,Insulin,Novolog,1709,308656
@@ -195,7 +195,7 @@ HI,2024,1,GLP-1,Victoza,199,132442.02
 HI,2024,1,GLP-1,Wegovy,100,0
 HI,2024,1,GLP-1,Zepbound,11,1059.44
 HI,2024,1,Insulin,Humalog,700,130148.14
-HI,2024,1,Insulin,Insulin (other),2528,174881.26
+HI,2024,1,Insulin,Insulin (other),6012,1175393.09
 HI,2024,1,Insulin,Lantus,658,28195.11
 HI,2024,1,Insulin,Levemir,68,3155.15
 HI,2024,1,Insulin,Novolog,957,172641.72
@@ -211,7 +211,7 @@ IA,2024,1,GLP-1,Trulicity,4581,4304755.54
 IA,2024,1,GLP-1,Victoza,538,376380.63
 IA,2024,1,GLP-1,Wegovy,,
 IA,2024,1,Insulin,Humalog,991,393969.87
-IA,2024,1,Insulin,Insulin (other),9841,1337830.57
+IA,2024,1,Insulin,Insulin (other),11801,2486963.86
 IA,2024,1,Insulin,Lantus,8980,772304.29
 IA,2024,1,Insulin,Levemir,1520,244804.41
 IA,2024,1,Insulin,Novolog,602,106695.38
@@ -227,7 +227,7 @@ ID,2024,1,GLP-1,Rybelsus,255,237358.66
 ID,2024,1,GLP-1,Trulicity,1671,1612888.14
 ID,2024,1,GLP-1,Victoza,374,270493.7
 ID,2024,1,Insulin,Humalog,1878,442820.33
-ID,2024,1,Insulin,Insulin (other),2785,371792.44
+ID,2024,1,Insulin,Insulin (other),3897,850422.29
 ID,2024,1,Insulin,Lantus,3020,385790.93
 ID,2024,1,Insulin,Levemir,471,105295.5
 ID,2024,1,Insulin,Novolog,1210,272108.06
@@ -245,7 +245,7 @@ IL,2024,1,GLP-1,Victoza,9686,8171949.47
 IL,2024,1,GLP-1,Wegovy,,
 IL,2024,1,GLP-1,Zepbound,,
 IL,2024,1,Insulin,Humalog,14181,4107440.55
-IL,2024,1,Insulin,Insulin (other),20271,3678320.67
+IL,2024,1,Insulin,Insulin (other),33479,9401169.97
 IL,2024,1,Insulin,Lantus,33396,3928120.21
 IL,2024,1,Insulin,Levemir,4764,1012283.9
 IL,2024,1,Insulin,Novolog,521,146311.7
@@ -263,7 +263,7 @@ IN,2024,1,GLP-1,Victoza,1202,952751.36
 IN,2024,1,GLP-1,Wegovy,,
 IN,2024,1,GLP-1,Zepbound,,
 IN,2024,1,Insulin,Humalog,17086,4710402.29
-IN,2024,1,Insulin,Insulin (other),4598,865203.65
+IN,2024,1,Insulin,Insulin (other),11383,4426019.4
 IN,2024,1,Insulin,Lantus,18938,2230049.39
 IN,2024,1,Insulin,Levemir,1607,317037.79
 IN,2024,1,Insulin,Novolog,1182,263216.97
@@ -280,7 +280,7 @@ KS,2024,1,GLP-1,Victoza,369,215342
 KS,2024,1,GLP-1,Wegovy,1471,1583707.97
 KS,2024,1,GLP-1,Zepbound,222,198462.73
 KS,2024,1,Insulin,Humalog,265,80229.32
-KS,2024,1,Insulin,Insulin (other),8558,834421.71
+KS,2024,1,Insulin,Insulin (other),9900,1219220.98
 KS,2024,1,Insulin,Lantus,1289,93794.82
 KS,2024,1,Insulin,Levemir,1875,290232.22
 KS,2024,1,Insulin,Novolog,358,57017.3
@@ -296,7 +296,7 @@ KY,2024,1,GLP-1,Rybelsus,1695,1561826.81
 KY,2024,1,GLP-1,Trulicity,5106,3744885.62
 KY,2024,1,GLP-1,Victoza,962,672000.52
 KY,2024,1,Insulin,Humalog,7569,2050748.84
-KY,2024,1,Insulin,Insulin (other),19191,2780369.7
+KY,2024,1,Insulin,Insulin (other),24516,5348107.23
 KY,2024,1,Insulin,Lantus,18244,2024223.48
 KY,2024,1,Insulin,Levemir,6175,1140563.57
 KY,2024,1,Insulin,Novolog,3466,571896.96
@@ -312,7 +312,7 @@ LA,2024,1,GLP-1,Trulicity,12383,12425641.56
 LA,2024,1,GLP-1,Victoza,1406,1060492.4
 LA,2024,1,GLP-1,Wegovy,,
 LA,2024,1,Insulin,Humalog,4494,1166837.29
-LA,2024,1,Insulin,Insulin (other),10277,1242122.14
+LA,2024,1,Insulin,Insulin (other),15864,3057788.14
 LA,2024,1,Insulin,Lantus,17504,2146865.58
 LA,2024,1,Insulin,Levemir,3403,671910.76
 LA,2024,1,Insulin,Novolog,4349,795552.23
@@ -330,7 +330,7 @@ MA,2024,1,GLP-1,Victoza,1797,1325471.45
 MA,2024,1,GLP-1,Wegovy,1748,2301273.69
 MA,2024,1,GLP-1,Zepbound,148,135217.26
 MA,2024,1,Insulin,Humalog,2386,856476.55
-MA,2024,1,Insulin,Insulin (other),15369,2453149.52
+MA,2024,1,Insulin,Insulin (other),18647,4207071.48
 MA,2024,1,Insulin,Lantus,14577,1847297.68
 MA,2024,1,Insulin,Levemir,530,124408.79
 MA,2024,1,Insulin,Novolog,580,144383.02
@@ -346,7 +346,7 @@ MD,2024,1,GLP-1,Trulicity,10354,10254369.85
 MD,2024,1,GLP-1,Victoza,488,342679
 MD,2024,1,GLP-1,Zepbound,,
 MD,2024,1,Insulin,Humalog,1807,469761.78
-MD,2024,1,Insulin,Insulin (other),9640,1058739.16
+MD,2024,1,Insulin,Insulin (other),33902,7189538.8
 MD,2024,1,Insulin,Lantus,3820,367744.58
 MD,2024,1,Insulin,Levemir,614,100382.01
 MD,2024,1,Insulin,Novolog,1798,289633.66
@@ -362,7 +362,7 @@ ME,2024,1,GLP-1,Rybelsus,89,91033.6
 ME,2024,1,GLP-1,Trulicity,3169,2944729.61
 ME,2024,1,GLP-1,Victoza,650,487944.82
 ME,2024,1,Insulin,Humalog,1926,675683.11
-ME,2024,1,Insulin,Insulin (other),307,71406.87
+ME,2024,1,Insulin,Insulin (other),795,419984.36
 ME,2024,1,Insulin,Lantus,2514,452107.27
 ME,2024,1,Insulin,Levemir,303,72135.55
 ME,2024,1,Insulin,Novolog,634,188869.11
@@ -379,7 +379,7 @@ MI,2024,1,GLP-1,Victoza,3775,2862611.59
 MI,2024,1,GLP-1,Wegovy,19407,24630095.91
 MI,2024,1,GLP-1,Zepbound,671,694727.19
 MI,2024,1,Insulin,Humalog,16213,3503194.2
-MI,2024,1,Insulin,Insulin (other),15611,2466948.11
+MI,2024,1,Insulin,Insulin (other),20614,4454581.48
 MI,2024,1,Insulin,Lantus,35931,4377186.51
 MI,2024,1,Insulin,Levemir,3872,742023.52
 MI,2024,1,Insulin,Novolog,2312,410770.23
@@ -397,7 +397,7 @@ MN,2024,1,GLP-1,Victoza,8184,5604967.49
 MN,2024,1,GLP-1,Wegovy,8836,11536528.6
 MN,2024,1,GLP-1,Zepbound,1901,1953310.44
 MN,2024,1,Insulin,Humalog,1789,558677.4
-MN,2024,1,Insulin,Insulin (other),10882,1666299.16
+MN,2024,1,Insulin,Insulin (other),13273,2730917.77
 MN,2024,1,Insulin,Lantus,16755,1701072.38
 MN,2024,1,Insulin,Levemir,1245,248631.94
 MN,2024,1,Insulin,Novolog,6239,1162913.99
@@ -413,7 +413,7 @@ MO,2024,1,GLP-1,Rybelsus,55,41245.67
 MO,2024,1,GLP-1,Trulicity,20432,19086859.89
 MO,2024,1,GLP-1,Victoza,4480,3645646.77
 MO,2024,1,Insulin,Humalog,1558,713010.61
-MO,2024,1,Insulin,Insulin (other),9952,1726298.02
+MO,2024,1,Insulin,Insulin (other),11982,2491355.92
 MO,2024,1,Insulin,Lantus,16791,3179895.06
 MO,2024,1,Insulin,Levemir,2304,742567.14
 MO,2024,1,Insulin,Novolog,4363,2422146.69
@@ -430,7 +430,7 @@ MS,2024,1,GLP-1,Trulicity,4138,3904320.55
 MS,2024,1,GLP-1,Victoza,1718,1168676.19
 MS,2024,1,GLP-1,Wegovy,1556,2020017.61
 MS,2024,1,Insulin,Humalog,267,37882.7
-MS,2024,1,Insulin,Insulin (other),5304,846112.6
+MS,2024,1,Insulin,Insulin (other),7260,1441771.12
 MS,2024,1,Insulin,Lantus,4144,471420.41
 MS,2024,1,Insulin,Levemir,1667,343029.76
 MS,2024,1,Insulin,Novolog,570,95515.8
@@ -445,7 +445,7 @@ MT,2024,1,GLP-1,Rybelsus,74,70105.7
 MT,2024,1,GLP-1,Trulicity,1658,1586499.83
 MT,2024,1,GLP-1,Victoza,485,376852.5
 MT,2024,1,Insulin,Humalog,1248,336314.86
-MT,2024,1,Insulin,Insulin (other),1178,273090.87
+MT,2024,1,Insulin,Insulin (other),1566,572885.87
 MT,2024,1,Insulin,Lantus,2366,411016.79
 MT,2024,1,Insulin,Levemir,391,110792.71
 MT,2024,1,Insulin,Novolog,726,232894.14
@@ -462,7 +462,7 @@ NC,2024,1,GLP-1,Trulicity,9336,9844918.04
 NC,2024,1,GLP-1,Victoza,1552,1289356.79
 NC,2024,1,GLP-1,Wegovy,,
 NC,2024,1,Insulin,Humalog,6027,1575029
-NC,2024,1,Insulin,Insulin (other),12204,2061631.36
+NC,2024,1,Insulin,Insulin (other),17343,4578972.13
 NC,2024,1,Insulin,Lantus,14365,1892090.75
 NC,2024,1,Insulin,Levemir,4155,886683.51
 NC,2024,1,Insulin,Novolog,9170,2205077.33
@@ -477,7 +477,7 @@ ND,2024,1,GLP-1,Rybelsus,,
 ND,2024,1,GLP-1,Trulicity,135,127830.58
 ND,2024,1,GLP-1,Victoza,1276,972461.73
 ND,2024,1,Insulin,Humalog,142,27915.18
-ND,2024,1,Insulin,Insulin (other),877,212949.65
+ND,2024,1,Insulin,Insulin (other),902,232625.11
 ND,2024,1,Insulin,Lantus,1256,214869.1
 ND,2024,1,Insulin,Levemir,299,89377.74
 ND,2024,1,Insulin,Novolog,501,150144.98
@@ -494,7 +494,7 @@ NE,2024,1,GLP-1,Trulicity,2718,2586875.96
 NE,2024,1,GLP-1,Victoza,363,257423.9
 NE,2024,1,GLP-1,Wegovy,,
 NE,2024,1,Insulin,Humalog,1620,364816.05
-NE,2024,1,Insulin,Insulin (other),2669,404000.85
+NE,2024,1,Insulin,Insulin (other),3845,920181.98
 NE,2024,1,Insulin,Lantus,3576,361588.1
 NE,2024,1,Insulin,Levemir,743,131744.55
 NE,2024,1,Insulin,Novolog,862,150840.02
@@ -511,7 +511,7 @@ NH,2024,1,GLP-1,Victoza,442,326627.57
 NH,2024,1,GLP-1,Wegovy,498,625346.41
 NH,2024,1,GLP-1,Zepbound,108,107938.74
 NH,2024,1,Insulin,Humalog,942,172529.7
-NH,2024,1,Insulin,Insulin (other),1149,160728.98
+NH,2024,1,Insulin,Insulin (other),1552,324263.54
 NH,2024,1,Insulin,Lantus,1735,158134.08
 NH,2024,1,Insulin,Levemir,320,61398.68
 NH,2024,1,Insulin,Novolog,685,109608.09
@@ -528,7 +528,7 @@ NJ,2024,1,GLP-1,Trulicity,3835,3910137.31
 NJ,2024,1,GLP-1,Victoza,5636,3887580.87
 NJ,2024,1,GLP-1,Wegovy,,
 NJ,2024,1,Insulin,Humalog,1658,317954.56
-NJ,2024,1,Insulin,Insulin (other),28910,2577037.71
+NJ,2024,1,Insulin,Insulin (other),52321,6807918.87
 NJ,2024,1,Insulin,Lantus,5780,575897.22
 NJ,2024,1,Insulin,Levemir,285,52431.45
 NJ,2024,1,Insulin,Novolog,538,95458.21
@@ -546,7 +546,7 @@ NM,2024,1,GLP-1,Victoza,186,150582.76
 NM,2024,1,GLP-1,Wegovy,14,17115.16
 NM,2024,1,GLP-1,Zepbound,,
 NM,2024,1,Insulin,Humalog,296,101730.18
-NM,2024,1,Insulin,Insulin (other),9018,1406096.4
+NM,2024,1,Insulin,Insulin (other),15304,3247875.83
 NM,2024,1,Insulin,Lantus,1071,224925.86
 NM,2024,1,Insulin,Levemir,432,177516.96
 NM,2024,1,Insulin,Novolog,595,176601.53
@@ -562,7 +562,7 @@ NV,2024,1,GLP-1,Rybelsus,410,562322.28
 NV,2024,1,GLP-1,Trulicity,3190,4233984.91
 NV,2024,1,GLP-1,Victoza,274,262525.17
 NV,2024,1,Insulin,Humalog,822,332494
-NV,2024,1,Insulin,Insulin (other),5428,844708.78
+NV,2024,1,Insulin,Insulin (other),9851,2259185.69
 NV,2024,1,Insulin,Lantus,4098,632637.18
 NV,2024,1,Insulin,Levemir,418,103761.48
 NV,2024,1,Insulin,Novolog,640,154182.43
@@ -578,7 +578,7 @@ NY,2024,1,GLP-1,Rybelsus,7259,9320925.16
 NY,2024,1,GLP-1,Trulicity,39430,46675354.73
 NY,2024,1,GLP-1,Victoza,2389,2226582.36
 NY,2024,1,Insulin,Humalog,11177,3684267.42
-NY,2024,1,Insulin,Insulin (other),63175,10705472.57
+NY,2024,1,Insulin,Insulin (other),109301,29693551.45
 NY,2024,1,Insulin,Lantus,39516,5553377.71
 NY,2024,1,Insulin,Levemir,6271,1583243.79
 NY,2024,1,Insulin,Novolog,7715,2404086.76
@@ -596,7 +596,7 @@ OH,2024,1,GLP-1,Victoza,7206,5175254.66
 OH,2024,1,GLP-1,Wegovy,,
 OH,2024,1,GLP-1,Zepbound,,
 OH,2024,1,Insulin,Humalog,12878,3705843.46
-OH,2024,1,Insulin,Insulin (other),30402,5374475.34
+OH,2024,1,Insulin,Insulin (other),38592,9788571.78
 OH,2024,1,Insulin,Lantus,42070,5175580.74
 OH,2024,1,Insulin,Levemir,728,152868.83
 OH,2024,1,Insulin,Novolog,5701,1105933.03
@@ -612,7 +612,7 @@ OK,2024,1,GLP-1,Rybelsus,108,100955.56
 OK,2024,1,GLP-1,Trulicity,9586,11056143.45
 OK,2024,1,GLP-1,Victoza,925,773857.49
 OK,2024,1,Insulin,Humalog,3289,1144857.92
-OK,2024,1,Insulin,Insulin (other),2034,465786.13
+OK,2024,1,Insulin,Insulin (other),3502,1088273.9
 OK,2024,1,Insulin,Lantus,7320,1287705.78
 OK,2024,1,Insulin,Levemir,1910,576585.79
 OK,2024,1,Insulin,Novolog,2988,787620.7
@@ -630,7 +630,7 @@ OR,2024,1,GLP-1,Victoza,990,691280.68
 OR,2024,1,GLP-1,Wegovy,,
 OR,2024,1,GLP-1,Zepbound,,
 OR,2024,1,Insulin,Humalog,1543,403546.96
-OR,2024,1,Insulin,Insulin (other),12455,1700104.9
+OR,2024,1,Insulin,Insulin (other),25616,5703886.74
 OR,2024,1,Insulin,Lantus,3330,338695.54
 OR,2024,1,Insulin,Levemir,111,20830.97
 OR,2024,1,Insulin,Novolog,851,117912.15
@@ -647,7 +647,7 @@ PA,2024,1,GLP-1,Victoza,5287,3891203.29
 PA,2024,1,GLP-1,Wegovy,19250,26214901.04
 PA,2024,1,GLP-1,Zepbound,2320,2391284.38
 PA,2024,1,Insulin,Humalog,3853,927216.05
-PA,2024,1,Insulin,Insulin (other),49927,8361322.86
+PA,2024,1,Insulin,Insulin (other),60956,13934123.98
 PA,2024,1,Insulin,Lantus,43569,4472157.07
 PA,2024,1,Insulin,Levemir,5333,986532.91
 PA,2024,1,Insulin,Novolog,3303,795037.26
@@ -661,7 +661,7 @@ PR,2024,1,GLP-1,Ozempic,,
 PR,2024,1,GLP-1,Trulicity,2552,2574073.43
 PR,2024,1,GLP-1,Victoza,,
 PR,2024,1,Insulin,Humalog,18551,2143124.21
-PR,2024,1,Insulin,Insulin (other),213,13987.28
+PR,2024,1,Insulin,Insulin (other),19938,1830485.63
 PR,2024,1,Insulin,Lantus,30272,2725155.75
 PR,2024,1,Insulin,Levemir,39,4606.42
 PR,2024,1,Insulin,Novolog,51,7066.8
@@ -678,7 +678,7 @@ RI,2024,1,GLP-1,Victoza,139,85546.25
 RI,2024,1,GLP-1,Wegovy,764,1004533.39
 RI,2024,1,GLP-1,Zepbound,256,260864.79
 RI,2024,1,Insulin,Humalog,158,41341.13
-RI,2024,1,Insulin,Insulin (other),1648,222361.12
+RI,2024,1,Insulin,Insulin (other),6460,1858508.32
 RI,2024,1,Insulin,Lantus,1225,158078.89
 RI,2024,1,Insulin,Levemir,30,6011.46
 RI,2024,1,Insulin,Novolog,113,19853.19
@@ -696,7 +696,7 @@ SC,2024,1,GLP-1,Victoza,167,112519.9
 SC,2024,1,GLP-1,Wegovy,,
 SC,2024,1,GLP-1,Zepbound,,
 SC,2024,1,Insulin,Humalog,679,166740.77
-SC,2024,1,Insulin,Insulin (other),9418,1040185.51
+SC,2024,1,Insulin,Insulin (other),16676,2907600.13
 SC,2024,1,Insulin,Lantus,2497,250384.36
 SC,2024,1,Insulin,Levemir,579,101908.52
 SC,2024,1,Insulin,Novolog,698,107601.45
@@ -712,7 +712,7 @@ SD,2024,1,GLP-1,Rybelsus,109,102263.35
 SD,2024,1,GLP-1,Trulicity,211,199781.11
 SD,2024,1,GLP-1,Victoza,73,53034.12
 SD,2024,1,Insulin,Humalog,117,52025.09
-SD,2024,1,Insulin,Insulin (other),1157,196646.84
+SD,2024,1,Insulin,Insulin (other),1541,357928.5
 SD,2024,1,Insulin,Lantus,655,82904.59
 SD,2024,1,Insulin,Levemir,242,52315.68
 SD,2024,1,Insulin,Novolog,535,101310.57
@@ -730,7 +730,7 @@ TN,2024,1,GLP-1,Victoza,1480,1070978.24
 TN,2024,1,GLP-1,Wegovy,479,623567.53
 TN,2024,1,GLP-1,Zepbound,43,44251.67
 TN,2024,1,Insulin,Humalog,5716,1620449.31
-TN,2024,1,Insulin,Insulin (other),9649,1215953.25
+TN,2024,1,Insulin,Insulin (other),12373,2209857.15
 TN,2024,1,Insulin,Lantus,10359,1650271.79
 TN,2024,1,Insulin,Levemir,2569,675660.49
 TN,2024,1,Insulin,Novolog,1022,252438.88
@@ -747,7 +747,7 @@ TX,2024,1,GLP-1,Trulicity,6980,7201722.53
 TX,2024,1,GLP-1,Victoza,2276,1600302.14
 TX,2024,1,GLP-1,Wegovy,,
 TX,2024,1,Insulin,Humalog,5790,1247209.82
-TX,2024,1,Insulin,Insulin (other),14939,2084435.26
+TX,2024,1,Insulin,Insulin (other),23810,4734485.37
 TX,2024,1,Insulin,Lantus,17570,1703343.9
 TX,2024,1,Insulin,Levemir,5739,1110862.98
 TX,2024,1,Insulin,Novolog,8534,1468680.97
@@ -763,7 +763,7 @@ UT,2024,1,GLP-1,Rybelsus,161,168620.98
 UT,2024,1,GLP-1,Trulicity,1780,1849239.1
 UT,2024,1,GLP-1,Victoza,159,113088.64
 UT,2024,1,Insulin,Humalog,1206,367503.8
-UT,2024,1,Insulin,Insulin (other),1222,189591.02
+UT,2024,1,Insulin,Insulin (other),4322,866966.54
 UT,2024,1,Insulin,Lantus,1085,149251.8
 UT,2024,1,Insulin,Levemir,99,23037.36
 UT,2024,1,Insulin,Novolog,296,82583.06
@@ -781,7 +781,7 @@ VA,2024,1,GLP-1,Victoza,4599,3235125.71
 VA,2024,1,GLP-1,Wegovy,5870,7666611.13
 VA,2024,1,GLP-1,Zepbound,1512,1552740.66
 VA,2024,1,Insulin,Humalog,8252,3040794.58
-VA,2024,1,Insulin,Insulin (other),14341,1959613.44
+VA,2024,1,Insulin,Insulin (other),23541,5693110.85
 VA,2024,1,Insulin,Lantus,19263,2343517.84
 VA,2024,1,Insulin,Levemir,2810,617472.08
 VA,2024,1,Insulin,Novolog,6444,1177077.71
@@ -797,7 +797,7 @@ VT,2024,1,GLP-1,Rybelsus,,
 VT,2024,1,GLP-1,Trulicity,810,979527.53
 VT,2024,1,GLP-1,Victoza,110,118402.04
 VT,2024,1,Insulin,Humalog,319,176875.68
-VT,2024,1,Insulin,Insulin (other),305,89230.08
+VT,2024,1,Insulin,Insulin (other),369,153028.16
 VT,2024,1,Insulin,Lantus,853,199352.95
 VT,2024,1,Insulin,Levemir,63,21752.45
 VT,2024,1,Insulin,Novolog,294,125535.63
@@ -815,7 +815,7 @@ WA,2024,1,GLP-1,Victoza,12917,8849073.71
 WA,2024,1,GLP-1,Wegovy,13,16834.95
 WA,2024,1,GLP-1,Zepbound,,
 WA,2024,1,Insulin,Humalog,5430,1635180.16
-WA,2024,1,Insulin,Insulin (other),12005,1548943.54
+WA,2024,1,Insulin,Insulin (other),24622,6227812.04
 WA,2024,1,Insulin,Lantus,1471,167660.61
 WA,2024,1,Insulin,Levemir,5231,967798.59
 WA,2024,1,Insulin,Novolog,6480,1063128.07
@@ -833,7 +833,7 @@ WI,2024,1,GLP-1,Victoza,2754,1971600.71
 WI,2024,1,GLP-1,Wegovy,4917,6589350.95
 WI,2024,1,GLP-1,Zepbound,4820,5058402.74
 WI,2024,1,Insulin,Humalog,5586,1490640.96
-WI,2024,1,Insulin,Insulin (other),10999,1860121.56
+WI,2024,1,Insulin,Insulin (other),14006,3314276.73
 WI,2024,1,Insulin,Lantus,23361,2614624.45
 WI,2024,1,Insulin,Levemir,2288,446538.99
 WI,2024,1,Insulin,Novolog,3032,608152.7
@@ -848,7 +848,7 @@ WV,2024,1,GLP-1,Rybelsus,17,17333.54
 WV,2024,1,GLP-1,Trulicity,4202,3828200.91
 WV,2024,1,GLP-1,Victoza,693,520150.74
 WV,2024,1,Insulin,Humalog,1955,817226.89
-WV,2024,1,Insulin,Insulin (other),3194,671196.16
+WV,2024,1,Insulin,Insulin (other),5412,2620930.58
 WV,2024,1,Insulin,Lantus,7285,1856360.77
 WV,2024,1,Insulin,Levemir,1721,634143.22
 WV,2024,1,Insulin,Novolog,3566,1400311.01
@@ -864,7 +864,7 @@ WY,2024,1,GLP-1,Rybelsus,,
 WY,2024,1,GLP-1,Trulicity,87,80411.98
 WY,2024,1,GLP-1,Victoza,176,135704.31
 WY,2024,1,Insulin,Humalog,290,66190.73
-WY,2024,1,Insulin,Insulin (other),103,23220.8
+WY,2024,1,Insulin,Insulin (other),115,32626.43
 WY,2024,1,Insulin,Lantus,333,47301.02
 WY,2024,1,Insulin,Levemir,44,16898.93
 WY,2024,1,Insulin,Novolog,145,29636.08
@@ -880,7 +880,7 @@ AK,2024,2,GLP-1,Rybelsus,377,338596.99
 AK,2024,2,GLP-1,Trulicity,406,385588.15
 AK,2024,2,GLP-1,Victoza,186,127134.14
 AK,2024,2,Insulin,Humalog,300,121111.34
-AK,2024,2,Insulin,Insulin (other),1375,175637.25
+AK,2024,2,Insulin,Insulin (other),1752,354138.97
 AK,2024,2,Insulin,Lantus,1051,102372.37
 AK,2024,2,Insulin,Levemir,91,17046.48
 AK,2024,2,Insulin,Novolog,455,73169.15
@@ -896,7 +896,7 @@ AL,2024,2,GLP-1,Rybelsus,655,626591.45
 AL,2024,2,GLP-1,Trulicity,5802,5637412.03
 AL,2024,2,GLP-1,Victoza,596,408918.21
 AL,2024,2,Insulin,Humalog,832,154840.32
-AL,2024,2,Insulin,Insulin (other),3075,658698.02
+AL,2024,2,Insulin,Insulin (other),5353,1401214.88
 AL,2024,2,Insulin,Lantus,5629,789078.71
 AL,2024,2,Insulin,Levemir,961,233289.16
 AL,2024,2,Insulin,Novolog,3078,701753.33
@@ -911,7 +911,7 @@ AR,2024,2,GLP-1,Rybelsus,,
 AR,2024,2,GLP-1,Trulicity,106,101091.09
 AR,2024,2,GLP-1,Victoza,3475,2308782.47
 AR,2024,2,Insulin,Humalog,2526,406596.66
-AR,2024,2,Insulin,Insulin (other),1065,183229.39
+AR,2024,2,Insulin,Insulin (other),2165,485830.7
 AR,2024,2,Insulin,Lantus,6797,715933.84
 AR,2024,2,Insulin,Levemir,1427,294471.04
 AR,2024,2,Insulin,Novolog,2943,481343.55
@@ -929,7 +929,7 @@ AZ,2024,2,GLP-1,Victoza,2291,1648075.14
 AZ,2024,2,GLP-1,Wegovy,161,212809.44
 AZ,2024,2,GLP-1,Zepbound,16,16154.2
 AZ,2024,2,Insulin,Humalog,682,259220.81
-AZ,2024,2,Insulin,Insulin (other),19502,2787001.34
+AZ,2024,2,Insulin,Insulin (other),22050,3716244.64
 AZ,2024,2,Insulin,Lantus,24307,2497006.23
 AZ,2024,2,Insulin,Levemir,2887,547065.88
 AZ,2024,2,Insulin,Novolog,471,80207.15
@@ -947,7 +947,7 @@ CA,2024,2,GLP-1,Victoza,6071,4568206.59
 CA,2024,2,GLP-1,Wegovy,85979,112606317.16
 CA,2024,2,GLP-1,Zepbound,15119,16128314.71
 CA,2024,2,Insulin,Humalog,34133,8105097.75
-CA,2024,2,Insulin,Insulin (other),49286,7115810.14
+CA,2024,2,Insulin,Insulin (other),152162,42021461.9
 CA,2024,2,Insulin,Lantus,41825,4492305.59
 CA,2024,2,Insulin,Levemir,3196,595814.78
 CA,2024,2,Insulin,Novolog,9524,1766871.85
@@ -964,7 +964,7 @@ CO,2024,2,GLP-1,Victoza,1761,1481373.39
 CO,2024,2,GLP-1,Wegovy,131,164271.42
 CO,2024,2,GLP-1,Zepbound,,
 CO,2024,2,Insulin,Humalog,3843,1050606.77
-CO,2024,2,Insulin,Insulin (other),2890,617798
+CO,2024,2,Insulin,Insulin (other),4366,1416155.89
 CO,2024,2,Insulin,Lantus,8503,1226691.91
 CO,2024,2,Insulin,Levemir,1758,494670.6
 CO,2024,2,Insulin,Novolog,3487,826234.66
@@ -980,7 +980,7 @@ CT,2024,2,GLP-1,Rybelsus,1068,1528765.93
 CT,2024,2,GLP-1,Trulicity,4803,5811161.21
 CT,2024,2,GLP-1,Victoza,632,529912.89
 CT,2024,2,Insulin,Humalog,4051,1146036.34
-CT,2024,2,Insulin,Insulin (other),7515,1383961.07
+CT,2024,2,Insulin,Insulin (other),9200,2544255.98
 CT,2024,2,Insulin,Lantus,7556,938077.01
 CT,2024,2,Insulin,Levemir,671,143912.7
 CT,2024,2,Insulin,Novolog,1751,445983.85
@@ -997,7 +997,7 @@ DC,2024,2,GLP-1,Trulicity,2234,2443185.95
 DC,2024,2,GLP-1,Victoza,17,12990.21
 DC,2024,2,GLP-1,Wegovy,,
 DC,2024,2,Insulin,Humalog,487,116550.14
-DC,2024,2,Insulin,Insulin (other),3250,382997.37
+DC,2024,2,Insulin,Insulin (other),4486,709285.38
 DC,2024,2,Insulin,Lantus,2166,230226.34
 DC,2024,2,Insulin,Levemir,325,54060.47
 DC,2024,2,Insulin,Novolog,651,91054.63
@@ -1014,7 +1014,7 @@ DE,2024,2,GLP-1,Victoza,60,39868.21
 DE,2024,2,GLP-1,Wegovy,2081,134290.86
 DE,2024,2,GLP-1,Zepbound,831,30267.52
 DE,2024,2,Insulin,Humalog,155,59634.4
-DE,2024,2,Insulin,Insulin (other),3089,503254.94
+DE,2024,2,Insulin,Insulin (other),3520,727030.44
 DE,2024,2,Insulin,Lantus,2800,251383.51
 DE,2024,2,Insulin,Levemir,340,55630.8
 DE,2024,2,Insulin,Novolog,113,22077.51
@@ -1032,7 +1032,7 @@ FL,2024,2,GLP-1,Victoza,406,256059.56
 FL,2024,2,GLP-1,Wegovy,15,20716.15
 FL,2024,2,GLP-1,Zepbound,,
 FL,2024,2,Insulin,Humalog,14241,2131218.17
-FL,2024,2,Insulin,Insulin (other),1063,130323.67
+FL,2024,2,Insulin,Insulin (other),6053,1296970.53
 FL,2024,2,Insulin,Lantus,24782,2320289.07
 FL,2024,2,Insulin,Levemir,5199,879898.85
 FL,2024,2,Insulin,Novolog,16967,2574483.13
@@ -1049,7 +1049,7 @@ GA,2024,2,GLP-1,Trulicity,2322,2194193.6
 GA,2024,2,GLP-1,Victoza,3355,2131960.67
 GA,2024,2,GLP-1,Wegovy,16,20256.57
 GA,2024,2,Insulin,Humalog,3358,529689.36
-GA,2024,2,Insulin,Insulin (other),11735,1439772.72
+GA,2024,2,Insulin,Insulin (other),19946,3376296.02
 GA,2024,2,Insulin,Lantus,9285,908433.64
 GA,2024,2,Insulin,Levemir,2387,381072.71
 GA,2024,2,Insulin,Novolog,1735,225811.9
@@ -1066,7 +1066,7 @@ HI,2024,2,GLP-1,Victoza,245,144658.14
 HI,2024,2,GLP-1,Wegovy,108,13556.82
 HI,2024,2,GLP-1,Zepbound,20,0
 HI,2024,2,Insulin,Humalog,708,130512.72
-HI,2024,2,Insulin,Insulin (other),2566,193671.71
+HI,2024,2,Insulin,Insulin (other),5884,1159766.15
 HI,2024,2,Insulin,Lantus,762,40414.23
 HI,2024,2,Insulin,Levemir,63,1933.79
 HI,2024,2,Insulin,Novolog,901,157731.6
@@ -1082,7 +1082,7 @@ IA,2024,2,GLP-1,Trulicity,3596,3383574.72
 IA,2024,2,GLP-1,Victoza,427,287422.12
 IA,2024,2,GLP-1,Wegovy,,
 IA,2024,2,Insulin,Humalog,737,342132.15
-IA,2024,2,Insulin,Insulin (other),9813,1364247.76
+IA,2024,2,Insulin,Insulin (other),11909,2531769.69
 IA,2024,2,Insulin,Lantus,9211,709867.16
 IA,2024,2,Insulin,Levemir,1220,179716.47
 IA,2024,2,Insulin,Novolog,556,97944.58
@@ -1099,7 +1099,7 @@ ID,2024,2,GLP-1,Trulicity,1401,1320858.62
 ID,2024,2,GLP-1,Victoza,281,200654.07
 ID,2024,2,GLP-1,Wegovy,,
 ID,2024,2,Insulin,Humalog,1801,360214.05
-ID,2024,2,Insulin,Insulin (other),2675,344591.71
+ID,2024,2,Insulin,Insulin (other),3842,825507.22
 ID,2024,2,Insulin,Lantus,3360,343100.75
 ID,2024,2,Insulin,Levemir,389,67074.99
 ID,2024,2,Insulin,Novolog,1302,226009.32
@@ -1115,7 +1115,7 @@ IL,2024,2,GLP-1,Trulicity,40741,45737812.44
 IL,2024,2,GLP-1,Victoza,8183,6611068.66
 IL,2024,2,GLP-1,Wegovy,,
 IL,2024,2,Insulin,Humalog,14324,4047930.24
-IL,2024,2,Insulin,Insulin (other),21087,3743086.96
+IL,2024,2,Insulin,Insulin (other),34226,9326864.24
 IL,2024,2,Insulin,Lantus,34492,4001964.71
 IL,2024,2,Insulin,Levemir,3943,806942.56
 IL,2024,2,Insulin,Novolog,867,218032.64
@@ -1132,7 +1132,7 @@ IN,2024,2,GLP-1,Trulicity,7724,8076764.77
 IN,2024,2,GLP-1,Victoza,932,724140.25
 IN,2024,2,GLP-1,Wegovy,126,163161.22
 IN,2024,2,Insulin,Humalog,17594,4768990.2
-IN,2024,2,Insulin,Insulin (other),5306,1093839.81
+IN,2024,2,Insulin,Insulin (other),11422,4343433.53
 IN,2024,2,Insulin,Lantus,20954,2345887.9
 IN,2024,2,Insulin,Levemir,335,60256.14
 IN,2024,2,Insulin,Novolog,610,143248.28
@@ -1149,7 +1149,7 @@ KS,2024,2,GLP-1,Victoza,268,161951.67
 KS,2024,2,GLP-1,Wegovy,1168,1429159.91
 KS,2024,2,GLP-1,Zepbound,1773,1744333.5
 KS,2024,2,Insulin,Humalog,205,64124.26
-KS,2024,2,Insulin,Insulin (other),8323,835679.45
+KS,2024,2,Insulin,Insulin (other),9559,1219740.46
 KS,2024,2,Insulin,Lantus,1737,124861.56
 KS,2024,2,Insulin,Levemir,1405,214445.42
 KS,2024,2,Insulin,Novolog,275,46997.8
@@ -1165,7 +1165,7 @@ KY,2024,2,GLP-1,Rybelsus,1372,1409606.61
 KY,2024,2,GLP-1,Trulicity,2733,2150390.55
 KY,2024,2,GLP-1,Victoza,1216,669180.04
 KY,2024,2,Insulin,Humalog,7636,2034996.56
-KY,2024,2,Insulin,Insulin (other),11162,1513290.88
+KY,2024,2,Insulin,Insulin (other),16508,3817949.84
 KY,2024,2,Insulin,Lantus,20355,2234078.44
 KY,2024,2,Insulin,Levemir,3151,590110.58
 KY,2024,2,Insulin,Novolog,4228,736370.42
@@ -1182,7 +1182,7 @@ LA,2024,2,GLP-1,Victoza,896,648200.8
 LA,2024,2,GLP-1,Wegovy,12,15780.42
 LA,2024,2,GLP-1,Zepbound,,
 LA,2024,2,Insulin,Humalog,3633,933476.98
-LA,2024,2,Insulin,Insulin (other),9086,1094152.5
+LA,2024,2,Insulin,Insulin (other),14127,2957500.47
 LA,2024,2,Insulin,Lantus,14414,1519078.88
 LA,2024,2,Insulin,Levemir,2409,418568.35
 LA,2024,2,Insulin,Novolog,3766,609890.74
@@ -1200,7 +1200,7 @@ MA,2024,2,GLP-1,Victoza,1155,818326.32
 MA,2024,2,GLP-1,Wegovy,10508,13736061.83
 MA,2024,2,GLP-1,Zepbound,192,175544.91
 MA,2024,2,Insulin,Humalog,2090,725217.27
-MA,2024,2,Insulin,Insulin (other),15277,2424359.51
+MA,2024,2,Insulin,Insulin (other),18219,4036975.13
 MA,2024,2,Insulin,Lantus,13625,1418400.78
 MA,2024,2,Insulin,Levemir,407,73410.85
 MA,2024,2,Insulin,Novolog,486,101858.56
@@ -1217,7 +1217,7 @@ MD,2024,2,GLP-1,Victoza,439,312651.74
 MD,2024,2,GLP-1,Wegovy,,
 MD,2024,2,GLP-1,Zepbound,18,19582.6
 MD,2024,2,Insulin,Humalog,1743,468033.86
-MD,2024,2,Insulin,Insulin (other),10278,1153660.43
+MD,2024,2,Insulin,Insulin (other),34210,7172411.97
 MD,2024,2,Insulin,Lantus,5183,500312.1
 MD,2024,2,Insulin,Levemir,514,70361.83
 MD,2024,2,Insulin,Novolog,1783,326980.4
@@ -1234,7 +1234,7 @@ ME,2024,2,GLP-1,Trulicity,6095,6309360.86
 ME,2024,2,GLP-1,Victoza,1134,832549.35
 ME,2024,2,GLP-1,Wegovy,,
 ME,2024,2,Insulin,Humalog,3779,1005924.47
-ME,2024,2,Insulin,Insulin (other),1294,208277.14
+ME,2024,2,Insulin,Insulin (other),2767,1135798.15
 ME,2024,2,Insulin,Lantus,5131,571801.15
 ME,2024,2,Insulin,Levemir,531,100409.02
 ME,2024,2,Insulin,Novolog,1256,246919.58
@@ -1251,7 +1251,7 @@ MI,2024,2,GLP-1,Victoza,2868,2122132.12
 MI,2024,2,GLP-1,Wegovy,34683,44081222.45
 MI,2024,2,GLP-1,Zepbound,2866,2869811.14
 MI,2024,2,Insulin,Humalog,15684,3163443.57
-MI,2024,2,Insulin,Insulin (other),16129,2521458.18
+MI,2024,2,Insulin,Insulin (other),20660,4279786.18
 MI,2024,2,Insulin,Lantus,35053,3892656.42
 MI,2024,2,Insulin,Levemir,2897,526204.7
 MI,2024,2,Insulin,Novolog,1977,287413.98
@@ -1269,7 +1269,7 @@ MN,2024,2,GLP-1,Victoza,5687,3867483.78
 MN,2024,2,GLP-1,Wegovy,13398,17562109.02
 MN,2024,2,GLP-1,Zepbound,3499,3612832.8
 MN,2024,2,Insulin,Humalog,1716,581731.35
-MN,2024,2,Insulin,Insulin (other),10235,1546262.95
+MN,2024,2,Insulin,Insulin (other),12369,2493911.07
 MN,2024,2,Insulin,Lantus,9799,995587.79
 MN,2024,2,Insulin,Levemir,887,159043.75
 MN,2024,2,Insulin,Novolog,5618,958253.09
@@ -1286,7 +1286,7 @@ MO,2024,2,GLP-1,Trulicity,21353,20232581.56
 MO,2024,2,GLP-1,Victoza,4471,3157996.83
 MO,2024,2,GLP-1,Wegovy,,
 MO,2024,2,Insulin,Humalog,683,274739.02
-MO,2024,2,Insulin,Insulin (other),17048,2985456.37
+MO,2024,2,Insulin,Insulin (other),19336,3815667.08
 MO,2024,2,Insulin,Lantus,18725,2166539.62
 MO,2024,2,Insulin,Levemir,1760,388476.98
 MO,2024,2,Insulin,Novolog,474,83864.86
@@ -1303,7 +1303,7 @@ MS,2024,2,GLP-1,Trulicity,4066,3778594.05
 MS,2024,2,GLP-1,Victoza,1419,925769.22
 MS,2024,2,GLP-1,Wegovy,2801,3657294.99
 MS,2024,2,Insulin,Humalog,257,40545.81
-MS,2024,2,Insulin,Insulin (other),5112,749749.3
+MS,2024,2,Insulin,Insulin (other),6920,1308087.45
 MS,2024,2,Insulin,Lantus,4149,439874.82
 MS,2024,2,Insulin,Levemir,1378,260676.69
 MS,2024,2,Insulin,Novolog,649,100369.93
@@ -1319,7 +1319,7 @@ MT,2024,2,GLP-1,Trulicity,1295,1258700.88
 MT,2024,2,GLP-1,Victoza,426,307238.5
 MT,2024,2,GLP-1,Wegovy,,
 MT,2024,2,Insulin,Humalog,1244,268002.87
-MT,2024,2,Insulin,Insulin (other),1263,257950.51
+MT,2024,2,Insulin,Insulin (other),1627,540887.41
 MT,2024,2,Insulin,Lantus,2530,294483.88
 MT,2024,2,Insulin,Levemir,316,69066.63
 MT,2024,2,Insulin,Novolog,855,175784.44
@@ -1337,7 +1337,7 @@ NC,2024,2,GLP-1,Victoza,1281,934840.73
 NC,2024,2,GLP-1,Wegovy,341,448469.06
 NC,2024,2,GLP-1,Zepbound,,
 NC,2024,2,Insulin,Humalog,6095,1462738.67
-NC,2024,2,Insulin,Insulin (other),12434,2129146.06
+NC,2024,2,Insulin,Insulin (other),18114,4854027.95
 NC,2024,2,Insulin,Lantus,16898,1902855.27
 NC,2024,2,Insulin,Levemir,3072,602710.39
 NC,2024,2,Insulin,Novolog,8715,1779200.75
@@ -1352,7 +1352,7 @@ ND,2024,2,GLP-1,Rybelsus,,
 ND,2024,2,GLP-1,Trulicity,115,109712.61
 ND,2024,2,GLP-1,Victoza,1242,867101.24
 ND,2024,2,Insulin,Humalog,198,39636.73
-ND,2024,2,Insulin,Insulin (other),730,153328.9
+ND,2024,2,Insulin,Insulin (other),784,196723.81
 ND,2024,2,Insulin,Lantus,1294,168223
 ND,2024,2,Insulin,Levemir,236,53728.3
 ND,2024,2,Insulin,Novolog,462,102466.39
@@ -1370,7 +1370,7 @@ NE,2024,2,GLP-1,Victoza,284,201479.18
 NE,2024,2,GLP-1,Wegovy,,
 NE,2024,2,GLP-1,Zepbound,,
 NE,2024,2,Insulin,Humalog,1448,358222.8
-NE,2024,2,Insulin,Insulin (other),2633,411320.69
+NE,2024,2,Insulin,Insulin (other),3865,923428.13
 NE,2024,2,Insulin,Lantus,3719,380975.76
 NE,2024,2,Insulin,Levemir,641,112624.35
 NE,2024,2,Insulin,Novolog,1041,169879.48
@@ -1388,7 +1388,7 @@ NH,2024,2,GLP-1,Victoza,313,224572.86
 NH,2024,2,GLP-1,Wegovy,1142,1410878.03
 NH,2024,2,GLP-1,Zepbound,226,207460.95
 NH,2024,2,Insulin,Humalog,874,154102.49
-NH,2024,2,Insulin,Insulin (other),1124,167728.23
+NH,2024,2,Insulin,Insulin (other),1542,332547.89
 NH,2024,2,Insulin,Lantus,1814,165317.37
 NH,2024,2,Insulin,Levemir,279,54889.85
 NH,2024,2,Insulin,Novolog,670,114422.47
@@ -1405,7 +1405,7 @@ NJ,2024,2,GLP-1,Trulicity,3228,3243599.09
 NJ,2024,2,GLP-1,Victoza,4760,3213312.63
 NJ,2024,2,GLP-1,Wegovy,25,35774.12
 NJ,2024,2,Insulin,Humalog,1700,299531.82
-NJ,2024,2,Insulin,Insulin (other),36254,2951135.51
+NJ,2024,2,Insulin,Insulin (other),47057,5399594.27
 NJ,2024,2,Insulin,Lantus,8773,805843.6
 NJ,2024,2,Insulin,Levemir,216,39679.89
 NJ,2024,2,Insulin,Novolog,1698,247959.92
@@ -1423,7 +1423,7 @@ NM,2024,2,GLP-1,Victoza,138,95162.45
 NM,2024,2,GLP-1,Wegovy,54,52402.16
 NM,2024,2,GLP-1,Zepbound,,
 NM,2024,2,Insulin,Humalog,287,86381.84
-NM,2024,2,Insulin,Insulin (other),10422,1772564.92
+NM,2024,2,Insulin,Insulin (other),16539,3518330.26
 NM,2024,2,Insulin,Lantus,1070,368637.34
 NM,2024,2,Insulin,Levemir,269,119352.27
 NM,2024,2,Insulin,Novolog,622,257915.09
@@ -1440,7 +1440,7 @@ NV,2024,2,GLP-1,Trulicity,1617,1953102.01
 NV,2024,2,GLP-1,Victoza,224,173513.19
 NV,2024,2,GLP-1,Wegovy,,
 NV,2024,2,Insulin,Humalog,905,305133.61
-NV,2024,2,Insulin,Insulin (other),6097,871693.81
+NV,2024,2,Insulin,Insulin (other),10418,2283820.77
 NV,2024,2,Insulin,Lantus,4792,625034.96
 NV,2024,2,Insulin,Levemir,342,75470.1
 NV,2024,2,Insulin,Novolog,635,127910.02
@@ -1457,7 +1457,7 @@ NY,2024,2,GLP-1,Trulicity,35006,41001042.83
 NY,2024,2,GLP-1,Victoza,1969,1649442.14
 NY,2024,2,GLP-1,Wegovy,,
 NY,2024,2,Insulin,Humalog,12068,3024712.49
-NY,2024,2,Insulin,Insulin (other),59507,9525237.84
+NY,2024,2,Insulin,Insulin (other),102168,25986027.72
 NY,2024,2,Insulin,Lantus,45321,4608040.48
 NY,2024,2,Insulin,Levemir,5378,1000557.09
 NY,2024,2,Insulin,Novolog,8312,1747304.69
@@ -1475,7 +1475,7 @@ OH,2024,2,GLP-1,Victoza,7327,4769078.92
 OH,2024,2,GLP-1,Wegovy,93,121047.8
 OH,2024,2,GLP-1,Zepbound,,
 OH,2024,2,Insulin,Humalog,12395,3569455.2
-OH,2024,2,Insulin,Insulin (other),25686,4489828.54
+OH,2024,2,Insulin,Insulin (other),33652,9224836.43
 OH,2024,2,Insulin,Lantus,41423,4614142.74
 OH,2024,2,Insulin,Levemir,509,80018.84
 OH,2024,2,Insulin,Novolog,5051,876446.12
@@ -1491,7 +1491,7 @@ OK,2024,2,GLP-1,Rybelsus,265,373154.19
 OK,2024,2,GLP-1,Trulicity,9451,13422945.29
 OK,2024,2,GLP-1,Victoza,1112,1115632.51
 OK,2024,2,Insulin,Humalog,3433,1181295.43
-OK,2024,2,Insulin,Insulin (other),2506,622667.97
+OK,2024,2,Insulin,Insulin (other),4609,1716579.12
 OK,2024,2,Insulin,Lantus,8070,1349592.66
 OK,2024,2,Insulin,Levemir,1595,468169.08
 OK,2024,2,Insulin,Novolog,3165,809988.33
@@ -1508,7 +1508,7 @@ OR,2024,2,GLP-1,Victoza,909,624766
 OR,2024,2,GLP-1,Wegovy,49,63159.37
 OR,2024,2,GLP-1,Zepbound,,
 OR,2024,2,Insulin,Humalog,1592,423981.11
-OR,2024,2,Insulin,Insulin (other),13975,1906424.2
+OR,2024,2,Insulin,Insulin (other),22990,4433153.23
 OR,2024,2,Insulin,Lantus,6049,642436.28
 OR,2024,2,Insulin,Levemir,85,13697.29
 OR,2024,2,Insulin,Novolog,1020,141415.46
@@ -1525,7 +1525,7 @@ PA,2024,2,GLP-1,Victoza,3653,2665242.17
 PA,2024,2,GLP-1,Wegovy,35288,47466157.85
 PA,2024,2,GLP-1,Zepbound,6662,6913081.13
 PA,2024,2,Insulin,Humalog,3447,906252.08
-PA,2024,2,Insulin,Insulin (other),48485,8272504.38
+PA,2024,2,Insulin,Insulin (other),59285,13925351.9
 PA,2024,2,Insulin,Lantus,44327,4524935.14
 PA,2024,2,Insulin,Levemir,4330,774958.3
 PA,2024,2,Insulin,Novolog,3085,676975.31
@@ -1539,7 +1539,7 @@ PR,2024,2,GLP-1,Ozempic,,
 PR,2024,2,GLP-1,Trulicity,3745,3771186.67
 PR,2024,2,GLP-1,Victoza,,
 PR,2024,2,Insulin,Humalog,19093,2222687.85
-PR,2024,2,Insulin,Insulin (other),146,8706.78
+PR,2024,2,Insulin,Insulin (other),19854,1821763.71
 PR,2024,2,Insulin,Lantus,31366,2802384.82
 PR,2024,2,Insulin,Levemir,41,4637.94
 PR,2024,2,Insulin,Novolog,45,6231.65
@@ -1556,7 +1556,7 @@ RI,2024,2,GLP-1,Victoza,92,62560.53
 RI,2024,2,GLP-1,Wegovy,1051,1330550.86
 RI,2024,2,GLP-1,Zepbound,350,348166.69
 RI,2024,2,Insulin,Humalog,113,19820.82
-RI,2024,2,Insulin,Insulin (other),2445,316433.88
+RI,2024,2,Insulin,Insulin (other),6455,1735903
 RI,2024,2,Insulin,Lantus,1274,156371.6
 RI,2024,2,Insulin,Levemir,16,2188.52
 RI,2024,2,Insulin,Novolog,96,15140.33
@@ -1574,7 +1574,7 @@ SC,2024,2,GLP-1,Victoza,118,78658.83
 SC,2024,2,GLP-1,Wegovy,13,16749.27
 SC,2024,2,GLP-1,Zepbound,,
 SC,2024,2,Insulin,Humalog,551,128210.85
-SC,2024,2,Insulin,Insulin (other),11296,1260500.16
+SC,2024,2,Insulin,Insulin (other),16962,2740071.59
 SC,2024,2,Insulin,Lantus,3011,252866.38
 SC,2024,2,Insulin,Levemir,434,61306.22
 SC,2024,2,Insulin,Novolog,629,79958.15
@@ -1590,7 +1590,7 @@ SD,2024,2,GLP-1,Rybelsus,106,100012.61
 SD,2024,2,GLP-1,Trulicity,177,169179.04
 SD,2024,2,GLP-1,Victoza,68,40730.79
 SD,2024,2,Insulin,Humalog,116,89256.48
-SD,2024,2,Insulin,Insulin (other),1251,212360.93
+SD,2024,2,Insulin,Insulin (other),1699,394021.08
 SD,2024,2,Insulin,Lantus,813,138663.23
 SD,2024,2,Insulin,Levemir,237,62035.22
 SD,2024,2,Insulin,Novolog,732,222301.8
@@ -1608,7 +1608,7 @@ TN,2024,2,GLP-1,Victoza,1088,729956.28
 TN,2024,2,GLP-1,Wegovy,945,1229999.74
 TN,2024,2,GLP-1,Zepbound,81,83389.14
 TN,2024,2,Insulin,Humalog,5603,1085285.94
-TN,2024,2,Insulin,Insulin (other),9378,1134895.77
+TN,2024,2,Insulin,Insulin (other),12271,2107786.45
 TN,2024,2,Insulin,Lantus,10492,1197578.01
 TN,2024,2,Insulin,Levemir,2151,448424.21
 TN,2024,2,Insulin,Novolog,994,194368.19
@@ -1625,7 +1625,7 @@ TX,2024,2,GLP-1,Trulicity,5991,6024828.61
 TX,2024,2,GLP-1,Victoza,1866,1259903.28
 TX,2024,2,GLP-1,Wegovy,,
 TX,2024,2,Insulin,Humalog,5539,1225506.49
-TX,2024,2,Insulin,Insulin (other),13765,2020424.1
+TX,2024,2,Insulin,Insulin (other),22208,4481149.42
 TX,2024,2,Insulin,Lantus,20451,1940803.76
 TX,2024,2,Insulin,Levemir,4947,943948.25
 TX,2024,2,Insulin,Novolog,8242,1391098.57
@@ -1640,7 +1640,7 @@ UT,2024,2,GLP-1,Rybelsus,222,244431.83
 UT,2024,2,GLP-1,Trulicity,1847,1935326.87
 UT,2024,2,GLP-1,Victoza,168,122098.13
 UT,2024,2,Insulin,Humalog,1065,374428.81
-UT,2024,2,Insulin,Insulin (other),2004,294672.72
+UT,2024,2,Insulin,Insulin (other),5595,1115735.47
 UT,2024,2,Insulin,Lantus,1272,135296.67
 UT,2024,2,Insulin,Levemir,104,22122.6
 UT,2024,2,Insulin,Novolog,372,81250.5
@@ -1658,7 +1658,7 @@ VA,2024,2,GLP-1,Victoza,4340,2912243.2
 VA,2024,2,GLP-1,Wegovy,9730,12479181.14
 VA,2024,2,GLP-1,Zepbound,1700,1723039.47
 VA,2024,2,Insulin,Humalog,7880,2466610.66
-VA,2024,2,Insulin,Insulin (other),13524,1749623.32
+VA,2024,2,Insulin,Insulin (other),21890,4965406.44
 VA,2024,2,Insulin,Lantus,20674,2173149.34
 VA,2024,2,Insulin,Levemir,2306,460650.76
 VA,2024,2,Insulin,Novolog,6272,1123386.71
@@ -1674,7 +1674,7 @@ VT,2024,2,GLP-1,Rybelsus,137,182981.71
 VT,2024,2,GLP-1,Trulicity,1373,1649814.43
 VT,2024,2,GLP-1,Victoza,250,248178.71
 VT,2024,2,Insulin,Humalog,657,291127.4
-VT,2024,2,Insulin,Insulin (other),821,199641.63
+VT,2024,2,Insulin,Insulin (other),1060,400314
 VT,2024,2,Insulin,Lantus,1709,246424.6
 VT,2024,2,Insulin,Levemir,118,31755.23
 VT,2024,2,Insulin,Novolog,644,175380.17
@@ -1692,7 +1692,7 @@ WA,2024,2,GLP-1,Victoza,12539,8488572.58
 WA,2024,2,GLP-1,Wegovy,20,25746.93
 WA,2024,2,GLP-1,Zepbound,,
 WA,2024,2,Insulin,Humalog,5326,1670338.86
-WA,2024,2,Insulin,Insulin (other),10263,1307059.35
+WA,2024,2,Insulin,Insulin (other),27004,7475554.68
 WA,2024,2,Insulin,Lantus,1362,181451.35
 WA,2024,2,Insulin,Levemir,4640,880990.54
 WA,2024,2,Insulin,Novolog,6587,1118479.41
@@ -1709,7 +1709,7 @@ WI,2024,2,GLP-1,Victoza,2122,1475200.77
 WI,2024,2,GLP-1,Wegovy,7516,10011224.24
 WI,2024,2,GLP-1,Zepbound,10031,10481685.68
 WI,2024,2,Insulin,Humalog,5221,1276966.67
-WI,2024,2,Insulin,Insulin (other),12300,1939306.33
+WI,2024,2,Insulin,Insulin (other),15140,3336946.42
 WI,2024,2,Insulin,Lantus,22174,2166635.62
 WI,2024,2,Insulin,Levemir,1832,323238.97
 WI,2024,2,Insulin,Novolog,2882,488744.39
@@ -1724,7 +1724,7 @@ WV,2024,2,GLP-1,Rybelsus,28,25944.18
 WV,2024,2,GLP-1,Trulicity,3644,3359275.46
 WV,2024,2,GLP-1,Victoza,672,432853.71
 WV,2024,2,Insulin,Humalog,1928,505131.85
-WV,2024,2,Insulin,Insulin (other),3078,550457.79
+WV,2024,2,Insulin,Insulin (other),5181,2540071.48
 WV,2024,2,Insulin,Lantus,7558,993162.28
 WV,2024,2,Insulin,Levemir,1423,338478.87
 WV,2024,2,Insulin,Novolog,3430,712056.16
@@ -1740,7 +1740,7 @@ WY,2024,2,GLP-1,Rybelsus,,
 WY,2024,2,GLP-1,Trulicity,121,117280.45
 WY,2024,2,GLP-1,Victoza,137,106554.78
 WY,2024,2,Insulin,Humalog,248,51616.08
-WY,2024,2,Insulin,Insulin (other),186,33523.12
+WY,2024,2,Insulin,Insulin (other),215,47872.82
 WY,2024,2,Insulin,Lantus,299,36423.35
 WY,2024,2,Insulin,Levemir,50,9705.59
 WY,2024,2,Insulin,Novolog,144,28032.61
@@ -1756,7 +1756,7 @@ AK,2024,3,GLP-1,Rybelsus,422,390195.76
 AK,2024,3,GLP-1,Trulicity,396,373718.59
 AK,2024,3,GLP-1,Victoza,81,51994.84
 AK,2024,3,Insulin,Humalog,316,122529.32
-AK,2024,3,Insulin,Insulin (other),1429,188785.43
+AK,2024,3,Insulin,Insulin (other),1802,364551.64
 AK,2024,3,Insulin,Lantus,1001,96895.3
 AK,2024,3,Insulin,Levemir,54,10752.72
 AK,2024,3,Insulin,Novolog,455,69517.98
@@ -1773,7 +1773,7 @@ AL,2024,3,GLP-1,Trulicity,4900,4741329.49
 AL,2024,3,GLP-1,Victoza,200,133420.64
 AL,2024,3,GLP-1,Wegovy,,
 AL,2024,3,Insulin,Humalog,861,165121.82
-AL,2024,3,Insulin,Insulin (other),2960,629687.85
+AL,2024,3,Insulin,Insulin (other),4929,1218557.09
 AL,2024,3,Insulin,Lantus,5085,723773.47
 AL,2024,3,Insulin,Levemir,722,181379.56
 AL,2024,3,Insulin,Novolog,2580,597471.28
@@ -1790,7 +1790,7 @@ AR,2024,3,GLP-1,Trulicity,112,106764.41
 AR,2024,3,GLP-1,Victoza,3189,2086914.44
 AR,2024,3,GLP-1,Wegovy,,
 AR,2024,3,Insulin,Humalog,2579,412992.05
-AR,2024,3,Insulin,Insulin (other),1179,218925.36
+AR,2024,3,Insulin,Insulin (other),2285,496500.51
 AR,2024,3,Insulin,Lantus,7059,751309.43
 AR,2024,3,Insulin,Levemir,1318,261729.29
 AR,2024,3,Insulin,Novolog,2815,464765.46
@@ -1808,7 +1808,7 @@ AZ,2024,3,GLP-1,Victoza,1233,830402.92
 AZ,2024,3,GLP-1,Wegovy,172,222097.13
 AZ,2024,3,GLP-1,Zepbound,46,46328.22
 AZ,2024,3,Insulin,Humalog,633,236435.12
-AZ,2024,3,Insulin,Insulin (other),19508,2855224.55
+AZ,2024,3,Insulin,Insulin (other),22192,3836605.87
 AZ,2024,3,Insulin,Lantus,24276,2504730.32
 AZ,2024,3,Insulin,Levemir,2466,478977.45
 AZ,2024,3,Insulin,Novolog,464,76479.34
@@ -1826,7 +1826,7 @@ CA,2024,3,GLP-1,Victoza,5785,4081153.48
 CA,2024,3,GLP-1,Wegovy,197949,259654465.55
 CA,2024,3,GLP-1,Zepbound,27641,29665871.45
 CA,2024,3,Insulin,Humalog,43714,10866493.97
-CA,2024,3,Insulin,Insulin (other),70172,10281468.91
+CA,2024,3,Insulin,Insulin (other),199973,55241641.99
 CA,2024,3,Insulin,Lantus,56023,6085554.04
 CA,2024,3,Insulin,Levemir,3900,731048.7
 CA,2024,3,Insulin,Novolog,11670,2269336.28
@@ -1843,7 +1843,7 @@ CO,2024,3,GLP-1,Victoza,1770,1396131.57
 CO,2024,3,GLP-1,Wegovy,486,635894.03
 CO,2024,3,GLP-1,Zepbound,13,13416.03
 CO,2024,3,Insulin,Humalog,4379,1252112.63
-CO,2024,3,Insulin,Insulin (other),2897,681152.41
+CO,2024,3,Insulin,Insulin (other),4475,1490410.43
 CO,2024,3,Insulin,Lantus,9127,1285828.08
 CO,2024,3,Insulin,Levemir,1616,438087.3
 CO,2024,3,Insulin,Novolog,3383,815847.14
@@ -1860,7 +1860,7 @@ CT,2024,3,GLP-1,Trulicity,4684,5788831.93
 CT,2024,3,GLP-1,Victoza,395,331213.64
 CT,2024,3,GLP-1,Zepbound,,
 CT,2024,3,Insulin,Humalog,3779,1127296.65
-CT,2024,3,Insulin,Insulin (other),7763,1445155.44
+CT,2024,3,Insulin,Insulin (other),9401,2536495.92
 CT,2024,3,Insulin,Lantus,7713,936729.57
 CT,2024,3,Insulin,Levemir,439,88557.4
 CT,2024,3,Insulin,Novolog,1573,396047.44
@@ -1877,7 +1877,7 @@ DC,2024,3,GLP-1,Victoza,,
 DC,2024,3,GLP-1,Wegovy,17,19061.24
 DC,2024,3,GLP-1,Zepbound,,
 DC,2024,3,Insulin,Humalog,511,134146.84
-DC,2024,3,Insulin,Insulin (other),3276,397687.48
+DC,2024,3,Insulin,Insulin (other),4443,737587.61
 DC,2024,3,Insulin,Lantus,2233,246884.09
 DC,2024,3,Insulin,Levemir,264,45301.7
 DC,2024,3,Insulin,Novolog,636,92420.14
@@ -1894,7 +1894,7 @@ DE,2024,3,GLP-1,Victoza,,
 DE,2024,3,GLP-1,Wegovy,3080,153608.61
 DE,2024,3,GLP-1,Zepbound,1144,47810.63
 DE,2024,3,Insulin,Humalog,124,49829.68
-DE,2024,3,Insulin,Insulin (other),3094,505544.44
+DE,2024,3,Insulin,Insulin (other),3522,724340.82
 DE,2024,3,Insulin,Lantus,2830,252390.94
 DE,2024,3,Insulin,Levemir,262,41278.91
 DE,2024,3,Insulin,Novolog,97,21115.11
@@ -1912,7 +1912,7 @@ FL,2024,3,GLP-1,Victoza,269,164912.5
 FL,2024,3,GLP-1,Wegovy,108,137540.33
 FL,2024,3,GLP-1,Zepbound,,
 FL,2024,3,Insulin,Humalog,13693,2061598.25
-FL,2024,3,Insulin,Insulin (other),1219,135175.44
+FL,2024,3,Insulin,Insulin (other),6072,1276098.09
 FL,2024,3,Insulin,Lantus,24923,2306703.22
 FL,2024,3,Insulin,Levemir,4412,737693.7
 FL,2024,3,Insulin,Novolog,15802,2388875.92
@@ -1929,7 +1929,7 @@ GA,2024,3,GLP-1,Trulicity,2436,2251765.51
 GA,2024,3,GLP-1,Victoza,3024,1916950.83
 GA,2024,3,GLP-1,Wegovy,52,64496.98
 GA,2024,3,Insulin,Humalog,3094,548175.47
-GA,2024,3,Insulin,Insulin (other),12179,1472345.04
+GA,2024,3,Insulin,Insulin (other),19667,3208322.98
 GA,2024,3,Insulin,Lantus,9690,998754.26
 GA,2024,3,Insulin,Levemir,2217,373305.47
 GA,2024,3,Insulin,Novolog,1644,227023.07
@@ -1946,7 +1946,7 @@ HI,2024,3,GLP-1,Victoza,65,34438.51
 HI,2024,3,GLP-1,Wegovy,149,61466.81
 HI,2024,3,GLP-1,Zepbound,20,0
 HI,2024,3,Insulin,Humalog,661,125047.18
-HI,2024,3,Insulin,Insulin (other),2879,235648.11
+HI,2024,3,Insulin,Insulin (other),6239,1156715.49
 HI,2024,3,Insulin,Lantus,793,34060.19
 HI,2024,3,Insulin,Levemir,105,2449.98
 HI,2024,3,Insulin,Novolog,950,150592.52
@@ -1962,7 +1962,7 @@ IA,2024,3,GLP-1,Trulicity,3561,3348596.75
 IA,2024,3,GLP-1,Victoza,198,128938.44
 IA,2024,3,GLP-1,Wegovy,44,57262.06
 IA,2024,3,Insulin,Humalog,609,336250.93
-IA,2024,3,Insulin,Insulin (other),9627,1382024.33
+IA,2024,3,Insulin,Insulin (other),11813,2586471.88
 IA,2024,3,Insulin,Lantus,9084,793491.7
 IA,2024,3,Insulin,Levemir,1077,160101.8
 IA,2024,3,Insulin,Novolog,517,132360.46
@@ -1978,7 +1978,7 @@ ID,2024,3,GLP-1,Trulicity,1281,1224996.64
 ID,2024,3,GLP-1,Victoza,201,130432.91
 ID,2024,3,GLP-1,Wegovy,28,36703.28
 ID,2024,3,Insulin,Humalog,1736,388322.58
-ID,2024,3,Insulin,Insulin (other),2951,386871.44
+ID,2024,3,Insulin,Insulin (other),4324,942658.81
 ID,2024,3,Insulin,Lantus,3413,349170.84
 ID,2024,3,Insulin,Levemir,363,67071.26
 ID,2024,3,Insulin,Novolog,1326,237912.95
@@ -1994,7 +1994,7 @@ IL,2024,3,GLP-1,Trulicity,42522,46454438.31
 IL,2024,3,GLP-1,Victoza,5138,4103191.43
 IL,2024,3,GLP-1,Wegovy,53,68760.36
 IL,2024,3,Insulin,Humalog,13607,4086756.46
-IL,2024,3,Insulin,Insulin (other),21130,3703094.76
+IL,2024,3,Insulin,Insulin (other),33394,8915685.77
 IL,2024,3,Insulin,Lantus,34636,3994422.74
 IL,2024,3,Insulin,Levemir,3374,676279.8
 IL,2024,3,Insulin,Novolog,741,179166.26
@@ -2011,7 +2011,7 @@ IN,2024,3,GLP-1,Trulicity,7637,7942127.71
 IN,2024,3,GLP-1,Victoza,343,249731.48
 IN,2024,3,GLP-1,Wegovy,303,397282.64
 IN,2024,3,Insulin,Humalog,16949,4718498.3
-IN,2024,3,Insulin,Insulin (other),5959,1263874.19
+IN,2024,3,Insulin,Insulin (other),11564,4283665.16
 IN,2024,3,Insulin,Lantus,21229,2361501.73
 IN,2024,3,Insulin,Levemir,139,29196.22
 IN,2024,3,Insulin,Novolog,490,113599.24
@@ -2028,7 +2028,7 @@ KS,2024,3,GLP-1,Victoza,87,58573.99
 KS,2024,3,GLP-1,Wegovy,895,1068156.96
 KS,2024,3,GLP-1,Zepbound,3040,3026142.87
 KS,2024,3,Insulin,Humalog,190,42362.96
-KS,2024,3,Insulin,Insulin (other),6286,716818.22
+KS,2024,3,Insulin,Insulin (other),7376,1053458.51
 KS,2024,3,Insulin,Lantus,1741,131977.4
 KS,2024,3,Insulin,Levemir,1109,168131.41
 KS,2024,3,Insulin,Novolog,280,41489.14
@@ -2045,7 +2045,7 @@ KY,2024,3,GLP-1,Trulicity,4046,3623122.08
 KY,2024,3,GLP-1,Victoza,760,427903.39
 KY,2024,3,GLP-1,Wegovy,22,26217.24
 KY,2024,3,Insulin,Humalog,7616,2044893.44
-KY,2024,3,Insulin,Insulin (other),11514,1544222.92
+KY,2024,3,Insulin,Insulin (other),17060,3667089.56
 KY,2024,3,Insulin,Lantus,21581,2314842.09
 KY,2024,3,Insulin,Levemir,4317,815127.11
 KY,2024,3,Insulin,Novolog,4005,667989.36
@@ -2062,7 +2062,7 @@ LA,2024,3,GLP-1,Victoza,511,332578.36
 LA,2024,3,GLP-1,Wegovy,104,136473.02
 LA,2024,3,GLP-1,Zepbound,,
 LA,2024,3,Insulin,Humalog,3773,966943.53
-LA,2024,3,Insulin,Insulin (other),10916,1159449.78
+LA,2024,3,Insulin,Insulin (other),16878,3051949.17
 LA,2024,3,Insulin,Lantus,16443,1420443.32
 LA,2024,3,Insulin,Levemir,1997,292222.6
 LA,2024,3,Insulin,Novolog,4117,585381.85
@@ -2080,7 +2080,7 @@ MA,2024,3,GLP-1,Victoza,904,636247.63
 MA,2024,3,GLP-1,Wegovy,25441,33377351.1
 MA,2024,3,GLP-1,Zepbound,758,723974.03
 MA,2024,3,Insulin,Humalog,2224,753179.18
-MA,2024,3,Insulin,Insulin (other),15911,2540226.07
+MA,2024,3,Insulin,Insulin (other),19333,4226548.24
 MA,2024,3,Insulin,Lantus,14316,1491432.69
 MA,2024,3,Insulin,Levemir,385,69129.12
 MA,2024,3,Insulin,Novolog,430,99895.92
@@ -2097,7 +2097,7 @@ MD,2024,3,GLP-1,Victoza,130,85292.7
 MD,2024,3,GLP-1,Wegovy,,
 MD,2024,3,GLP-1,Zepbound,17,14486.34
 MD,2024,3,Insulin,Humalog,1656,484678.04
-MD,2024,3,Insulin,Insulin (other),10274,1173453.55
+MD,2024,3,Insulin,Insulin (other),33391,6940489.12
 MD,2024,3,Insulin,Lantus,5527,532878.22
 MD,2024,3,Insulin,Levemir,211,30424.21
 MD,2024,3,Insulin,Novolog,1633,297480.93
@@ -2114,7 +2114,7 @@ ME,2024,3,GLP-1,Trulicity,4436,4477311.72
 ME,2024,3,GLP-1,Victoza,538,361374.92
 ME,2024,3,GLP-1,Wegovy,11,14400.38
 ME,2024,3,Insulin,Humalog,2487,679276.19
-ME,2024,3,Insulin,Insulin (other),873,157458.41
+ME,2024,3,Insulin,Insulin (other),1731,758778.43
 ME,2024,3,Insulin,Lantus,3557,394474.58
 ME,2024,3,Insulin,Levemir,357,60573.11
 ME,2024,3,Insulin,Novolog,854,168259.61
@@ -2131,7 +2131,7 @@ MI,2024,3,GLP-1,Victoza,1791,1290954.25
 MI,2024,3,GLP-1,Wegovy,43746,55592617.09
 MI,2024,3,GLP-1,Zepbound,8652,8601103.86
 MI,2024,3,Insulin,Humalog,13628,2847558.08
-MI,2024,3,Insulin,Insulin (other),16418,2618713.55
+MI,2024,3,Insulin,Insulin (other),20808,4325529.95
 MI,2024,3,Insulin,Lantus,33938,3761679.43
 MI,2024,3,Insulin,Levemir,2389,445660.2
 MI,2024,3,Insulin,Novolog,1777,242289.87
@@ -2149,7 +2149,7 @@ MN,2024,3,GLP-1,Victoza,3296,2190263.48
 MN,2024,3,GLP-1,Wegovy,17341,22718522.77
 MN,2024,3,GLP-1,Zepbound,5918,6101975.74
 MN,2024,3,Insulin,Humalog,1711,607096.63
-MN,2024,3,Insulin,Insulin (other),11002,1643680.04
+MN,2024,3,Insulin,Insulin (other),13297,2712269.47
 MN,2024,3,Insulin,Lantus,16291,1571184.28
 MN,2024,3,Insulin,Levemir,760,132129.99
 MN,2024,3,Insulin,Novolog,5762,983653.73
@@ -2166,7 +2166,7 @@ MO,2024,3,GLP-1,Trulicity,27488,26100235.03
 MO,2024,3,GLP-1,Victoza,3721,2514389.14
 MO,2024,3,GLP-1,Wegovy,,
 MO,2024,3,Insulin,Humalog,575,256659.41
-MO,2024,3,Insulin,Insulin (other),19006,3375008.16
+MO,2024,3,Insulin,Insulin (other),21437,4283261.85
 MO,2024,3,Insulin,Lantus,20714,2406915.5
 MO,2024,3,Insulin,Levemir,1471,322506.59
 MO,2024,3,Insulin,Novolog,352,54456.23
@@ -2183,7 +2183,7 @@ MS,2024,3,GLP-1,Trulicity,4556,4382460.54
 MS,2024,3,GLP-1,Victoza,1113,757141.85
 MS,2024,3,GLP-1,Wegovy,4086,5515553.22
 MS,2024,3,Insulin,Humalog,126,19211.64
-MS,2024,3,Insulin,Insulin (other),5237,839993.49
+MS,2024,3,Insulin,Insulin (other),6844,1443086.89
 MS,2024,3,Insulin,Lantus,3823,431420.47
 MS,2024,3,Insulin,Levemir,1132,224931.8
 MS,2024,3,Insulin,Novolog,68,11692.27
@@ -2199,7 +2199,7 @@ MT,2024,3,GLP-1,Trulicity,1214,1164940.23
 MT,2024,3,GLP-1,Victoza,240,169567.65
 MT,2024,3,GLP-1,Wegovy,,
 MT,2024,3,Insulin,Humalog,1327,297380.63
-MT,2024,3,Insulin,Insulin (other),1368,264171.93
+MT,2024,3,Insulin,Insulin (other),1777,558308.71
 MT,2024,3,Insulin,Lantus,2607,297292.55
 MT,2024,3,Insulin,Levemir,271,61033.37
 MT,2024,3,Insulin,Novolog,839,160607.89
@@ -2217,7 +2217,7 @@ NC,2024,3,GLP-1,Victoza,730,527230.12
 NC,2024,3,GLP-1,Wegovy,6900,9068196.66
 NC,2024,3,GLP-1,Zepbound,312,329255.97
 NC,2024,3,Insulin,Humalog,6062,1579981.43
-NC,2024,3,Insulin,Insulin (other),14550,2779995.2
+NC,2024,3,Insulin,Insulin (other),20808,5674941.29
 NC,2024,3,Insulin,Lantus,18838,2377988.26
 NC,2024,3,Insulin,Levemir,2762,563906.42
 NC,2024,3,Insulin,Novolog,8560,1755567.46
@@ -2232,7 +2232,7 @@ ND,2024,3,GLP-1,Rybelsus,,
 ND,2024,3,GLP-1,Trulicity,56,53481.08
 ND,2024,3,GLP-1,Victoza,1069,725683.77
 ND,2024,3,Insulin,Humalog,741,167905.56
-ND,2024,3,Insulin,Insulin (other),573,121433.9
+ND,2024,3,Insulin,Insulin (other),600,147092.33
 ND,2024,3,Insulin,Lantus,1381,161968.99
 ND,2024,3,Insulin,Levemir,174,35275.25
 ND,2024,3,Insulin,Novolog,38,7992.73
@@ -2249,7 +2249,7 @@ NE,2024,3,GLP-1,Trulicity,2075,1987718.88
 NE,2024,3,GLP-1,Victoza,154,113814.77
 NE,2024,3,GLP-1,Wegovy,,
 NE,2024,3,Insulin,Humalog,1267,397532.5
-NE,2024,3,Insulin,Insulin (other),2537,388926.7
+NE,2024,3,Insulin,Insulin (other),3740,882026.14
 NE,2024,3,Insulin,Lantus,3770,381492.86
 NE,2024,3,Insulin,Levemir,531,94618.8
 NE,2024,3,Insulin,Novolog,1013,167683.89
@@ -2267,7 +2267,7 @@ NH,2024,3,GLP-1,Victoza,135,97471.32
 NH,2024,3,GLP-1,Wegovy,1952,2418761.07
 NH,2024,3,GLP-1,Zepbound,466,443659.52
 NH,2024,3,Insulin,Humalog,800,149340.33
-NH,2024,3,Insulin,Insulin (other),1031,146183.15
+NH,2024,3,Insulin,Insulin (other),1461,323717.07
 NH,2024,3,Insulin,Lantus,1779,171444.83
 NH,2024,3,Insulin,Levemir,202,41562.3
 NH,2024,3,Insulin,Novolog,560,94198.7
@@ -2285,7 +2285,7 @@ NJ,2024,3,GLP-1,Victoza,336,222079.78
 NJ,2024,3,GLP-1,Wegovy,143,191191.36
 NJ,2024,3,GLP-1,Zepbound,,
 NJ,2024,3,Insulin,Humalog,1589,271665.38
-NJ,2024,3,Insulin,Insulin (other),35191,2971768.64
+NJ,2024,3,Insulin,Insulin (other),44340,5002719.94
 NJ,2024,3,Insulin,Lantus,10362,930412.88
 NJ,2024,3,Insulin,Levemir,212,38351.57
 NJ,2024,3,Insulin,Novolog,2111,315395.42
@@ -2303,7 +2303,7 @@ NM,2024,3,GLP-1,Victoza,130,89620.5
 NM,2024,3,GLP-1,Wegovy,133,123421.8
 NM,2024,3,GLP-1,Zepbound,,
 NM,2024,3,Insulin,Humalog,335,91538.73
-NM,2024,3,Insulin,Insulin (other),10996,1770595.23
+NM,2024,3,Insulin,Insulin (other),18145,3803712.06
 NM,2024,3,Insulin,Lantus,1495,412915.63
 NM,2024,3,Insulin,Levemir,199,78951.15
 NM,2024,3,Insulin,Novolog,696,247926.26
@@ -2320,7 +2320,7 @@ NV,2024,3,GLP-1,Trulicity,2115,2427285.58
 NV,2024,3,GLP-1,Victoza,96,82656.49
 NV,2024,3,GLP-1,Wegovy,34,42508.65
 NV,2024,3,Insulin,Humalog,951,324051.6
-NV,2024,3,Insulin,Insulin (other),7117,960063.75
+NV,2024,3,Insulin,Insulin (other),11925,2376420.9
 NV,2024,3,Insulin,Lantus,5537,680609.4
 NV,2024,3,Insulin,Levemir,360,74889.67
 NV,2024,3,Insulin,Novolog,600,119220.26
@@ -2337,7 +2337,7 @@ NY,2024,3,GLP-1,Trulicity,35907,42383641.37
 NY,2024,3,GLP-1,Victoza,1194,1006870.85
 NY,2024,3,GLP-1,Wegovy,,
 NY,2024,3,Insulin,Humalog,12967,3453841.95
-NY,2024,3,Insulin,Insulin (other),62271,9975845.12
+NY,2024,3,Insulin,Insulin (other),102398,25919169.27
 NY,2024,3,Insulin,Lantus,51676,5190190.95
 NY,2024,3,Insulin,Levemir,5228,977753.58
 NY,2024,3,Insulin,Novolog,8893,1904761.19
@@ -2355,7 +2355,7 @@ OH,2024,3,GLP-1,Victoza,5347,3410897.64
 OH,2024,3,GLP-1,Wegovy,277,359155.2
 OH,2024,3,GLP-1,Zepbound,,
 OH,2024,3,Insulin,Humalog,10468,3160311.9
-OH,2024,3,Insulin,Insulin (other),11782,1653765.15
+OH,2024,3,Insulin,Insulin (other),19074,6025699.83
 OH,2024,3,Insulin,Lantus,42563,4734203.8
 OH,2024,3,Insulin,Levemir,2367,484807.62
 OH,2024,3,Insulin,Novolog,5818,1097622.78
@@ -2372,7 +2372,7 @@ OK,2024,3,GLP-1,Trulicity,9258,10767714.31
 OK,2024,3,GLP-1,Victoza,591,493249.84
 OK,2024,3,GLP-1,Wegovy,,
 OK,2024,3,Insulin,Humalog,3253,915820.4
-OK,2024,3,Insulin,Insulin (other),2423,448586.79
+OK,2024,3,Insulin,Insulin (other),4013,1034213.17
 OK,2024,3,Insulin,Lantus,7534,1024034.83
 OK,2024,3,Insulin,Levemir,1354,323698
 OK,2024,3,Insulin,Novolog,2950,619045.27
@@ -2389,7 +2389,7 @@ OR,2024,3,GLP-1,Victoza,234,147045.27
 OR,2024,3,GLP-1,Wegovy,93,119078.06
 OR,2024,3,GLP-1,Zepbound,,
 OR,2024,3,Insulin,Humalog,1593,448446.89
-OR,2024,3,Insulin,Insulin (other),14346,1991272.01
+OR,2024,3,Insulin,Insulin (other),21785,3969546.25
 OR,2024,3,Insulin,Lantus,6539,690288.72
 OR,2024,3,Insulin,Levemir,54,9144.2
 OR,2024,3,Insulin,Novolog,984,150867.4
@@ -2407,7 +2407,7 @@ PA,2024,3,GLP-1,Victoza,1829,1316717.5
 PA,2024,3,GLP-1,Wegovy,46905,62699276.45
 PA,2024,3,GLP-1,Zepbound,13432,13953432.31
 PA,2024,3,Insulin,Humalog,2961,864680.91
-PA,2024,3,Insulin,Insulin (other),47282,8110050.69
+PA,2024,3,Insulin,Insulin (other),57693,13589276.45
 PA,2024,3,Insulin,Lantus,44010,4488649.69
 PA,2024,3,Insulin,Levemir,3588,647162.99
 PA,2024,3,Insulin,Novolog,2596,583585.4
@@ -2423,7 +2423,7 @@ PR,2024,3,GLP-1,Victoza,,
 PR,2024,3,GLP-1,Wegovy,,
 PR,2024,3,GLP-1,Zepbound,20,21794.64
 PR,2024,3,Insulin,Humalog,19074,2241151.53
-PR,2024,3,Insulin,Insulin (other),107,6195.65
+PR,2024,3,Insulin,Insulin (other),19075,1731072.01
 PR,2024,3,Insulin,Lantus,31399,2753914.39
 PR,2024,3,Insulin,Levemir,37,4203.6
 PR,2024,3,Insulin,Novolog,58,8102.99
@@ -2440,7 +2440,7 @@ RI,2024,3,GLP-1,Victoza,19,10188.98
 RI,2024,3,GLP-1,Wegovy,1240,1515149.3
 RI,2024,3,GLP-1,Zepbound,437,420808.5
 RI,2024,3,Insulin,Humalog,84,17837.34
-RI,2024,3,Insulin,Insulin (other),3495,462889.27
+RI,2024,3,Insulin,Insulin (other),6342,1569085.33
 RI,2024,3,Insulin,Lantus,1571,190444.88
 RI,2024,3,Insulin,Levemir,12,1503.43
 RI,2024,3,Insulin,Novolog,71,10076.65
@@ -2458,7 +2458,7 @@ SC,2024,3,GLP-1,Victoza,80,48970.04
 SC,2024,3,GLP-1,Wegovy,42,46499.76
 SC,2024,3,GLP-1,Zepbound,,
 SC,2024,3,Insulin,Humalog,1108,249413.45
-SC,2024,3,Insulin,Insulin (other),9305,1104654.16
+SC,2024,3,Insulin,Insulin (other),13896,2412623.28
 SC,2024,3,Insulin,Lantus,4358,378446.19
 SC,2024,3,Insulin,Levemir,475,69472.6
 SC,2024,3,Insulin,Novolog,903,116990.66
@@ -2473,7 +2473,7 @@ SD,2024,3,GLP-1,Rybelsus,101,95469.61
 SD,2024,3,GLP-1,Trulicity,186,178104.38
 SD,2024,3,GLP-1,Victoza,34,22080.44
 SD,2024,3,Insulin,Humalog,140,66663.47
-SD,2024,3,Insulin,Insulin (other),1326,234649.78
+SD,2024,3,Insulin,Insulin (other),1767,413438.29
 SD,2024,3,Insulin,Lantus,833,123815.29
 SD,2024,3,Insulin,Levemir,198,46223.13
 SD,2024,3,Insulin,Novolog,740,205706.81
@@ -2491,7 +2491,7 @@ TN,2024,3,GLP-1,Victoza,309,199862.74
 TN,2024,3,GLP-1,Wegovy,1665,2184259.2
 TN,2024,3,GLP-1,Zepbound,100,102662.54
 TN,2024,3,Insulin,Humalog,5449,1079616.45
-TN,2024,3,Insulin,Insulin (other),8725,1131892.59
+TN,2024,3,Insulin,Insulin (other),11715,2091830.47
 TN,2024,3,Insulin,Lantus,10473,1210103.45
 TN,2024,3,Insulin,Levemir,1792,364068.92
 TN,2024,3,Insulin,Novolog,988,195003.6
@@ -2508,7 +2508,7 @@ TX,2024,3,GLP-1,Trulicity,6019,6115425.05
 TX,2024,3,GLP-1,Victoza,1324,863989.17
 TX,2024,3,GLP-1,Wegovy,16,20154.25
 TX,2024,3,Insulin,Humalog,5564,1250528.64
-TX,2024,3,Insulin,Insulin (other),15086,2182476.34
+TX,2024,3,Insulin,Insulin (other),23444,4544824.23
 TX,2024,3,Insulin,Lantus,21071,1970304.17
 TX,2024,3,Insulin,Levemir,4497,846622.05
 TX,2024,3,Insulin,Novolog,7874,1327100.09
@@ -2524,7 +2524,7 @@ UT,2024,3,GLP-1,Trulicity,2386,2333993.46
 UT,2024,3,GLP-1,Victoza,129,84879.25
 UT,2024,3,GLP-1,Wegovy,,
 UT,2024,3,Insulin,Humalog,1040,422404.79
-UT,2024,3,Insulin,Insulin (other),3281,415497.72
+UT,2024,3,Insulin,Insulin (other),8244,1693637.03
 UT,2024,3,Insulin,Lantus,1662,178767.53
 UT,2024,3,Insulin,Levemir,86,20603.9
 UT,2024,3,Insulin,Novolog,471,92278.11
@@ -2542,7 +2542,7 @@ VA,2024,3,GLP-1,Victoza,2425,1573262.79
 VA,2024,3,GLP-1,Wegovy,12155,15603760.75
 VA,2024,3,GLP-1,Zepbound,2134,2162094.95
 VA,2024,3,Insulin,Humalog,7423,1457390.82
-VA,2024,3,Insulin,Insulin (other),13388,1756145.51
+VA,2024,3,Insulin,Insulin (other),21394,4311079.63
 VA,2024,3,Insulin,Lantus,20985,1982636.8
 VA,2024,3,Insulin,Levemir,2153,391222.58
 VA,2024,3,Insulin,Novolog,6111,1075591.53
@@ -2559,7 +2559,7 @@ VT,2024,3,GLP-1,Trulicity,904,1041867.95
 VT,2024,3,GLP-1,Victoza,113,97886.12
 VT,2024,3,GLP-1,Zepbound,,
 VT,2024,3,Insulin,Humalog,397,207920.07
-VT,2024,3,Insulin,Insulin (other),522,134880.05
+VT,2024,3,Insulin,Insulin (other),663,263414.4
 VT,2024,3,Insulin,Lantus,1201,170053.72
 VT,2024,3,Insulin,Levemir,58,14023.21
 VT,2024,3,Insulin,Novolog,401,111580.14
@@ -2576,7 +2576,7 @@ WA,2024,3,GLP-1,Trulicity,1051,1033815.85
 WA,2024,3,GLP-1,Victoza,5004,3317940.44
 WA,2024,3,GLP-1,Wegovy,,
 WA,2024,3,Insulin,Humalog,4917,1529840.48
-WA,2024,3,Insulin,Insulin (other),9745,1235453.9
+WA,2024,3,Insulin,Insulin (other),26394,7315593.3
 WA,2024,3,Insulin,Lantus,1576,237532.33
 WA,2024,3,Insulin,Levemir,3970,748531.84
 WA,2024,3,Insulin,Novolog,6213,1053352.99
@@ -2593,7 +2593,7 @@ WI,2024,3,GLP-1,Victoza,1391,963127.45
 WI,2024,3,GLP-1,Wegovy,11215,14908663.75
 WI,2024,3,GLP-1,Zepbound,13614,14180159.05
 WI,2024,3,Insulin,Humalog,4820,1175394.46
-WI,2024,3,Insulin,Insulin (other),12622,1959539.34
+WI,2024,3,Insulin,Insulin (other),15292,3274523.99
 WI,2024,3,Insulin,Lantus,21111,2061598.21
 WI,2024,3,Insulin,Levemir,1485,256915.4
 WI,2024,3,Insulin,Novolog,2670,467350.08
@@ -2608,7 +2608,7 @@ WV,2024,3,GLP-1,Rybelsus,50,41014.52
 WV,2024,3,GLP-1,Trulicity,3769,3512833.74
 WV,2024,3,GLP-1,Victoza,443,274672.27
 WV,2024,3,Insulin,Humalog,2011,539455.9
-WV,2024,3,Insulin,Insulin (other),3443,609779.01
+WV,2024,3,Insulin,Insulin (other),5755,2764699.55
 WV,2024,3,Insulin,Lantus,8107,1047039.55
 WV,2024,3,Insulin,Levemir,1230,288248.85
 WV,2024,3,Insulin,Novolog,3328,694092.76
@@ -2641,7 +2641,7 @@ AK,2024,4,GLP-1,Rybelsus,382,356904.52
 AK,2024,4,GLP-1,Trulicity,367,350857.66
 AK,2024,4,GLP-1,Victoza,101,66017.59
 AK,2024,4,Insulin,Humalog,321,128078.53
-AK,2024,4,Insulin,Insulin (other),1547,203117.67
+AK,2024,4,Insulin,Insulin (other),1928,406507.45
 AK,2024,4,Insulin,Lantus,1258,124421.54
 AK,2024,4,Insulin,Levemir,36,8777.89
 AK,2024,4,Insulin,Novolog,629,101467.21
@@ -2658,7 +2658,7 @@ AL,2024,4,GLP-1,Trulicity,4601,4487247.1
 AL,2024,4,GLP-1,Victoza,139,95573.64
 AL,2024,4,GLP-1,Wegovy,21,28903.83
 AL,2024,4,Insulin,Humalog,921,170222.02
-AL,2024,4,Insulin,Insulin (other),2953,632674.55
+AL,2024,4,Insulin,Insulin (other),4878,1181812.95
 AL,2024,4,Insulin,Lantus,5324,740204.16
 AL,2024,4,Insulin,Levemir,394,92514.45
 AL,2024,4,Insulin,Novolog,2456,555734.73
@@ -2674,7 +2674,7 @@ AR,2024,4,GLP-1,Trulicity,127,121111.16
 AR,2024,4,GLP-1,Victoza,3225,2190734.46
 AR,2024,4,GLP-1,Wegovy,,
 AR,2024,4,Insulin,Humalog,2669,424214.28
-AR,2024,4,Insulin,Insulin (other),1294,232269.64
+AR,2024,4,Insulin,Insulin (other),2350,508245.01
 AR,2024,4,Insulin,Lantus,7424,784783.88
 AR,2024,4,Insulin,Levemir,754,143177.75
 AR,2024,4,Insulin,Novolog,2706,492975.75
@@ -2691,7 +2691,7 @@ AZ,2024,4,GLP-1,Trulicity,17907,18589300.38
 AZ,2024,4,GLP-1,Victoza,827,569394.03
 AZ,2024,4,GLP-1,Wegovy,187,243133.6
 AZ,2024,4,Insulin,Humalog,585,227389.98
-AZ,2024,4,Insulin,Insulin (other),17534,2573842.71
+AZ,2024,4,Insulin,Insulin (other),19953,3424242.07
 AZ,2024,4,Insulin,Lantus,23878,2438354.51
 AZ,2024,4,Insulin,Levemir,253,51238.2
 AZ,2024,4,Insulin,Novolog,380,64682.3
@@ -2709,7 +2709,7 @@ CA,2024,4,GLP-1,Victoza,4486,3192410.9
 CA,2024,4,GLP-1,Wegovy,185814,243752094.97
 CA,2024,4,GLP-1,Zepbound,50086,52027542.69
 CA,2024,4,Insulin,Humalog,35410,8903010.14
-CA,2024,4,Insulin,Insulin (other),60746,9018323.69
+CA,2024,4,Insulin,Insulin (other),167338,46198057.49
 CA,2024,4,Insulin,Lantus,49806,5367575.38
 CA,2024,4,Insulin,Levemir,2016,353020.15
 CA,2024,4,Insulin,Novolog,9231,1757896.11
@@ -2725,7 +2725,7 @@ CO,2024,4,GLP-1,Trulicity,12479,14696944.01
 CO,2024,4,GLP-1,Victoza,1394,1118786.88
 CO,2024,4,GLP-1,Wegovy,677,897470.08
 CO,2024,4,Insulin,Humalog,4217,1236621.24
-CO,2024,4,Insulin,Insulin (other),2669,605638.29
+CO,2024,4,Insulin,Insulin (other),4157,1385009.73
 CO,2024,4,Insulin,Lantus,9631,1362729.98
 CO,2024,4,Insulin,Levemir,252,72266.3
 CO,2024,4,Insulin,Novolog,3013,760452.76
@@ -2742,7 +2742,7 @@ CT,2024,4,GLP-1,Victoza,314,279275.42
 CT,2024,4,GLP-1,Wegovy,14,18361.98
 CT,2024,4,GLP-1,Zepbound,11,11360.8
 CT,2024,4,Insulin,Humalog,3298,998642.55
-CT,2024,4,Insulin,Insulin (other),7607,1404064.44
+CT,2024,4,Insulin,Insulin (other),9250,2564981.45
 CT,2024,4,Insulin,Lantus,7712,929767.36
 CT,2024,4,Insulin,Levemir,193,40349.3
 CT,2024,4,Insulin,Novolog,1403,361917.99
@@ -2759,7 +2759,7 @@ DC,2024,4,GLP-1,Victoza,,
 DC,2024,4,GLP-1,Wegovy,26,29074.41
 DC,2024,4,GLP-1,Zepbound,,
 DC,2024,4,Insulin,Humalog,362,107453.57
-DC,2024,4,Insulin,Insulin (other),2916,373187.06
+DC,2024,4,Insulin,Insulin (other),3954,680468.19
 DC,2024,4,Insulin,Lantus,2517,279293.57
 DC,2024,4,Insulin,Levemir,166,25338.18
 DC,2024,4,Insulin,Novolog,597,87469.08
@@ -2776,7 +2776,7 @@ DE,2024,4,GLP-1,Victoza,,
 DE,2024,4,GLP-1,Wegovy,3788,131287.6
 DE,2024,4,GLP-1,Zepbound,1122,42306.39
 DE,2024,4,Insulin,Humalog,134,53030.62
-DE,2024,4,Insulin,Insulin (other),2975,485500.27
+DE,2024,4,Insulin,Insulin (other),3397,707904.48
 DE,2024,4,Insulin,Lantus,2751,246965.11
 DE,2024,4,Insulin,Levemir,113,15456.42
 DE,2024,4,Insulin,Novolog,80,18691.28
@@ -2794,7 +2794,7 @@ FL,2024,4,GLP-1,Victoza,187,114997.26
 FL,2024,4,GLP-1,Wegovy,151,192348.17
 FL,2024,4,GLP-1,Zepbound,,
 FL,2024,4,Insulin,Humalog,10628,1611713.8
-FL,2024,4,Insulin,Insulin (other),5123,719342.23
+FL,2024,4,Insulin,Insulin (other),10090,1875109.9
 FL,2024,4,Insulin,Lantus,25122,2327159.52
 FL,2024,4,Insulin,Levemir,2020,313916.72
 FL,2024,4,Insulin,Novolog,9541,1443256.1
@@ -2812,7 +2812,7 @@ GA,2024,4,GLP-1,Victoza,2616,1694168.71
 GA,2024,4,GLP-1,Wegovy,109,155031.97
 GA,2024,4,GLP-1,Zepbound,,
 GA,2024,4,Insulin,Humalog,2612,435239.03
-GA,2024,4,Insulin,Insulin (other),12381,1429579.73
+GA,2024,4,Insulin,Insulin (other),19366,3046512.34
 GA,2024,4,Insulin,Lantus,9987,937875.86
 GA,2024,4,Insulin,Levemir,1203,189744.47
 GA,2024,4,Insulin,Novolog,1509,195703.47
@@ -2829,7 +2829,7 @@ HI,2024,4,GLP-1,Victoza,31,16736.46
 HI,2024,4,GLP-1,Wegovy,170,65320.33
 HI,2024,4,GLP-1,Zepbound,13,1190.82
 HI,2024,4,Insulin,Humalog,530,106807.97
-HI,2024,4,Insulin,Insulin (other),2709,230898.53
+HI,2024,4,Insulin,Insulin (other),5642,1016897.28
 HI,2024,4,Insulin,Lantus,782,37194.63
 HI,2024,4,Insulin,Levemir,37,781.39
 HI,2024,4,Insulin,Novolog,797,124406.41
@@ -2846,7 +2846,7 @@ IA,2024,4,GLP-1,Victoza,97,65582.52
 IA,2024,4,GLP-1,Wegovy,101,131695.15
 IA,2024,4,GLP-1,Zepbound,,
 IA,2024,4,Insulin,Humalog,528,319060.77
-IA,2024,4,Insulin,Insulin (other),9276,1282950.79
+IA,2024,4,Insulin,Insulin (other),11393,2391796.75
 IA,2024,4,Insulin,Lantus,9104,734953.76
 IA,2024,4,Insulin,Levemir,455,59326.52
 IA,2024,4,Insulin,Novolog,466,72080.12
@@ -2862,7 +2862,7 @@ ID,2024,4,GLP-1,Trulicity,1145,1096639.12
 ID,2024,4,GLP-1,Victoza,172,114893.58
 ID,2024,4,GLP-1,Wegovy,113,148098.95
 ID,2024,4,Insulin,Humalog,1448,343495.9
-ID,2024,4,Insulin,Insulin (other),2956,402692.43
+ID,2024,4,Insulin,Insulin (other),4251,911066.75
 ID,2024,4,Insulin,Lantus,3134,319046.8
 ID,2024,4,Insulin,Levemir,170,29703.66
 ID,2024,4,Insulin,Novolog,1171,214459.67
@@ -2879,7 +2879,7 @@ IL,2024,4,GLP-1,Trulicity,41623,46357144.85
 IL,2024,4,GLP-1,Victoza,2879,2366700.6
 IL,2024,4,GLP-1,Wegovy,125,161823.31
 IL,2024,4,Insulin,Humalog,12378,3793186.41
-IL,2024,4,Insulin,Insulin (other),21037,3828726.59
+IL,2024,4,Insulin,Insulin (other),32443,8869360.38
 IL,2024,4,Insulin,Lantus,34676,4051080.84
 IL,2024,4,Insulin,Levemir,1652,317272.8
 IL,2024,4,Insulin,Novolog,709,174747.26
@@ -2897,7 +2897,7 @@ IN,2024,4,GLP-1,Victoza,240,179464.19
 IN,2024,4,GLP-1,Wegovy,468,641661.16
 IN,2024,4,GLP-1,Zepbound,,
 IN,2024,4,Insulin,Humalog,16317,4756351.11
-IN,2024,4,Insulin,Insulin (other),5442,1169782.18
+IN,2024,4,Insulin,Insulin (other),10085,3805079
 IN,2024,4,Insulin,Lantus,21299,2369905.66
 IN,2024,4,Insulin,Levemir,38,6561.78
 IN,2024,4,Insulin,Novolog,538,130380.33
@@ -2914,7 +2914,7 @@ KS,2024,4,GLP-1,Victoza,25,18344.28
 KS,2024,4,GLP-1,Wegovy,811,999182.8
 KS,2024,4,GLP-1,Zepbound,4511,4513739.87
 KS,2024,4,Insulin,Humalog,183,53143.77
-KS,2024,4,Insulin,Insulin (other),6200,789325.75
+KS,2024,4,Insulin,Insulin (other),7369,1159281.36
 KS,2024,4,Insulin,Lantus,2313,184111.34
 KS,2024,4,Insulin,Levemir,468,61510.27
 KS,2024,4,Insulin,Novolog,261,44664.87
@@ -2931,7 +2931,7 @@ KY,2024,4,GLP-1,Trulicity,3587,3285448.19
 KY,2024,4,GLP-1,Victoza,440,244039.05
 KY,2024,4,GLP-1,Wegovy,91,106149.88
 KY,2024,4,Insulin,Humalog,7150,2118822.47
-KY,2024,4,Insulin,Insulin (other),15383,2323904.26
+KY,2024,4,Insulin,Insulin (other),20065,3416167.37
 KY,2024,4,Insulin,Lantus,23546,2543382.8
 KY,2024,4,Insulin,Levemir,913,140593.32
 KY,2024,4,Insulin,Novolog,3618,633847.2
@@ -2948,7 +2948,7 @@ LA,2024,4,GLP-1,Victoza,421,277260.58
 LA,2024,4,GLP-1,Wegovy,196,255809.95
 LA,2024,4,GLP-1,Zepbound,,
 LA,2024,4,Insulin,Humalog,3616,883070.03
-LA,2024,4,Insulin,Insulin (other),11328,1135238.56
+LA,2024,4,Insulin,Insulin (other),17561,3060696.4
 LA,2024,4,Insulin,Lantus,17226,1410018.22
 LA,2024,4,Insulin,Levemir,858,113278.45
 LA,2024,4,Insulin,Novolog,3978,556305.02
@@ -2965,7 +2965,7 @@ MA,2024,4,GLP-1,Victoza,706,482819.34
 MA,2024,4,GLP-1,Wegovy,27621,35746230.15
 MA,2024,4,GLP-1,Zepbound,10776,10783233.79
 MA,2024,4,Insulin,Humalog,1821,699683.61
-MA,2024,4,Insulin,Insulin (other),14420,2071363.62
+MA,2024,4,Insulin,Insulin (other),17693,3509402.14
 MA,2024,4,Insulin,Lantus,13726,1352268.4
 MA,2024,4,Insulin,Levemir,200,33333.27
 MA,2024,4,Insulin,Novolog,318,76574.5
@@ -2981,7 +2981,7 @@ MD,2024,4,GLP-1,Trulicity,8970,8352968.48
 MD,2024,4,GLP-1,Victoza,28,19096.58
 MD,2024,4,GLP-1,Wegovy,169,217730.3
 MD,2024,4,Insulin,Humalog,1552,462475.4
-MD,2024,4,Insulin,Insulin (other),9818,1099128.03
+MD,2024,4,Insulin,Insulin (other),31529,6493732.51
 MD,2024,4,Insulin,Lantus,5868,561210.79
 MD,2024,4,Insulin,Levemir,103,14261.05
 MD,2024,4,Insulin,Novolog,1452,264027.28
@@ -2998,7 +2998,7 @@ ME,2024,4,GLP-1,Trulicity,5799,5539175.37
 ME,2024,4,GLP-1,Victoza,635,427372.34
 ME,2024,4,GLP-1,Wegovy,95,124145.45
 ME,2024,4,Insulin,Humalog,2640,706675.48
-ME,2024,4,Insulin,Insulin (other),644,131592.09
+ME,2024,4,Insulin,Insulin (other),1500,727285.67
 ME,2024,4,Insulin,Lantus,3995,422978.27
 ME,2024,4,Insulin,Levemir,194,32480.74
 ME,2024,4,Insulin,Novolog,847,161217.86
@@ -3016,7 +3016,7 @@ MI,2024,4,GLP-1,Victoza,1456,1061727.36
 MI,2024,4,GLP-1,Wegovy,44572,55985771.46
 MI,2024,4,GLP-1,Zepbound,15115,14921256.94
 MI,2024,4,Insulin,Humalog,12321,2699962.96
-MI,2024,4,Insulin,Insulin (other),17093,2650315.76
+MI,2024,4,Insulin,Insulin (other),21528,4412296.47
 MI,2024,4,Insulin,Lantus,33089,3622159.82
 MI,2024,4,Insulin,Levemir,1091,178503.2
 MI,2024,4,Insulin,Novolog,1607,303618.99
@@ -3034,7 +3034,7 @@ MN,2024,4,GLP-1,Victoza,1800,1276502
 MN,2024,4,GLP-1,Wegovy,16898,22078598.42
 MN,2024,4,GLP-1,Zepbound,7370,7547192.32
 MN,2024,4,Insulin,Humalog,1541,602281.04
-MN,2024,4,Insulin,Insulin (other),10893,1623287.25
+MN,2024,4,Insulin,Insulin (other),12532,2328213.41
 MN,2024,4,Insulin,Lantus,14145,1354217.49
 MN,2024,4,Insulin,Levemir,292,42584.17
 MN,2024,4,Insulin,Novolog,4155,653515.38
@@ -3050,7 +3050,7 @@ MO,2024,4,GLP-1,Rybelsus,42,35794.91
 MO,2024,4,GLP-1,Trulicity,27660,26268952.39
 MO,2024,4,GLP-1,Victoza,3658,2618596.02
 MO,2024,4,Insulin,Humalog,458,220512.15
-MO,2024,4,Insulin,Insulin (other),16210,2978407.74
+MO,2024,4,Insulin,Insulin (other),18200,3751355.78
 MO,2024,4,Insulin,Lantus,19692,2299479.54
 MO,2024,4,Insulin,Levemir,674,136116.45
 MO,2024,4,Insulin,Novolog,304,50641.42
@@ -3067,7 +3067,7 @@ MS,2024,4,GLP-1,Trulicity,4863,4685715.02
 MS,2024,4,GLP-1,Victoza,923,638321.54
 MS,2024,4,GLP-1,Wegovy,4780,6391408.93
 MS,2024,4,Insulin,Humalog,85,18843.8
-MS,2024,4,Insulin,Insulin (other),5189,813749.07
+MS,2024,4,Insulin,Insulin (other),6962,1465949.93
 MS,2024,4,Insulin,Lantus,3819,432839.77
 MS,2024,4,Insulin,Levemir,621,111953.52
 MS,2024,4,Insulin,Novolog,23,3741.32
@@ -3083,7 +3083,7 @@ MT,2024,4,GLP-1,Trulicity,1004,957253.56
 MT,2024,4,GLP-1,Victoza,173,129937.19
 MT,2024,4,GLP-1,Wegovy,27,35168.18
 MT,2024,4,Insulin,Humalog,1173,297697.68
-MT,2024,4,Insulin,Insulin (other),1144,228446.28
+MT,2024,4,Insulin,Insulin (other),1522,481967.57
 MT,2024,4,Insulin,Lantus,2445,271939.57
 MT,2024,4,Insulin,Levemir,127,24023.98
 MT,2024,4,Insulin,Novolog,703,139988.73
@@ -3100,7 +3100,7 @@ NC,2024,4,GLP-1,Trulicity,7568,7629761.38
 NC,2024,4,GLP-1,Victoza,574,424088.27
 NC,2024,4,GLP-1,Wegovy,28002,36939099.28
 NC,2024,4,Insulin,Humalog,5679,1550088.86
-NC,2024,4,Insulin,Insulin (other),14618,2698744.07
+NC,2024,4,Insulin,Insulin (other),21182,5818520.77
 NC,2024,4,Insulin,Lantus,19853,2215244.43
 NC,2024,4,Insulin,Levemir,1170,198909.01
 NC,2024,4,Insulin,Novolog,7934,1662683.42
@@ -3116,7 +3116,7 @@ ND,2024,4,GLP-1,Trulicity,29,27651.33
 ND,2024,4,GLP-1,Victoza,1233,857750.25
 ND,2024,4,GLP-1,Wegovy,,
 ND,2024,4,Insulin,Humalog,836,193503.06
-ND,2024,4,Insulin,Insulin (other),623,145413.47
+ND,2024,4,Insulin,Insulin (other),665,184811.85
 ND,2024,4,Insulin,Lantus,1485,179605.85
 ND,2024,4,Insulin,Levemir,75,15171.48
 ND,2024,4,Insulin,Novolog,31,8659.68
@@ -3133,7 +3133,7 @@ NE,2024,4,GLP-1,Trulicity,1865,1750065.09
 NE,2024,4,GLP-1,Victoza,126,87885.82
 NE,2024,4,GLP-1,Wegovy,,
 NE,2024,4,Insulin,Humalog,1176,370477.56
-NE,2024,4,Insulin,Insulin (other),2714,379793.31
+NE,2024,4,Insulin,Insulin (other),4063,869717.94
 NE,2024,4,Insulin,Lantus,4000,377506.28
 NE,2024,4,Insulin,Levemir,226,40781.06
 NE,2024,4,Insulin,Novolog,1000,148440.47
@@ -3151,7 +3151,7 @@ NH,2024,4,GLP-1,Victoza,74,51877.75
 NH,2024,4,GLP-1,Wegovy,2574,3164958.2
 NH,2024,4,GLP-1,Zepbound,813,766909.81
 NH,2024,4,Insulin,Humalog,764,146371.2
-NH,2024,4,Insulin,Insulin (other),1242,179110.69
+NH,2024,4,Insulin,Insulin (other),1714,346876.3
 NH,2024,4,Insulin,Lantus,1727,164708.89
 NH,2024,4,Insulin,Levemir,88,14072.67
 NH,2024,4,Insulin,Novolog,540,87634.62
@@ -3168,7 +3168,7 @@ NJ,2024,4,GLP-1,Victoza,103,72997.8
 NJ,2024,4,GLP-1,Wegovy,287,384577.42
 NJ,2024,4,GLP-1,Zepbound,,
 NJ,2024,4,Insulin,Humalog,1397,269542.25
-NJ,2024,4,Insulin,Insulin (other),32955,2846159.33
+NJ,2024,4,Insulin,Insulin (other),40869,4572152.01
 NJ,2024,4,Insulin,Lantus,11043,1001834.4
 NJ,2024,4,Insulin,Levemir,74,14398.96
 NJ,2024,4,Insulin,Novolog,2344,337731.96
@@ -3186,7 +3186,7 @@ NM,2024,4,GLP-1,Victoza,58,40489.24
 NM,2024,4,GLP-1,Wegovy,166,161954.66
 NM,2024,4,GLP-1,Zepbound,29,28681.05
 NM,2024,4,Insulin,Humalog,278,79699.74
-NM,2024,4,Insulin,Insulin (other),9989,1585816.81
+NM,2024,4,Insulin,Insulin (other),16897,3477103.27
 NM,2024,4,Insulin,Lantus,1606,421926.22
 NM,2024,4,Insulin,Levemir,46,19678.01
 NM,2024,4,Insulin,Novolog,672,238882.77
@@ -3203,7 +3203,7 @@ NV,2024,4,GLP-1,Trulicity,1890,2233108.77
 NV,2024,4,GLP-1,Victoza,47,42292.47
 NV,2024,4,GLP-1,Wegovy,75,94563.85
 NV,2024,4,Insulin,Humalog,753,316375.37
-NV,2024,4,Insulin,Insulin (other),6860,919034.55
+NV,2024,4,Insulin,Insulin (other),11474,2305885.67
 NV,2024,4,Insulin,Lantus,5649,692772.48
 NV,2024,4,Insulin,Levemir,198,39269.27
 NV,2024,4,Insulin,Novolog,552,117900.07
@@ -3220,7 +3220,7 @@ NY,2024,4,GLP-1,Trulicity,30679,36021441.03
 NY,2024,4,GLP-1,Victoza,598,493909.18
 NY,2024,4,GLP-1,Wegovy,,
 NY,2024,4,Insulin,Humalog,10384,2432981.63
-NY,2024,4,Insulin,Insulin (other),55800,9177542.62
+NY,2024,4,Insulin,Insulin (other),89388,22856692.15
 NY,2024,4,Insulin,Lantus,51457,5094116.78
 NY,2024,4,Insulin,Levemir,2032,336042.88
 NY,2024,4,Insulin,Novolog,8029,1607137.76
@@ -3238,7 +3238,7 @@ OH,2024,4,GLP-1,Victoza,5130,3421057.3
 OH,2024,4,GLP-1,Wegovy,696,907376.88
 OH,2024,4,GLP-1,Zepbound,17,17487.26
 OH,2024,4,Insulin,Humalog,9453,3098196.6
-OH,2024,4,Insulin,Insulin (other),23759,3928269.27
+OH,2024,4,Insulin,Insulin (other),31180,8213909.5
 OH,2024,4,Insulin,Lantus,41724,4683918.71
 OH,2024,4,Insulin,Levemir,920,149538.69
 OH,2024,4,Insulin,Novolog,4241,733812.85
@@ -3255,7 +3255,7 @@ OK,2024,4,GLP-1,Trulicity,9441,10849721.63
 OK,2024,4,GLP-1,Victoza,627,505444.65
 OK,2024,4,GLP-1,Wegovy,56,75883.99
 OK,2024,4,Insulin,Humalog,3307,895262.45
-OK,2024,4,Insulin,Insulin (other),2707,458570.79
+OK,2024,4,Insulin,Insulin (other),4310,1052066.88
 OK,2024,4,Insulin,Lantus,7749,1027913.32
 OK,2024,4,Insulin,Levemir,720,161488.04
 OK,2024,4,Insulin,Novolog,2900,592240.91
@@ -3272,7 +3272,7 @@ OR,2024,4,GLP-1,Victoza,199,134971.86
 OR,2024,4,GLP-1,Wegovy,171,219067.23
 OR,2024,4,GLP-1,Zepbound,,
 OR,2024,4,Insulin,Humalog,1539,433859.36
-OR,2024,4,Insulin,Insulin (other),14304,1982592.74
+OR,2024,4,Insulin,Insulin (other),21564,3940612.32
 OR,2024,4,Insulin,Lantus,6631,715002.85
 OR,2024,4,Insulin,Levemir,36,4916.48
 OR,2024,4,Insulin,Novolog,911,139631.84
@@ -3289,7 +3289,7 @@ PA,2024,4,GLP-1,Victoza,1382,1024153.52
 PA,2024,4,GLP-1,Wegovy,50492,67272814.41
 PA,2024,4,GLP-1,Zepbound,22282,23016464.83
 PA,2024,4,Insulin,Humalog,2674,878301.45
-PA,2024,4,Insulin,Insulin (other),44702,7488440.54
+PA,2024,4,Insulin,Insulin (other),54881,12907449.03
 PA,2024,4,Insulin,Lantus,44544,4511274.52
 PA,2024,4,Insulin,Levemir,1339,214903.8
 PA,2024,4,Insulin,Novolog,2233,499458.84
@@ -3305,7 +3305,7 @@ PR,2024,4,GLP-1,Victoza,,
 PR,2024,4,GLP-1,Wegovy,18,24749.68
 PR,2024,4,GLP-1,Zepbound,1106,1203876.26
 PR,2024,4,Insulin,Humalog,18992,2254250.59
-PR,2024,4,Insulin,Insulin (other),89,4545.73
+PR,2024,4,Insulin,Insulin (other),17834,1669462.85
 PR,2024,4,Insulin,Lantus,31334,2730587.17
 PR,2024,4,Insulin,Levemir,28,3188.02
 PR,2024,4,Insulin,Novolog,69,9746.27
@@ -3322,7 +3322,7 @@ RI,2024,4,GLP-1,Victoza,,
 RI,2024,4,GLP-1,Wegovy,1296,1568354.98
 RI,2024,4,GLP-1,Zepbound,572,552317.24
 RI,2024,4,Insulin,Humalog,99,17114.76
-RI,2024,4,Insulin,Insulin (other),3388,440269.49
+RI,2024,4,Insulin,Insulin (other),4299,778811.88
 RI,2024,4,Insulin,Lantus,2575,303893.55
 RI,2024,4,Insulin,Levemir,,
 RI,2024,4,Insulin,Novolog,35,5989.62
@@ -3339,7 +3339,7 @@ SC,2024,4,GLP-1,Victoza,31,21040.13
 SC,2024,4,GLP-1,Wegovy,270,334089.99
 SC,2024,4,GLP-1,Zepbound,,
 SC,2024,4,Insulin,Humalog,1519,348869.78
-SC,2024,4,Insulin,Insulin (other),8035,962980.53
+SC,2024,4,Insulin,Insulin (other),11648,2038820.78
 SC,2024,4,Insulin,Lantus,5752,512231.64
 SC,2024,4,Insulin,Levemir,218,31050.23
 SC,2024,4,Insulin,Novolog,1037,134054.22
@@ -3354,7 +3354,7 @@ SD,2024,4,GLP-1,Rybelsus,92,86964
 SD,2024,4,GLP-1,Trulicity,186,176476.03
 SD,2024,4,GLP-1,Victoza,,
 SD,2024,4,Insulin,Humalog,162,91429.44
-SD,2024,4,Insulin,Insulin (other),1332,232824.52
+SD,2024,4,Insulin,Insulin (other),1811,409129.71
 SD,2024,4,Insulin,Lantus,931,160368.59
 SD,2024,4,Insulin,Levemir,98,18026.83
 SD,2024,4,Insulin,Novolog,718,207023.91
@@ -3372,7 +3372,7 @@ TN,2024,4,GLP-1,Victoza,262,180595.34
 TN,2024,4,GLP-1,Wegovy,2582,3377240.82
 TN,2024,4,GLP-1,Zepbound,141,145437.18
 TN,2024,4,Insulin,Humalog,6666,1327099.01
-TN,2024,4,Insulin,Insulin (other),6556,951729.85
+TN,2024,4,Insulin,Insulin (other),9910,1973487.39
 TN,2024,4,Insulin,Lantus,10558,1210917.58
 TN,2024,4,Insulin,Levemir,1101,203677.31
 TN,2024,4,Insulin,Novolog,977,191904.21
@@ -3390,7 +3390,7 @@ TX,2024,4,GLP-1,Victoza,1027,679432.84
 TX,2024,4,GLP-1,Wegovy,39,50647.07
 TX,2024,4,GLP-1,Zepbound,,
 TX,2024,4,Insulin,Humalog,5256,1209070.62
-TX,2024,4,Insulin,Insulin (other),17414,2406093.27
+TX,2024,4,Insulin,Insulin (other),26276,4930749.89
 TX,2024,4,Insulin,Lantus,20263,1888566.04
 TX,2024,4,Insulin,Levemir,2081,356250.08
 TX,2024,4,Insulin,Novolog,6777,1141555.54
@@ -3407,7 +3407,7 @@ UT,2024,4,GLP-1,Trulicity,2286,2234746.83
 UT,2024,4,GLP-1,Victoza,103,75889.03
 UT,2024,4,GLP-1,Wegovy,,
 UT,2024,4,Insulin,Humalog,1240,458708.48
-UT,2024,4,Insulin,Insulin (other),2882,398927.91
+UT,2024,4,Insulin,Insulin (other),7448,1505957.83
 UT,2024,4,Insulin,Lantus,1762,183843.84
 UT,2024,4,Insulin,Levemir,40,9345.76
 UT,2024,4,Insulin,Novolog,461,82675.65
@@ -3424,7 +3424,7 @@ VA,2024,4,GLP-1,Victoza,1856,1244837.41
 VA,2024,4,GLP-1,Wegovy,9877,12688268.11
 VA,2024,4,GLP-1,Zepbound,2054,2086849.7
 VA,2024,4,Insulin,Humalog,6802,1390040.72
-VA,2024,4,Insulin,Insulin (other),13495,1789942.02
+VA,2024,4,Insulin,Insulin (other),21242,4267368.46
 VA,2024,4,Insulin,Lantus,22100,2065856.13
 VA,2024,4,Insulin,Levemir,885,145756.48
 VA,2024,4,Insulin,Novolog,5799,1017317.72
@@ -3441,7 +3441,7 @@ VT,2024,4,GLP-1,Victoza,102,101134.1
 VT,2024,4,GLP-1,Wegovy,,
 VT,2024,4,GLP-1,Zepbound,,
 VT,2024,4,Insulin,Humalog,390,218815.62
-VT,2024,4,Insulin,Insulin (other),595,150814.75
+VT,2024,4,Insulin,Insulin (other),729,276247.01
 VT,2024,4,Insulin,Lantus,1237,174226.76
 VT,2024,4,Insulin,Levemir,46,12111.82
 VT,2024,4,Insulin,Novolog,406,114146.47
@@ -3457,7 +3457,7 @@ WA,2024,4,GLP-1,Trulicity,1011,957242.53
 WA,2024,4,GLP-1,Victoza,2729,1926840.62
 WA,2024,4,GLP-1,Wegovy,41,53734.84
 WA,2024,4,Insulin,Humalog,4543,1506103.42
-WA,2024,4,Insulin,Insulin (other),10078,1261791.46
+WA,2024,4,Insulin,Insulin (other),28348,7902540.19
 WA,2024,4,Insulin,Lantus,1450,208958.88
 WA,2024,4,Insulin,Levemir,1565,263837.13
 WA,2024,4,Insulin,Novolog,5902,1004272.41
@@ -3474,7 +3474,7 @@ WI,2024,4,GLP-1,Victoza,1184,825502.68
 WI,2024,4,GLP-1,Wegovy,13592,18117778.83
 WI,2024,4,GLP-1,Zepbound,17105,17839681.88
 WI,2024,4,Insulin,Humalog,4249,1068018.34
-WI,2024,4,Insulin,Insulin (other),12624,1971963.09
+WI,2024,4,Insulin,Insulin (other),15144,3233788.37
 WI,2024,4,Insulin,Lantus,21099,2046905.56
 WI,2024,4,Insulin,Levemir,686,107331.17
 WI,2024,4,Insulin,Novolog,2542,433291.37
@@ -3489,7 +3489,7 @@ WV,2024,4,GLP-1,Rybelsus,34,34272.13
 WV,2024,4,GLP-1,Trulicity,4617,4342890.86
 WV,2024,4,GLP-1,Victoza,673,449189.25
 WV,2024,4,Insulin,Humalog,2038,636878.23
-WV,2024,4,Insulin,Insulin (other),4422,851016.17
+WV,2024,4,Insulin,Insulin (other),6834,3142880.82
 WV,2024,4,Insulin,Lantus,9208,1463737.8
 WV,2024,4,Insulin,Levemir,896,268794.37
 WV,2024,4,Insulin,Novolog,3466,868892.73
@@ -3505,7 +3505,7 @@ WY,2024,4,GLP-1,Trulicity,189,178909.89
 WY,2024,4,GLP-1,Victoza,69,50314.79
 WY,2024,4,GLP-1,Wegovy,,
 WY,2024,4,Insulin,Humalog,281,59584.75
-WY,2024,4,Insulin,Insulin (other),111,23264.49
+WY,2024,4,Insulin,Insulin (other),125,38222.11
 WY,2024,4,Insulin,Lantus,356,41946.03
 WY,2024,4,Insulin,Levemir,14,2635.49
 WY,2024,4,Insulin,Novolog,119,24502.72
