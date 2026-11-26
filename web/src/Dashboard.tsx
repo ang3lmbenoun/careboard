@@ -24,6 +24,7 @@ import DataEntry from "./DataEntry";
 import Evaluation from "./Evaluation";
 import { Messages, Verify, Stock } from "./Handoff";
 import { resolvedTheme, useAppearance, watchSystemTheme } from "./appearance";
+import Logo from "./Logo";
 
 type TabId =
   | "home" | "overview" | "medicaid" | "payers" | "operations" | "drugs" | "riskcare" | "riskops" | "riskspend" | "riskcomp"
@@ -250,7 +251,7 @@ export default function Dashboard({ user, email, onSignOut }: { user: User; emai
     <div className={"app" + (open ? " nav-open" : "")}>
       <aside className="side" id="side" aria-label="Main navigation">
         <div className="brand">
-          <span className="brand-dot" aria-hidden="true" />
+          <Logo size={26} />
           CareBoard
         </div>
         <nav className="side-nav" data-tour="nav">
