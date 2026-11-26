@@ -3,6 +3,8 @@
 Where each table's data comes from, how it gets into the database, and how to refresh it.
 Written 2026-11-15 from the repository files only. I did not connect to any database, so row counts below are counts of the committed CSV files, not of any live database.
 
+**Update 2026-11-26:** sections 0 to 4 describe the repository as of 2026-11-15. The Medicare table now loads through a pipeline (section 5). Line references to `export_medicare.ts` in sections 0 to 4 predate its split into `medicare_transform.ts`, and gaps 2, 4 and 5 are closed for Medicare only.
+
 How to read this page:
 - Every claim cites a file and line, like `api/scripts/load_serving.ts:65`.
 - "not verified" means the code in this repo does not show it, so I did not guess.
@@ -171,10 +173,10 @@ Today, from the `api` folder. Neon steps need `NEON_ADMIN_URL` and my explicit y
 Stated plainly:
 
 1. **There is no Medicaid ingestion from CMS in this repo.** The Medicaid table arrives as a CSV exported from a different project's database. That hand-off is manual: someone runs `export_medicaid.ts` with `SRC_*` settings, commits the file, then runs the loader. What the other project does (download, cleaning, class assignment) cannot be seen from here.
-2. **Medicare is fetched from CMS by a script in this repo, but not by a pipeline.** `export_medicare.ts` downloads one hard-coded file URL when someone runs it (`:10-11,40-41`). It keeps no copy of the raw file (it writes only the summed CSV, `:79-81`), records no file hash or download date, and has no check that the expected columns exist before it sums them.
+2. **Medicare is fetched from CMS by a script in this repo, but not by a pipeline.** *(Medicare part closed 2026-11-26, see section 5.)* `export_medicare.ts` downloads one hard-coded file URL when someone runs it (`:10-11,40-41`). It keeps no copy of the raw file (it writes only the summed CSV, `:79-81`), records no file hash or download date, and has no check that the expected columns exist before it sums them.
 3. **There is no scheduled refresh of any data.** The only scheduled workflows are `keepalive.yml` (every 10 minutes) and `digest.yml` (weekdays); I searched `.github/workflows` for `schedule`. Neon is updated only when I run a `--neon` command by hand.
-4. **There are no freshness or row-count checks on load.** `load_serving.ts` prints the number of rows it loaded (`:67`) and nothing else: no expected minimum, no comparison with the previous load. `export_medicaid.ts` prints a total check but does not stop on a mismatch (see section 2, Case B). The database does have `app.data_inventory()` (row counts and latest period, `db/risk.sql:297-308`) and `app.data_checks()` (`db/risk.sql:310-366`), but these report after the fact, with fixed expectations (4 quarters, 5 years), and gate nothing. Where in the app they are shown: **not verified**.
-5. **The Medicaid table is a manual CSV hand-off, and the CSV in git is the only copy this repo knows about.** CI and Neon get whatever was last committed. No table records when a serving table was loaded or from which file: there is no such table in `db/*.sql`, and the serving tables have no load-time column (`load_serving.ts:13-39`).
+4. **There are no freshness or row-count checks on load.** *(Medicare part closed 2026-11-26, see section 5.)* `load_serving.ts` prints the number of rows it loaded (`:67`) and nothing else: no expected minimum, no comparison with the previous load. `export_medicaid.ts` prints a total check but does not stop on a mismatch (see section 2, Case B). The database does have `app.data_inventory()` (row counts and latest period, `db/risk.sql:297-308`) and `app.data_checks()` (`db/risk.sql:310-366`), but these report after the fact, with fixed expectations (4 quarters, 5 years), and gate nothing. Where in the app they are shown: **not verified**.
+5. **The Medicaid table is a manual CSV hand-off *(Medicare part closed 2026-11-26, see section 5.)*, and the CSV in git is the only copy this repo knows about.** CI and Neon get whatever was last committed. No table records when a serving table was loaded or from which file: there is no such table in `db/*.sql`, and the serving tables have no load-time column (`load_serving.ts:13-39`).
 6. **The README and the CI script disagree.** `README.md:138` says its sequence is the same as the GitHub Action's, but `ci_setup.sh` does not run `ingest_policies.ts`, so the policy table is created but not filled in CI (`ci_setup.sh:9-19`). Whether any test fills it: **not verified**.
 7. **Two statements in the repo are hedged, not verified:** the Medicare spend note says "as far as I know it is before manufacturer rebates" (`db/comments.sql:36`), and the Medicaid notes say small cells "may be hidden" (`db/comments.sql:7`).
 8. **Re-seeding patients renumbers them** (section 0, `clinical.patients`).
@@ -192,3 +194,35 @@ A short list, in the order I would build it. None of this exists today.
 - **Status in the data-health checks.** A small `pipeline_runs` table (source, start, end, rows, status, error) read by `app.data_checks()` and `app.data_inventory()`, so the admin page shows "last successful load" and a failed or stale load turns a check red.
 
 Interview line: "I can tell you for every table whether it is real or synthetic, where it comes from and what has to be run by hand. The honest summary is that the load step is safe (one transaction) but the pipeline around it is manual, so I wrote down what a managed one would add."
+
+---
+
+## 5. Medicare pipeline (added 2026-11-26)
+
+Everything below was run and checked on 2026-11-26. Design and decisions: `docs/pipeline-plan.md`.
+
+| What | Where |
+|---|---|
+| Drug-class rules and the sums, as a pure function | `api/scripts/medicare_transform.ts` (`export_medicare.ts` is now a thin command that calls it; `classify` is still exported) |
+| The eight quality checks | `api/scripts/medicare_checks.ts` |
+| Download, hash, raw copy, load, checks, record, apply | `api/scripts/pipeline_medicare.ts` |
+| Raw copy of each download and its manifest | `data/raw/medicare_part_d/` (committed) |
+| Raw table (latest download only, no app role can read it) | `raw.medicare_part_d_spending` (`db/pipeline.sql`) |
+| History of every run, append only | `app.pipeline_runs` (`db/pipeline.sql`) |
+| Freshness checks on the admin Risk page | three rows under "Medicare pipeline" in `app.data_checks()` (`db/risk.sql`) |
+| Monthly check-only run on GitHub | `.github/workflows/medicare-refresh.yml` (its Neon step stays off until the repository variable `MEDICARE_NEON` is true) |
+
+Measured: file 5,326,806 bytes (decompressed), 14,536 data rows, 3,625 "Overall" rows, 46 columns; 81 output rows; all 20 year-and-class totals matched the committed data (largest change 0.0000 percent); the run hash was the same on a second download.
+
+### Refreshing Medicare now
+1. `npx tsx scripts/pipeline_medicare.ts` (check only; add `--url=<new CMS csv>` for a new release). Read the eight PASS or FAIL lines.
+2. If all pass: `npx tsx scripts/pipeline_medicare.ts --apply`, then commit `data/medicare_part_d_annual.csv` and the new file under `data/raw/`. Without that commit, `load_serving.ts` reloads the old CSV.
+3. Neon, only with my yes: `apply_pipeline.ts --neon` and `apply_risk.ts --neon` first (once), then `pipeline_medicare.ts --neon` and, after reading the output, `--neon --apply` (asks for the word APPLY).
+A legitimate restatement by CMS fails check 7. `--accept-drift="reason"` overrides that one check only and records the reason.
+
+### Still true after this change
+- The Medicaid table is a manual CSV hand-off from another project, with no pipeline checks in this repo.
+- Nothing finds a new CMS release; the URL is supplied by a person. The monthly job re-checks the same URL.
+- Nothing applies data automatically.
+- The class rules are two separate lists (Medicaid in the other project, Medicare here).
+- The serving tables other than Medicare have no load-time column.

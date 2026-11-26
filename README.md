@@ -65,6 +65,8 @@ I built CareBoard as a mock company would brief it: a small health system with t
 
 - **Policy search** is retrieval over the clinic's written policies. The documents are embedded with a small local model (MiniLM, 384 dimensions) and stored in PostgreSQL with pgvector. When a clinician asks about a rule, Tiffany searches by meaning, returns the matching passage and quotes it, and the step shows in her trace. The search is scoped to the signed-in user's clinic by row-level security.
 
+- **Weekly review (proactive, no model).** Once a week a script reads the risk worklist as each clinician and drafts one follow-up call list of up to five High-tier patients, skipping anyone already listed in the last 14 days. It only drafts: the list waits under "Waiting for you" and nothing happens until the clinician approves. A week after an approval, the system counts which listed patients have a new reading and shows it under Follow-ups. A reading means someone recorded a measurement, not that a call happened. Patients are chosen by a database rule, so no model is involved in that choice. Details: `docs/proactive-plan.md`.
+
 Guards on every answer: a figure that no tool returned is blocked, and diagnosis, dosing or treatment questions are refused before the model runs.
 
 ## Architecture
@@ -92,11 +94,26 @@ The key design choice: **the API does not decide who sees what. The database doe
 | Dataset | Source | Notes |
 |---|---|---|
 | `serving.medicaid_drug_quarterly` | CMS State Drug Utilization Data, 2024, prepared by my separate diabetes-glp1-pipeline project | Four classes: GLP-1, insulin, DPP-4, metformin. SGLT2 inhibitors are not included. Small cells may be hidden in the source, so totals can understate. Spend is the amount reimbursed; as far as I know it is before manufacturer rebates. |
-| `serving.medicare_part_d_annual` | CMS "Medicare Part D Spending by Drug", national, 2020 to 2024, downloaded and summed by `api/scripts/export_medicare.ts` | The same four classes as the Medicaid table, assigned from a fixed brand-name list in that script. The Medicaid classes come from a keyword seed in the other project. I compared the two rules on Nov 17, 2026: the GLP-1, DPP-4 and named-insulin brand lists match, and the Medicaid insulin rule was missing brand-named insulins (about $0.55B), which I added to that seed. The rules are still two separate lists, not one shared table. SGLT2 inhibitors are not included. One "Overall" row per drug, so manufacturers are not counted twice. Spend is as published by CMS; as far as I know it is before manufacturer rebates. Not available to Carey. |
+| `serving.medicare_part_d_annual` | CMS "Medicare Part D Spending by Drug", national, 2020 to 2024, downloaded, hashed, checked and summed by `api/scripts/pipeline_medicare.ts` (see Data pipeline below) | The same four classes as the Medicaid table, assigned from a fixed brand-name list in that script. The Medicaid classes come from a keyword seed in the other project. I compared the two rules on Nov 17, 2026: the GLP-1, DPP-4 and named-insulin brand lists match, and the Medicaid insulin rule was missing brand-named insulins (about $0.55B), which I added to that seed. The rules are still two separate lists, not one shared table. SGLT2 inhibitors are not included. One "Overall" row per drug, so manufacturers are not counted twice. Spend is as published by CMS; as far as I know it is before manufacturer rebates. Not available to Carey. |
 | `serving.clinic_daily` | **Synthetic**, fixed random seed | Daily scheduled, completed and no-show counts for 2 clinics and 3 departments, weekdays, Jan 2024 to Nov 2026 (the generator takes `--through=YYYY-MM-DD`, default yesterday, and refuses future dates). |
 | `clinical.*` | **Synthetic** | 48 seeded patients (24 per clinic) plus demo-added ones. The seed shapes some patients as poorly controlled or lost to follow-up so the risk rules have something to find. These are not findings about real people. |
 
 Where every table comes from, what is real and what is synthetic, and what is loaded by hand: [docs/data-lineage.md](docs/data-lineage.md).
+
+### Data pipeline (Medicare Part D)
+
+The Medicare table is loaded by a script that keeps evidence of every run, not by a one-off export.
+
+1. **Download.** `npx tsx scripts/pipeline_medicare.ts` fetches the CMS file and stops if the status is not 200, the body is empty, or the required columns are missing.
+2. **Raw copy.** It saves the file unchanged under `data/raw/medicare_part_d/` with a manifest (URL, UTC time, SHA-256 of the decompressed bytes, size). On Nov 26, 2026 the file was 5,326,806 bytes, 14,536 data rows, 46 columns.
+3. **Raw table.** The rows go into `raw.medicare_part_d_spending`, which no application role can read. The transform reads from that table, not from memory.
+4. **Eight checks that fail the run:** row counts against the last load, five consecutive years, four classes with spend every year, no missing or negative values, unique keys, totals per year and class within 0.01 percent of the previous load, and the four classes' share of all Part D spend within 3 points.
+5. **Record.** Every run, including failures, is one append-only row in `app.pipeline_runs` (hash, checks, result). The admin Risk page shows three freshness checks from it: last run within 45 days, newest data year, and whether the loaded file is still the latest download.
+6. **Apply.** Replacing the serving table is a separate step (`--apply`; against Neon it also asks you to type APPLY). Only the Medicare table is touched.
+
+Verified on Nov 26, 2026: the first run reproduced the committed 81 rows exactly (largest change 0.0000 percent); an apply on the local database and a second run reported "no change" for the same hash; the same check and apply ran against Neon; the GitHub workflow "Medicare data check" passed.
+
+What it does not do: it does not find new CMS releases (a release has a new URL, which a person supplies with `--url=`), and a monthly GitHub job (`medicare-refresh.yml`) only re-downloads the same URL and checks it, so it would notice a silent change to that file, not a new release. It never applies data by itself. The Medicaid table still comes from my separate pipeline project as an exported CSV. Plan and decisions: `docs/pipeline-plan.md`.
 
 ## How data is protected
 
@@ -161,6 +178,7 @@ Prerequisites: Node 22 or newer, Docker Desktop. The database setup order below 
    npx tsx scripts/apply_digest.ts       # email digest, allow list, send log
    npx tsx scripts/apply_mail.ts         # follow-up emails
    npx tsx scripts/apply_handoff.ts      # nurse and clinician messages, record checks, stock counts
+   npx tsx scripts/apply_proactive.ts    # weekly review columns on agent actions
    npm start                             # API on port 4100
    ```
 5. In `web`, run `npm install` and `npm run dev`, then open the address Vite prints.
@@ -182,16 +200,16 @@ Prerequisites: Node 22 or newer, Docker Desktop. The database setup order below 
 
 Production runs on a Render web service (free) and a Neon Postgres database (free). The API serves the built web app, so one service does both: build `web` with `npm run build`, then start `api` with `npm start`. Set the same variables in Render's environment settings.
 
-**Order matters.** Apply database scripts to Neon (`--neon`) **before** pushing server code that depends on them, because Render redeploys on every push. Setup scripts for Neon: `bootstrap_neon.ts` once, then `load_serving.ts`, `apply_assistant.ts`, `seed_patients.ts`, `apply_pipeline.ts`, `apply_risk.ts`, `apply_agents.ts`, `apply_nurse.ts`, `apply_policy.ts`, `ingest_policies.ts`, `apply_digest.ts`, `apply_mail.ts` and `apply_handoff.ts`, each with `--neon`.
+**Order matters.** Apply database scripts to Neon (`--neon`) **before** pushing server code that depends on them, because Render redeploys on every push. Setup scripts for Neon: `bootstrap_neon.ts` once, then `load_serving.ts`, `apply_assistant.ts`, `seed_patients.ts`, `apply_pipeline.ts`, `apply_risk.ts`, `apply_agents.ts`, `apply_nurse.ts`, `apply_policy.ts`, `ingest_policies.ts`, `apply_digest.ts`, `apply_mail.ts` and `apply_handoff.ts` and `apply_proactive.ts`, each with `--neon`.
 
 ## Repository map
 
 ```
 api/src        server.ts (routes), agent.ts (Tiffany), assistant.ts (Carey), handoff.ts (messages, checks, stock), scope.ts, evalChecks.ts, risk.ts, sqlGuard.ts, db.ts
-api/scripts    setup, loading and check scripts
+api/scripts    setup, loading, pipeline (pipeline_medicare.ts) and check scripts
 db/init        schemas, roles, tables, grants
 db/*.sql       patients.sql, assistant.sql, risk.sql, comments.sql (idempotent; run by the scripts)
-data           Medicaid and clinic CSVs loaded into the serving schema
+data           Medicaid, Medicare and clinic CSVs loaded into the serving schema; data/raw holds each Medicare download with its manifest
 web/src        pages (Overview, Medicaid, Operations, CareRisk, OpsRisk, SpendRisk, RiskCompliance, ...)
 ```
 
@@ -199,7 +217,7 @@ The plain-language dataset descriptions in the data catalog live in `web/src/cat
 
 ## What I would do next
 
-Run the evaluation on a paid model tier so latency is not set by free-tier throttling, add per-user accounts with an invite flow, add multi-factor sign-in and per-account lockout, schedule the data-health checks with alerts, and ship the audit log to storage the database owner can't edit.
+Run the evaluation on a paid model tier so latency is not set by free-tier throttling, add per-user accounts with an invite flow, add multi-factor sign-in and per-account lockout, page someone when a data-health check fails (today it shows on the admin page and in the weekday digest), and ship the audit log to storage the database owner can't edit.
 
 ## Data sources and credits
 
