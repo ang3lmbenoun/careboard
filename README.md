@@ -9,6 +9,16 @@ The free host sleeps when idle. A scheduled ping keeps it warm, but the first vi
 
 ![Overview](docs/screenshots/01-overview.png)
 
+## Screenshots
+
+| | |
+|---|---|
+| ![Sign-in](docs/screenshots/00-login.png) **Sign-in.** Pick a role and see which parts of the app it can open. | ![Tiffany approval](docs/screenshots/09-tiffany-approval.png) **Tiffany, an AI agent.** She drafts; nothing is sent until a person approves. |
+| ![Policy search](docs/screenshots/10-policy-search.png) **Policy search (retrieval).** Tiffany searches the clinic's written rules by meaning and quotes the one that applies. | ![Carey](docs/screenshots/05-carey.png) **Carey.** Answers from summary tables, shows the query, and refuses patient names. |
+| ![Executive overview](docs/screenshots/01-overview.png) **Executive overview.** Real public CMS data and synthetic clinic activity. | ![Medicaid vs Medicare](docs/screenshots/06-medicaid-vs-medicare.png) **Medicaid vs Medicare.** The same four drug classes under two public programs. |
+| ![Patients](docs/screenshots/07-patients-coverage.png) **Patients (clinician).** Synthetic patients; names and birth dates are hidden from every role. | ![Data catalog](docs/screenshots/04-catalog-locked.png) **Data catalog.** Locked columns show what the signed-in role cannot read. |
+| ![Risk and compliance](docs/screenshots/02-risk-compliance.png) **Risk and compliance.** Live control tests and security activity. | ![Agent evaluation](docs/screenshots/11-agent-evaluation.png) **Agent evaluation.** 34 adversarial cases, 102 of 102 runs passed. |
+
 ## The evidence, first
 
 **Isolation is enforced in the database.** Every request runs inside a transaction that switches to the signed-in user's role. The third argument below makes the clinic setting local to that transaction, so a pooled connection can never carry one user's clinic into the next request.
@@ -52,6 +62,8 @@ I built CareBoard as a mock company would brief it: a small health system with t
 
 - **Carey** explains the numbers and, for a nurse, what she has to do today. For analytics she turns a question into one read-only SQL `SELECT` that passes a checker and runs as a role that can read two summary tables. For a nurse she reads only her own to-do summary and runs no SQL.
 - **Tiffany** is an agent with a tool loop. Each role is given a fixed set of tools. She drafts follow-up call lists and HTML emails for clinicians, and short messages to a clinician for nurses. **Nothing happens until a person approves**; the nurse can edit her draft first. An administrator can stop every agent with a kill switch, each run's steps are traced, emails are built by the server from database values (the model only supplies a reason), and sends go only to an allow-listed address and are logged.
+
+- **Policy search** is retrieval over the clinic's written policies. The documents are embedded with a small local model (MiniLM, 384 dimensions) and stored in PostgreSQL with pgvector. When a clinician asks about a rule, Tiffany searches by meaning, returns the matching passage and quotes it, and the step shows in her trace. The search is scoped to the signed-in user's clinic by row-level security.
 
 Guards on every answer: a figure that no tool returned is blocked, and diagnosis, dosing or treatment questions are refused before the model runs.
 
