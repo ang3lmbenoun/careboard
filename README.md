@@ -151,6 +151,7 @@ Prerequisites: Node 22 or newer, Docker Desktop. The database setup order below 
    npx tsx scripts/load_serving.ts       # Medicaid and clinic data from /data, plus column comments
    npx tsx scripts/apply_assistant.ts    # the read-only role for Carey
    npx tsx scripts/seed_patients.ts      # synthetic patients, medications, readings
+   npx tsx scripts/apply_pipeline.ts     # Medicare pipeline: raw table and run history (before apply_risk)
    npx tsx scripts/apply_risk.ts         # risk register, control map, care risk view, checks
    npx tsx scripts/apply_agents.ts       # agent runs, step trace, actions, kill switch
    npx tsx scripts/apply_nurse.ts        # the nurse data-entry role
@@ -181,7 +182,7 @@ Prerequisites: Node 22 or newer, Docker Desktop. The database setup order below 
 
 Production runs on a Render web service (free) and a Neon Postgres database (free). The API serves the built web app, so one service does both: build `web` with `npm run build`, then start `api` with `npm start`. Set the same variables in Render's environment settings.
 
-**Order matters.** Apply database scripts to Neon (`--neon`) **before** pushing server code that depends on them, because Render redeploys on every push. Setup scripts for Neon: `bootstrap_neon.ts` once, then `load_serving.ts`, `apply_assistant.ts`, `seed_patients.ts`, `apply_risk.ts`, `apply_agents.ts`, `apply_nurse.ts`, `apply_policy.ts`, `ingest_policies.ts`, `apply_digest.ts`, `apply_mail.ts` and `apply_handoff.ts`, each with `--neon`.
+**Order matters.** Apply database scripts to Neon (`--neon`) **before** pushing server code that depends on them, because Render redeploys on every push. Setup scripts for Neon: `bootstrap_neon.ts` once, then `load_serving.ts`, `apply_assistant.ts`, `seed_patients.ts`, `apply_pipeline.ts`, `apply_risk.ts`, `apply_agents.ts`, `apply_nurse.ts`, `apply_policy.ts`, `ingest_policies.ts`, `apply_digest.ts`, `apply_mail.ts` and `apply_handoff.ts`, each with `--neon`.
 
 ## Repository map
 

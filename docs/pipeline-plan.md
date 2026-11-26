@@ -1,6 +1,6 @@
 # Plan: a repeatable, checkable Medicare data pipeline (step E)
 
-Status: **plan only**. Nothing in section 1 to 5 has been built. Updated 2026-11-18 with the results of a one-off download probe (2026-11-15), the class-rule comparison (2026-11-17) and the clinic-data extension (done 2026-11-18, section 6). Changes since the first version are marked **Updated**. Written 2026-11-15 from the repository files. I did not run any script, connect to a database or download anything; where I cite a number from the committed CSV files I counted it from the file.
+Status: **built 2026-11-26, local verification pending** (code, tests and workflow written; nothing run against a real CMS download yet; nothing applied to Neon). Sections 1 to 5 below are the original plan. Updated 2026-11-18 with the results of a one-off download probe (2026-11-15), the class-rule comparison (2026-11-17) and the clinic-data extension (done 2026-11-18, section 6). Changes since the first version are marked **Updated**. Written 2026-11-15 from the repository files. I did not run any script, connect to a database or download anything; where I cite a number from the committed CSV files I counted it from the file.
 
 How to read this plan:
 - File and line references point at the code that backs a claim, like `api/scripts/export_medicare.ts:45`.

@@ -1,0 +1,77 @@
+# Monthly check of the CMS Medicare Part D file. CHECK ONLY: it downloads the file, keeps the raw copy and runs the eight
+# quality checks. It never replaces serving data. Applying stays a manual command (docs/pipeline-plan.md, D4).
+# Step 1 runs on a throwaway database and needs no secrets. Step 2 records the run on Neon, and only runs when you set the
+# repository VARIABLE MEDICARE_NEON to true (Settings > Secrets and variables > Actions > Variables) and the secret NEON_ADMIN_URL exists.
+name: Medicare data check
+on:
+  schedule:
+    - cron: "23 13 1 * *"   # the 1st of each month, 13:23 UTC
+  workflow_dispatch:
+    inputs:
+      source_url:
+        description: "CMS CSV url (leave empty for the one in export_medicare.ts)"
+        required: false
+        default: ""
+permissions:
+  contents: read
+concurrency:
+  group: medicare-refresh
+  cancel-in-progress: false
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_USER: careboard_admin
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: careboard
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U careboard_admin -d careboard"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      ADMIN_DATABASE_URL: postgres://careboard_admin:ci@localhost:5432/careboard
+      DATABASE_URL: postgres://careboard_api:ci@localhost:5432/careboard
+      API_DB_PASSWORD: ci
+      JWT_SECRET: ci-only-secret-not-used-anywhere-else
+      DEMO_PASSWORD: ci-demo-password-123
+      TRIGGER: ${{ github.event_name == 'schedule' && 'schedule' || 'manual' }}
+      SOURCE_URL: ${{ github.event.inputs.source_url }}
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - run: npm ci
+      - name: Build the throwaway database
+        run: bash scripts/ci_setup.sh
+      - name: Download, save and check (throwaway database)
+        run: |
+          if [ -n "$SOURCE_URL" ]; then URL="--url=$SOURCE_URL"; else URL=""; fi
+          npx tsx scripts/pipeline_medicare.ts --trigger="$TRIGGER" $URL
+      - name: Keep the raw file, manifest and candidate CSV for 90 days
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: medicare-raw-and-candidate
+          path: |
+            data/raw/medicare_part_d/
+            data/medicare_part_d_annual.csv
+          retention-days: 90
+          if-no-files-found: ignore
+      - name: Record the run on Neon (check only)
+        if: ${{ vars.MEDICARE_NEON == 'true' }}
+        env:
+          NEON_ADMIN_URL: ${{ secrets.NEON_ADMIN_URL }}
+        run: |
+          if [ -z "$NEON_ADMIN_URL" ]; then echo "NEON_ADMIN_URL is not set. Nothing recorded on Neon."; exit 0; fi
+          if [ -n "$SOURCE_URL" ]; then URL="--url=$SOURCE_URL"; else URL=""; fi
+          npx tsx scripts/pipeline_medicare.ts --neon --trigger="$TRIGGER" $URL

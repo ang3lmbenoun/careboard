@@ -173,7 +173,9 @@ INSERT INTO app.data_classification VALUES
 ('app', 'audit_log', '*', 'Activity log'),
 ('app', 'risk_register', '*', 'Governance'),
 ('app', 'control_map', '*', 'Governance'),
-('app', 'data_classification', '*', 'Governance');
+('app', 'data_classification', '*', 'Governance'),
+('app', 'pipeline_runs', '*', 'Governance'),
+('raw', 'medicare_part_d_spending', '*', 'Public data');
 
 GRANT SELECT ON app.risk_register, app.control_map TO role_admin, role_executive;
 GRANT SELECT ON app.data_classification TO role_admin, role_clinician, role_executive;
@@ -310,7 +312,7 @@ $$;
 CREATE OR REPLACE FUNCTION app.data_checks()
 RETURNS TABLE (area text, name text, status text, detail text)
 LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = pg_catalog, pg_temp AS $$
-DECLARE n bigint; d date; q int;
+DECLARE n bigint; d date; q int; ls text; okt timestamptz; ok_sha text; ap_sha text; age int;
 BEGIN
   -- Clinic activity
   SELECT count(*) INTO n FROM serving.clinic_daily WHERE completed + no_shows <> scheduled OR no_shows < 0 OR completed < 0;
@@ -345,6 +347,31 @@ BEGIN
   name := 'Five years present, four classes each';
   status := CASE WHEN q = 5 AND (SELECT count(DISTINCT drug_class) FROM serving.medicare_part_d_annual) = 4 THEN 'pass' ELSE 'warn' END;
   detail := q || ' distinct years loaded'; RETURN NEXT;
+
+  -- Medicare pipeline (runs are recorded by api/scripts/pipeline_medicare.ts; see docs/pipeline-plan.md section 4)
+  SELECT r.status INTO ls FROM app.pipeline_runs r WHERE r.pipeline = 'medicare_part_d' ORDER BY r.id DESC LIMIT 1;
+  SELECT max(r.finished_at) INTO okt FROM app.pipeline_runs r WHERE r.pipeline = 'medicare_part_d' AND r.status IN ('success', 'no_change', 'checked');
+  SELECT r.sha256 INTO ok_sha FROM app.pipeline_runs r WHERE r.pipeline = 'medicare_part_d' AND r.status IN ('success', 'no_change', 'checked') ORDER BY r.id DESC LIMIT 1;
+  SELECT r.sha256 INTO ap_sha FROM app.pipeline_runs r WHERE r.pipeline = 'medicare_part_d' AND r.status IN ('success', 'no_change') ORDER BY r.id DESC LIMIT 1;
+  age := current_date - okt::date;
+
+  area := 'Medicare pipeline'; name := 'Last pipeline run';
+  IF ls IS NULL THEN status := 'pass'; detail := 'Pipeline not used yet (data loaded from CSV)';
+  ELSIF ls = 'failed' THEN status := 'fail'; detail := 'The latest run failed its checks or could not download. Serving data was not changed.';
+  ELSIF age <= 45 THEN status := 'pass'; detail := 'Last successful check ' || age || ' days ago (limit 45)';
+  ELSE status := 'warn'; detail := 'Last successful check ' || age || ' days ago (limit 45)'; END IF;
+  RETURN NEXT;
+
+  SELECT max(year) INTO q FROM serving.medicare_part_d_annual;
+  name := 'Newest data year';
+  status := CASE WHEN q IS NULL THEN 'fail' WHEN q >= extract(year FROM current_date)::int - 3 THEN 'pass' ELSE 'warn' END;
+  detail := 'Newest year ' || COALESCE(q::text, 'none') || ' (a release is about two years behind; warns when older than this year minus 3)'; RETURN NEXT;
+
+  name := 'Loaded file still current';
+  IF ls IS NULL OR ap_sha IS NULL THEN status := 'pass'; detail := 'No pipeline load recorded yet';
+  ELSIF ok_sha = ap_sha THEN status := 'pass'; detail := 'The latest download matches the loaded file';
+  ELSE status := 'warn'; detail := 'CMS changed the file since the last load. Run the pipeline with --apply after reading the checks.'; END IF;
+  RETURN NEXT;
 
   -- Patients
   SELECT count(*) INTO n FROM clinical.patients p WHERE NOT EXISTS (SELECT 1 FROM clinical.patient_readings r WHERE r.patient_id = p.patient_id);

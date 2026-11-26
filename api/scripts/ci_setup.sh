@@ -9,6 +9,7 @@ psql "$ADMIN_DATABASE_URL" -v ON_ERROR_STOP=1 -q -c "ALTER ROLE careboard_api PA
 npx tsx scripts/load_serving.ts
 npx tsx scripts/apply_assistant.ts
 npx tsx scripts/seed_patients.ts
+npx tsx scripts/apply_pipeline.ts
 npx tsx scripts/apply_risk.ts
 npx tsx scripts/apply_agents.ts
 npx tsx scripts/apply_nurse.ts
