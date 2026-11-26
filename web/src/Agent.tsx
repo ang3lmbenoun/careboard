@@ -18,7 +18,10 @@ type Run = {
 };
 type Step = { seq: number; kind: "model" | "tool" | "result" | "blocked" | "answer"; content: Record<string, unknown> };
 type Payload = { patient_ids?: number[]; reason?: string; to_name?: string; patient_id?: number | null; subject?: string; body?: string };
-type Action = { id: number; run_id: number; tier: number; type: string; payload: Payload; status: string; outcome?: string | null };
+type OutcomeDetail = { checked_after_days: number; total: number; with_new_reading: number };
+type Action = { id: number; run_id: number; tier: number; type: string; payload: Payload; status: string; outcome?: string | null; origin?: string; outcome_detail?: OutcomeDetail | null };
+// Result of the check made a week after an approval: how many listed patients have a reading dated on or after the approval day.
+const followNote = (a: Action) => a.outcome_detail ? `${a.outcome_detail.with_new_reading} of ${a.outcome_detail.total} patients have a new reading since you approved (checked after ${a.outcome_detail.checked_after_days} days)` : "";
 const isMsg = (a: { type: string }) => a.type === "handoff_message";
 const ids = (a: Action) => a.payload.patient_ids ?? [];
 type EmailRes = { status: string; reason?: string; to?: string[] };
@@ -185,7 +188,7 @@ export default function Agent({ role }: { role: User["role"] }) {
               <ul className="hm-list">
                 {pending.map((a) => (
                   <li key={a.id} style={{ flexWrap: "wrap", rowGap: 8 }}>
-                    <div className="hm-grow" style={{ flexBasis: "100%" }}>{isMsg(a) ? `Message to ${a.payload.to_name ?? "a clinician"}` : <>{isMail(a) ? "Email" : "Call list"}, {ids(a).length} patient{ids(a).length === 1 ? "" : "s"}</>}<div className="hm-sub">{isMsg(a) ? a.payload.subject : a.payload.reason}</div></div>
+                    <div className="hm-grow" style={{ flexBasis: "100%" }}>{isMsg(a) ? `Message to ${a.payload.to_name ?? "a clinician"}` : <>{isMail(a) ? "Email" : "Call list"}, {ids(a).length} patient{ids(a).length === 1 ? "" : "s"}</>}<div className="hm-sub">{isMsg(a) ? a.payload.subject : a.payload.reason}</div>{a.origin === "scheduled" && <div className="hm-sub">Drafted by the weekly review, chosen by a rule, not by a model. Nothing happens until you approve.</div>}</div>
                     <button className="hm-btn pri" onClick={() => decide(a.id, "approved")}>{isMail(a) || isMsg(a) ? "Approve and send" : "Approve"}</button>
                     <button className="hm-btn" onClick={() => decide(a.id, "rejected")}>Not now</button>
                   </li>
@@ -282,7 +285,7 @@ export default function Agent({ role }: { role: User["role"] }) {
               <ul className="hm-list">
                 {approved.map((a) => (
                   <li key={a.id} style={{ flexWrap: "wrap", rowGap: 8 }}>
-                    <div className="hm-grow" style={{ flexBasis: "100%" }}>{isMsg(a) ? "" : isMail(a) ? "Emailed list: " : "Call patients "}{isMsg(a) ? `Message to ${a.payload.to_name ?? "clinician"}: ${a.payload.subject ?? ""}` : ids(a).map((p) => "#" + p).join(", ")}<div className="hm-sub">{isMsg(a) ? "" : a.payload.reason}{a.outcome ? " · " + a.outcome : ""}</div></div>
+                    <div className="hm-grow" style={{ flexBasis: "100%" }}>{isMsg(a) ? "" : isMail(a) ? "Emailed list: " : "Call patients "}{isMsg(a) ? `Message to ${a.payload.to_name ?? "clinician"}: ${a.payload.subject ?? ""}` : ids(a).map((p) => "#" + p).join(", ")}<div className="hm-sub">{isMsg(a) ? "" : a.payload.reason}{a.outcome ? " · " + a.outcome : ""}{followNote(a) ? " · " + followNote(a) : ""}</div></div>
                     {!isMsg(a) && !(a.outcome ?? "").startsWith("emailed") && <button className="hm-btn" onClick={() => emailIt(a.id)}>Email me this</button>}
                   </li>
                 ))}

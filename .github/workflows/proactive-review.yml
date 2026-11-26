@@ -1,0 +1,56 @@
+# Weekly scheduled review for Tiffany (step F): drafts one follow-up call list per clinician, waiting for their approval,
+# and checks the outcome of lists approved a week or more ago. It never approves anything and calls no model.
+# It does NOTHING on Neon until you set the repository VARIABLE PROACTIVE_NEON to true (Settings > Secrets and variables >
+# Actions > Variables) and the secrets NEON_ADMIN_URL and NEON_API_PASSWORD exist (the digest workflow uses the same two).
+# Apply db/proactive.sql to Neon first: npx tsx scripts/apply_proactive.ts --neon
+name: Proactive review
+on:
+  schedule:
+    - cron: "41 13 * * 1"   # Mondays, 13:41 UTC
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Show what would be drafted, write nothing"
+        type: boolean
+        default: true
+permissions:
+  contents: read
+concurrency:
+  group: proactive-review
+  cancel-in-progress: false
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      NEON_ADMIN_URL: ${{ secrets.NEON_ADMIN_URL }}
+      NEON_API_PASSWORD: ${{ secrets.NEON_API_PASSWORD }}
+      ENABLED: ${{ vars.PROACTIVE_NEON }}
+      DRY: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true' }}
+    steps:
+      - name: Check that it is switched on
+        id: ready
+        run: |
+          if [ "$ENABLED" != "true" ] || [ -z "$NEON_ADMIN_URL" ] || [ -z "$NEON_API_PASSWORD" ]; then
+            echo "PROACTIVE_NEON is not true or the secrets are missing. Nothing was done."
+            echo "go=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.ready.outputs.go == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.ready.outputs.go == 'true'
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - name: Install
+        if: steps.ready.outputs.go == 'true'
+        working-directory: api
+        run: npm ci
+      - name: Review the risk worklist
+        if: steps.ready.outputs.go == 'true'
+        working-directory: api
+        run: |
+          if [ "$DRY" = "true" ]; then npx tsx scripts/proactive_review.ts --neon --dry-run; else npx tsx scripts/proactive_review.ts --neon; fi

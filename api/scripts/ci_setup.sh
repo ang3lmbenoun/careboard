@@ -18,3 +18,4 @@ npx tsx scripts/apply_policy.ts
 npx tsx scripts/apply_digest.ts
 npx tsx scripts/apply_mail.ts
 npx tsx scripts/apply_handoff.ts
+npx tsx scripts/apply_proactive.ts

@@ -436,7 +436,7 @@ export function registerAgent(app: Express, { auth, audit }: Deps) {
 
   app.get("/agent/actions", auth, async (req: any, res) => {
     const rows = await withRole(req.user, async (c) =>
-      (await c.query("SELECT id, run_id, tier, type, payload, status, outcome, created_at, decided_at FROM app.agent_actions ORDER BY id DESC LIMIT 25")).rows
+      (await c.query("SELECT id, run_id, tier, type, payload, status, outcome, origin, outcome_detail, created_at, decided_at FROM app.agent_actions ORDER BY id DESC LIMIT 25")).rows
     );
     res.json(rows);
   });
