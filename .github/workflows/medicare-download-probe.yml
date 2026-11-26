@@ -1,0 +1,40 @@
+# One-off check for step E: can a GitHub runner download the CMS Medicare Part D file?
+# Run it by hand (Actions tab, "Probe the CMS download", Run workflow). It reads one public file and changes nothing.
+name: Probe the CMS download
+on:
+  workflow_dispatch:
+    inputs:
+      source_url:
+        description: "CMS file URL (leave empty to use the one in export_medicare.ts)"
+        required: false
+        default: ""
+permissions: {}
+concurrency:
+  group: medicare-probe
+  cancel-in-progress: true
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Download and describe the file
+        env:
+          INPUT_URL: ${{ inputs.source_url }}
+        run: |
+          DEFAULT="https://data.cms.gov/sites/default/files/2026-06/98218f98-166c-4723-8438-c344a4ef96a6/DSD_PTD_RY26_P04_V10_DY24_BGM.csv"
+          URL="${INPUT_URL:-$DEFAULT}"
+          echo "URL: $URL"
+          code=$(curl -sS --compressed -L --max-time 120 -D headers.txt -o file.csv -w "%{http_code}" "$URL" || true)
+          echo "HTTP status: $code"
+          echo "--- response headers ---"; cat headers.txt
+          if [ "$code" != "200" ]; then echo "FAIL: status is not 200"; exit 1; fi
+          bytes=$(wc -c < file.csv)
+          echo "bytes (decompressed): $bytes"
+          echo "sha256: $(sha256sum file.csv | cut -d' ' -f1)"
+          echo "data rows: $(( $(wc -l < file.csv) - 1 ))"
+          echo "--- header line ---"; head -n 1 file.csv | tr -d '\r' | cut -c1-400
+          for col in Brnd_Name Gnrc_Name Mftr_Name; do
+            head -n 1 file.csv | grep -q "$col" && echo "has $col" || { echo "FAIL: missing $col"; exit 1; }
+          done
+          if [ "$bytes" -lt 1000000 ]; then echo "FAIL: file is smaller than 1 MB"; exit 1; fi
+          echo "PASS: the runner can download and read the CMS file"
